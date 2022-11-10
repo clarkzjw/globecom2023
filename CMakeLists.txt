@@ -43,6 +43,8 @@ file(GLOB_RECURSE tplayer_SOURCE
         ${CMAKE_CURRENT_SOURCE_DIR}
         libdash/*.cpp
         libdash/*.c
+        picoquic/client.h
+        picoquic/client.c
         tplayer.cpp
         util/mpd.cpp
         util/exec.cpp)

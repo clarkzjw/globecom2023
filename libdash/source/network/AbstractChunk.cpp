@@ -10,7 +10,6 @@
  *****************************************************************************/
 
 #include "AbstractChunk.h"
-#include "picoquic.h"
 #include <fstream>
 #include <filesystem>
 #include <algorithm>
@@ -164,51 +163,6 @@ void*   AbstractChunk::DownloadExternalConnection   (void *abstractchunk)
 }
 void*   AbstractChunk::DownloadInternalConnection   (void *abstractchunk)
 {
-    AbstractChunk *chunk  = (AbstractChunk *) abstractchunk;
-
-    picoquic_quic_config_t config;
-    picoquic_config_init(&config);
-    config.out_dir = "/tmp/1080";
-
-    int ret = quic_client("localhost", 4433, &config, chunk->Path().c_str());
-    printf("Download res: %d\n", ret);
-
-    std::string default_dir = "/tmp/1080/";
-    std::string a = chunk->Path().substr(1);
-    std::replace(a.begin(), a.end(), '/', '_');
-    std::string path = default_dir + a;
-
-    std::filesystem::path p{path};
-    size_t realsize = std::filesystem::file_size(p);
-    std::cout << "filesize: " << realsize << std::endl;
-
-    FILE *fileptr;
-    char *buffer;
-    long filelen;
-
-    fileptr = fopen(path.c_str(), "rb");  // Open the file in binary mode
-    fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
-    filelen = ftell(fileptr);             // Get the current byte offset in the file
-    rewind(fileptr);                      // Jump back to the beginning of the file
-
-    buffer = (char *)malloc(filelen * sizeof(char)); // Enough memory for the file
-    fread(buffer, filelen, 1, fileptr); // Read in the entire file
-    fclose(fileptr);
-    block_t *block = AllocBlock(realsize);
-
-    memcpy(block->data, buffer, realsize);
-    chunk->blockStream.PushBack(block);
-
-    chunk->bytesDownloaded += realsize;
-    chunk->NotifyDownloadRateChanged();
-
-    if(chunk->stateManager.State() == REQUEST_ABORT)
-        chunk->stateManager.State(ABORTED);
-    else
-        chunk->stateManager.State(COMPLETED);
-
-    chunk->blockStream.SetEOS(true);
-
     return NULL;
 }
 void    AbstractChunk::NotifyDownloadRateChanged    ()

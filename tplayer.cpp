@@ -12,6 +12,7 @@
 #include <pthread.h>
 #include <queue>
 #include <unistd.h>
+#include "client.h"
 
 #define PortableSleep(seconds) usleep((seconds)*1000000)
 #define FRAME int
@@ -35,12 +36,17 @@ queue<FRAME> buffer;
 double FPS = 24;
 auto level = 3; // 0, 1, 2, 3
 
-
 void sequential_download() {
-    for (int i = 1; i < 4; i++) {
+    picoquic_quic_config_t config;
+    picoquic_config_init(&config);
+    config.out_dir = "./tmp";
+
+    for (int i = 1; i < 200; i++) {
         string filename = string("/1080/").append(urls[0][i]);
         printf("%s\n", filename.c_str());
 
+        int ret = quic_client(host.c_str(), port, &config, 0, 0, filename.c_str());
+        printf("download ret = %d\n", ret);
     }
 }
 
