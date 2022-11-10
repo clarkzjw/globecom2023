@@ -15,12 +15,18 @@ private:
     clock::time_point t1, t2;
 
 public:
-    void tic()
+    clock::time_point tic()
     {
         t1 = clock::now();
+        return t1;
     }
 
-    double toc()
+    clock::time_point toc()
+    {
+        t2 = clock::now();
+        return t2;
+    }
+    double elapsed()
     {
         t2 = clock::now();
         double t = double(std::chrono::duration_cast<res>(t2 - t1).count()) / 1e6;

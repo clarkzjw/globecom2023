@@ -17,7 +17,11 @@
 #include <vector>
 #include <algorithm>
 #include <filesystem>
+#include <chrono>
+#include <map>
 #include "client.h"
+
+typedef std::chrono::system_clock tic_clock;
 
 #define PortableSleep(seconds) usleep((seconds)*1000000)
 #define FRAME int
@@ -100,7 +104,15 @@ struct DownloadStats {
     int path_index{};
 };
 
+tic_clock::time_point playback_start;
+
+struct PerSegmentStats {
+    tic_clock::time_point start;
+    tic_clock::time_point end;
+};
+
 std::vector<DownloadStats> stats;
+std::map<int, PerSegmentStats> seg_stats;
 
 int get_filesize(const string& req_filename) {
     std::string default_dir = "./tmp/";
@@ -136,10 +148,21 @@ void path_downloader(int path_index) {
 
                 struct picoquic_download_stat picoquic_st{};
 
+                PerSegmentStats pst;
                 TicToc timer;
-                timer.tic();
+
+                pst.start = timer.tic();
+
                 ret = quic_client(host.c_str(), port, quic_config, 0, 0, t.filename.c_str(), (char *)if_name.c_str(), &picoquic_st);
-                st.time = timer.toc();
+
+                // if this segment is shown for the first time
+                if (!seg_stats.contains(t.seg_no)) {
+                    seg_stats.insert({t.seg_no, pst});
+                } else {
+                    seg_stats[t.seg_no].end = timer.toc();
+                }
+
+                st.time = timer.elapsed();
                 st.speed = picoquic_st.throughput;
                 st.path_index = path_index;
                 st.filesize = get_filesize(t.filename);
@@ -162,15 +185,21 @@ void multipath_round_robin_download_queue() {
     t2.join();
 }
 
+double epoch_to_relative_seconds(tic_clock::time_point start, tic_clock::time_point end) {
+    return double(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()) / 1e6;
+}
 
 // we need a queue to store the tasks
 void multipath_round_robin_download() {
     int nb_segments = (int)urls[0].size();
     int layers = (int)urls.size();
 
+    TicToc global_timer;
+    playback_start = global_timer.tic();
+
     std::thread thread_download(multipath_round_robin_download_queue);
 
-    for (int i = 1; i < 5; i++) {
+    for (int i = 1; i < 10; i++) {
         for (int j = 0; j < layers; j++) {
             string filename = string("/1080/").append(urls[j][i]);
 
@@ -194,6 +223,29 @@ void multipath_round_robin_download() {
     for (auto & stat : stats) {
         printf("seg_no: %d, filename: %s, filesize: %d, time: %f, speed: %f, actual_speed: %f, path_index: %d\n", stat.seg_no, stat.filename.c_str(), stat.filesize, stat.time, stat.speed, stat.actual_speed, stat.path_index);
     }
+
+    for (const auto& [key, value] : seg_stats)
+    {
+        std::cout << '[' << key << "] =" << " used: " << \
+        double(std::chrono::duration_cast<std::chrono::microseconds>(value.end - value.start).count()) / 1e6 \
+        << " seconds, " << "ends at " << epoch_to_relative_seconds(playback_start, value.end) << endl;
+    }
+}
+
+
+void test_map() {
+    std::map<int,char> example = {{1,'a'},{2,'b'}};
+
+    for(int x: {2, 5}) {
+        if(example.contains(x)) {
+            std::cout << x << ": Found\n";
+        } else {
+            std::cout << x << ": Not found\n";
+        }
+    }
+    printf("%c\n", example[2]);
+    example[2] = 'c';
+    printf("%c\n", example[2]);
 }
 
 
