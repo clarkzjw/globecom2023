@@ -60,8 +60,15 @@ void multipath_picoquic_builtin_minRTT_download() {
     memcpy(quic_config->multipath_alt_config, multipath_links, sizeof(char) * (strlen(multipath_links) + 1));
     printf("config.multipath_alt_config: %s\n", quic_config->multipath_alt_config);
 
-    for (int i = 1; i < 10; i++) {
-        string filename = string("/1080/").append(urls[0][i]);
+    int nb_segments = (int)urls[0].size();
+    int layers = (int)urls.size();
+
+    for (int i = 1; i < 5; i++) {
+        string filename;
+        for (int j = 0; j < layers; j++) {
+            filename += string("/1080/").append(urls[j][i]);
+            filename += ";";
+        }
         printf("%s\n", filename.c_str());
 
         int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str(), "");
