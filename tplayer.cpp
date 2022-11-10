@@ -41,11 +41,37 @@ void sequential_download() {
     picoquic_config_init(&config);
     config.out_dir = "./tmp";
 
-    for (int i = 1; i < 200; i++) {
+    for (int i = 1; i < 10; i++) {
         string filename = string("/1080/").append(urls[0][i]);
         printf("%s\n", filename.c_str());
 
         int ret = quic_client(host.c_str(), port, &config, 0, 0, filename.c_str());
+        printf("download ret = %d\n", ret);
+    }
+}
+
+int enable_multipath = 1;
+char const* multipath_links = "10.0.2.2/2,10.0.3.2/3";
+char const* multipath_fast_link = "10.0.2.2/2";
+char const* multipath_slow_link = "10.0.3.2/3";
+
+void multipath_picoquic_builtin_minRTT_download() {
+    quic_config->out_dir = "./tmp";
+
+    if (enable_multipath) {
+        quic_config->multipath_option = 2;
+
+        quic_config->multipath_alt_config = (char *)malloc(sizeof(char) * (strlen(multipath_links) + 1));
+        memset(quic_config->multipath_alt_config, 0, sizeof(char) * (strlen(multipath_links) + 1));
+        memcpy(quic_config->multipath_alt_config, multipath_links, sizeof(char) * (strlen(multipath_links) + 1));
+        printf("config.multipath_alt_config: %s\n", quic_config->multipath_alt_config);
+    }
+
+    for (int i = 1; i < 10; i++) {
+        string filename = string("/1080/").append(urls[0][i]);
+        printf("%s\n", filename.c_str());
+
+        int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str());
         printf("download ret = %d\n", ret);
     }
 }
@@ -65,7 +91,13 @@ int main(int argc, char* argv[])
     mpd_file = parse_mpd(local_mpd_url, quic_config);
     urls = get_segment_urls(mpd_file);
 
-    sequential_download();
+    quic_config = (picoquic_quic_config_t *)malloc(sizeof(picoquic_quic_config_t));
+
+    picoquic_config_init(quic_config);
+
+//    sequential_download();
+    multipath_picoquic_builtin_minRTT_download();
+
 
     return 0;
 }
