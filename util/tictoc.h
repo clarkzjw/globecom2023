@@ -20,12 +20,14 @@ public:
         t1 = clock::now();
     }
 
-    void toc()
+    double toc()
     {
         t2 = clock::now();
+        double t = double(std::chrono::duration_cast<res>(t2 - t1).count()) / 1e6;
         std::cout << "Elapsed time: "
-                  << std::chrono::duration_cast<res>(t2 - t1).count() / 1e6
+                  << t
                   << " seconds." << std::endl;
+        return t;
     }
 };
 

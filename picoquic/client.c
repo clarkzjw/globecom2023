@@ -78,7 +78,7 @@ static const char* token_store_filename = "demo_token_store.bin";
 #include "performance_log.h"
 #include "picoquic_config.h"
 #include "picoquic_lb.h"
-
+#include "client.h"
 
 /* Client loop call back management.
  * This is pretty complex, because the demo client is used to test a variety of interop
@@ -390,11 +390,13 @@ int client_loop_cb(picoquic_quic_t* quic, picoquic_packet_loop_cb_enum cb_mode,
     return ret;
 }
 
+
+
 /* Quic Client */
 int quic_client(const char* ip_address_text, int server_port,
                 picoquic_quic_config_t * config, int force_migration,
                 int nb_packets_before_key_update, char const * client_scenario_text,
-                char *if_name)
+                char *if_name, struct picoquic_download_stat *stat)
 {
     /* Start: start the QUIC process with cert and key files */
     int ret = 0;
@@ -762,12 +764,18 @@ int quic_client(const char* ip_address_text, int server_port,
                 }
                 else {
                     double receive_rate_mbps = 8.0 * ((double)picoquic_get_data_received(cnx_client)) / duration_usec;
-                    fprintf(stdout, "Received %" PRIu64 " bytes in %f seconds, %f Mbps.\n",
+                    fprintf(stdout, "Received %s %" PRIu64 " bytes in %f seconds, %f Mbps.\n",
+                            client_scenario_text,
                             picoquic_get_data_received(cnx_client),
                             duration_usec / 1000000.0, receive_rate_mbps);
                     picoquic_log_app_message(cnx_client, "Received %" PRIu64 " bytes in %f seconds, %f Mbps.",
                                              picoquic_get_data_received(cnx_client),
                                              duration_usec / 1000000.0, receive_rate_mbps);
+
+                    if (stat != NULL) {
+                        stat->time = duration_usec / 1000000.0;
+                        stat->throughput = receive_rate_mbps;
+                    }
                 }
                 /* Print those for debugging the effects of ack frequency and flow control */
                 printf("max_data_local: %" PRIu64 "\n", cnx_client->maxdata_local);

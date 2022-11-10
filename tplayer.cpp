@@ -14,6 +14,9 @@
 #include <unistd.h>
 #include <thread>
 #include <mutex>
+#include <vector>
+#include <algorithm>
+#include <filesystem>
 #include "client.h"
 
 #define PortableSleep(seconds) usleep((seconds)*1000000)
@@ -43,7 +46,7 @@ void sequential_download() {
         string filename = string("/1080/").append(urls[0][i]);
         printf("%s\n", filename.c_str());
 
-        int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str(), "");
+        int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str(), "", NULL);
         printf("download ret = %d\n", ret);
     }
 }
@@ -71,13 +74,14 @@ void multipath_picoquic_builtin_minRTT_download() {
         }
         printf("%s\n", filename.c_str());
 
-        int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str(), "");
+        int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str(), "", NULL);
         printf("download ret = %d\n", ret);
     }
 }
 
 struct DownloadTask {
     string filename;
+    int seg_no{};
     int eos{};
 };
 
@@ -85,6 +89,30 @@ std::queue<DownloadTask> tasks;
 
 string path_name[2] = {"h2-eth0", "h2-eth1"};
 
+
+struct DownloadStats {
+    string filename;
+    int seg_no{};
+    double time{}; // seconds
+    double speed{};  // throughput measured by picoquic, Mbps
+    double actual_speed{}; // Mbps
+    int filesize{}; // bytes
+    int path_index{};
+};
+
+std::vector<DownloadStats> stats;
+
+int get_filesize(const string& req_filename) {
+    std::string default_dir = "./tmp/";
+    std::string a = req_filename.substr(1);
+    std::replace(a.begin(), a.end(), '/', '_');
+    std::string path = default_dir + a;
+
+    std::filesystem::path p{path};
+    size_t realsize = std::filesystem::file_size(p);
+    std::cout << "filesize: " << realsize << std::endl;
+    return (int)realsize;
+}
 
 // create a downloader for each path
 // each path poll available tasks at the same time
@@ -102,7 +130,23 @@ void path_downloader(int path_index) {
                 string if_name = path_name[path_index];
                 printf("\n\ndownloading %s on path %s\n", t.filename.c_str(), if_name.c_str());
 
-                ret = quic_client(host.c_str(), port, quic_config, 0, 0, t.filename.c_str(), (char *)if_name.c_str());
+                struct DownloadStats st;
+                st.filename = t.filename;
+                st.seg_no = t.seg_no;
+
+                struct picoquic_download_stat picoquic_st{};
+
+                TicToc timer;
+                timer.tic();
+                ret = quic_client(host.c_str(), port, quic_config, 0, 0, t.filename.c_str(), (char *)if_name.c_str(), &picoquic_st);
+                st.time = timer.toc();
+                st.speed = picoquic_st.throughput;
+                st.path_index = path_index;
+                st.filesize = get_filesize(t.filename);
+                st.actual_speed = st.filesize / st.time / 1000000.0 * 8.0;
+
+                stats.push_back(st);
+
                 printf("download ret = %d\n", ret);
             }
         }
@@ -132,6 +176,7 @@ void multipath_round_robin_download() {
 
             struct DownloadTask t;
             t.filename = filename;
+            t.seg_no = i;
             t.eos = 0;
 
             tasks.push(t);
@@ -144,6 +189,11 @@ void multipath_round_robin_download() {
     tasks.push(finish);
     tasks.push(finish);
     thread_download.join();
+
+    printf("stats size: %zu\n", stats.size());
+    for (auto & stat : stats) {
+        printf("seg_no: %d, filename: %s, filesize: %d, time: %f, speed: %f, actual_speed: %f, path_index: %d\n", stat.seg_no, stat.filename.c_str(), stat.filesize, stat.time, stat.speed, stat.actual_speed, stat.path_index);
+    }
 }
 
 
@@ -167,7 +217,6 @@ int main(int argc, char* argv[])
 
     picoquic_config_init(quic_config);
     quic_config->out_dir = "./tmp";
-
 
 //    sequential_download();
 //    multipath_picoquic_builtin_minRTT_download();

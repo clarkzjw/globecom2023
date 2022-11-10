@@ -11,9 +11,14 @@
 extern "C" {
 #endif
 
+struct picoquic_download_stat {
+    double time;
+    double throughput;
+};
+
 int quic_client(const char* ip_address_text, int server_port,
                 picoquic_quic_config_t * config, int force_migration,
-                int nb_packets_before_key_update, char const * client_scenario_text, char *if_name);
+                int nb_packets_before_key_update, char const * client_scenario_text, char *if_name, struct picoquic_download_stat *stat);
 
 
 #ifdef __cplusplus
