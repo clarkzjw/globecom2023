@@ -393,7 +393,8 @@ int client_loop_cb(picoquic_quic_t* quic, picoquic_packet_loop_cb_enum cb_mode,
 /* Quic Client */
 int quic_client(const char* ip_address_text, int server_port,
                 picoquic_quic_config_t * config, int force_migration,
-                int nb_packets_before_key_update, char const * client_scenario_text)
+                int nb_packets_before_key_update, char const * client_scenario_text,
+                char *if_name)
 {
     /* Start: start the QUIC process with cert and key files */
     int ret = 0;
@@ -619,13 +620,15 @@ int quic_client(const char* ip_address_text, int server_port,
             loop_cb.demo_callback_ctx = &callback_ctx;
         }
 
-#ifdef _WINDOWS
-        ret = picoquic_packet_loop_win(qclient, 0, loop_cb.server_address.ss_family, 0,
-            config->socket_buffer_size, client_loop_cb, &loop_cb);
-#else
-        ret = picoquic_packet_loop(qclient, 0, loop_cb.server_address.ss_family, 0,
-                                   config->socket_buffer_size, config->do_not_use_gso, client_loop_cb, &loop_cb);
-#endif
+        if (strlen(if_name) > 0) {
+            printf("\n\n\n......calling picoquic_packet_loop_bind_interface\n");
+            ret = picoquic_packet_loop_bind_interface(qclient, 0, loop_cb.server_address.ss_family, 0,
+                                       config->socket_buffer_size, config->do_not_use_gso, client_loop_cb, &loop_cb, if_name);
+        } else {
+            ret = picoquic_packet_loop(qclient, 0, loop_cb.server_address.ss_family, 0,
+                                       config->socket_buffer_size, config->do_not_use_gso, client_loop_cb, &loop_cb);
+        }
+
     }
 
     if (ret == 0) {

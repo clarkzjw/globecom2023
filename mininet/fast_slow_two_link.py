@@ -62,7 +62,5 @@ if '__main__' == __name__:
     h2.cmd("ip route add 10.0.3.0/24 dev h2-eth1 scope link table 2")
     h2.cmd("ip route add 10.0.1.0/24 dev h2-eth1 scope link table 2")
 
-    h2.cmd("ip route add default scope global nexthop via 10.0.2.1 dev h2-eth0")
-
     CLI(net)
     net.stop()
