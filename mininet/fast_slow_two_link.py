@@ -22,8 +22,8 @@ if '__main__' == __name__:
     r1 = net.addHost('r1')
 
     linkopt1 = {'bw': 1000}
-    linkopt_fast = {'bw': 100}
-    linkopt_slow = {'bw': 50}
+    linkopt_fast = {'bw': 10}
+    linkopt_slow = {'bw': 5}
 
     net.addLink(r1, h1, cls=TCLink, **linkopt1)
     net.addLink(r1, h2, cls=TCLink, **linkopt_fast)

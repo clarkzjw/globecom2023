@@ -133,9 +133,9 @@ void multipath_picoquic_builtin_minRTT_download() {
     memcpy(quic_config->multipath_alt_config, multipath_links, sizeof(char) * (strlen(multipath_links) + 1));
     printf("config.multipath_alt_config: %s\n", quic_config->multipath_alt_config);
 
-    for (int i = 1; i < 50; i++) {
+    for (int i = 1; i < 100; i++) {
         while (player_buffer.size() > PLAYER_BUFFER_MAX_SEGMENTS) {
-            PortableSleep(0.01);
+            PortableSleep(0.1);
         }
 
         string filename;
@@ -187,7 +187,7 @@ void multipath_picoquic_builtin_minRTT_download() {
         value.download_time = double(std::chrono::duration_cast<std::chrono::microseconds>(value.end - value.start).count()) / 1e6;
         value.download_speed = value.file_size / value.download_time / 1000000.0 * 8.0;
 
-        std::cout << '[' << key << "] =" << " used: " << \
+        std::cout << key << " = " << "used: " << \
         value.download_time \
         << " seconds, " << "ends at " << epoch_to_relative_seconds(playback_start, value.end) \
         << " speed: " << value.download_speed << " Mbps" \
@@ -205,7 +205,7 @@ void path_downloader(int path_index) {
     while (true) {
         if (!tasks.empty()) {
             while (player_buffer.size() > PLAYER_BUFFER_MAX_SEGMENTS) {
-                PortableSleep(0.01);
+                PortableSleep(0.1);
             }
             struct DownloadTask t = tasks.front();
             tasks.pop();
@@ -288,7 +288,7 @@ void multipath_round_robin_download() {
     std::thread thread_download(multipath_round_robin_download_queue);
     std::thread thread_player(player);
 
-    for (int i = 1; i < 50; i++) {
+    for (int i = 1; i < 100; i++) {
         for (int j = 0; j < layers; j++) {
             string filename = string("/1080/").append(urls[j][i]);
 
@@ -320,7 +320,7 @@ void multipath_round_robin_download() {
         value.download_time = double(std::chrono::duration_cast<std::chrono::microseconds>(value.end - value.start).count()) / 1e6;
         value.download_speed = value.file_size / value.download_time / 1000000.0 * 8.0;
 
-        std::cout << '[' << key << "] =" << " used: " << \
+        std::cout << key << " = " << "used: " << \
         value.download_time \
         << " seconds, " << "ends at " << epoch_to_relative_seconds(playback_start, value.end) \
         << " speed: " << value.download_speed << " Mbps" \
