@@ -26,6 +26,7 @@ public:
         t2 = clock::now();
         return t2;
     }
+
     double elapsed()
     {
         t2 = clock::now();

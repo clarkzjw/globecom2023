@@ -777,6 +777,7 @@ int quic_client(const char* ip_address_text, int server_port,
                         stat->throughput = receive_rate_mbps;
                     }
                 }
+#if 0
                 /* Print those for debugging the effects of ack frequency and flow control */
                 printf("max_data_local: %" PRIu64 "\n", cnx_client->maxdata_local);
                 printf("max_max_stream_data_local: %" PRIu64 "\n", cnx_client->max_max_stream_data_local);
@@ -790,6 +791,7 @@ int quic_client(const char* ip_address_text, int server_port,
                 printf("max_ack_gap_local: %" PRIu64 "\n", cnx_client->max_ack_gap_local);
                 printf("max_mtu_sent: %zu\n", cnx_client->max_mtu_sent);
                 printf("max_mtu_received: %zu\n", cnx_client->max_mtu_received);
+#endif
             }
         }
     }

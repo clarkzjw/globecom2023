@@ -42,7 +42,6 @@ int stream_id = 0;
 
 picoquic_quic_config_t* quic_config = nullptr;
 queue<FRAME> buffer;
-double FPS = 24;
 auto level = 3; // 0, 1, 2, 3
 
 void sequential_download() {
@@ -109,10 +108,19 @@ tic_clock::time_point playback_start;
 struct PerSegmentStats {
     tic_clock::time_point start;
     tic_clock::time_point end;
+    int finished_layers{};
 };
+
+struct PlayableSegment {
+    int eos{};
+    int nb_frames;
+};
+
 
 std::vector<DownloadStats> stats;
 std::map<int, PerSegmentStats> seg_stats;
+std::queue<PlayableSegment> player_buffer;
+
 
 int get_filesize(const string& req_filename) {
     std::string default_dir = "./tmp/";
@@ -155,11 +163,21 @@ void path_downloader(int path_index) {
 
                 ret = quic_client(host.c_str(), port, quic_config, 0, 0, t.filename.c_str(), (char *)if_name.c_str(), &picoquic_st);
 
+                pst.finished_layers = 1;
+
                 // if this segment is shown for the first time
                 if (!seg_stats.contains(t.seg_no)) {
                     seg_stats.insert({t.seg_no, pst});
                 } else {
                     seg_stats[t.seg_no].end = timer.toc();
+                    seg_stats[t.seg_no].finished_layers++;
+
+                    if (seg_stats[t.seg_no].finished_layers == 4) {
+                        PlayableSegment ps{};
+                        ps.nb_frames = 48;
+                        ps.eos = 0;
+                        player_buffer.push(ps);
+                    }
                 }
 
                 st.time = timer.elapsed();
@@ -183,10 +201,68 @@ void multipath_round_robin_download_queue() {
 
     t1.join();
     t2.join();
+
+    PlayableSegment ps{};
+    ps.eos = 1;
+    player_buffer.push(ps);
 }
 
 double epoch_to_relative_seconds(tic_clock::time_point start, tic_clock::time_point end) {
     return double(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()) / 1e6;
+}
+
+
+struct BufferEvent {
+    // relative seconds during the playback of a buffering event
+    tic_clock::time_point start;
+    tic_clock::time_point end;
+    int completed;
+};
+
+std::vector<BufferEvent> buffering;
+
+void player() {
+    double FPS = 24.0;
+
+    TicToc buffering_timer;
+    auto player_start = buffering_timer.tic();
+
+    while (true) {
+//        PortableSleep(5);
+//        printf("......Playback buffer size: %lu, buffering event size: %lu\n", player_buffer.size(), buffering.size());
+        if (!player_buffer.empty()) {
+            if (!buffering.empty() && buffering[buffering.size()-1].completed == 0) {
+                buffering[buffering.size()-1].end = buffering_timer.tic();
+                buffering[buffering.size()-1].completed = 1;
+            }
+            struct PlayableSegment s = player_buffer.front();
+            player_buffer.pop();
+
+            // this is the last segment
+            if (s.eos == 1) {
+                break;
+            }
+
+            int frames = s.nb_frames;
+            PortableSleep( 1 / FPS * frames);
+        } else {
+            if (buffering.empty() || buffering[buffering.size() - 1].completed == 1) {
+                struct BufferEvent be{};
+                be.start = buffering_timer.tic();
+
+                buffering.push_back(be);
+                printf("######## New buffering event added\n");
+            } else {
+                continue;
+            }
+
+        }
+    }
+
+    for (auto &be: buffering) {
+        std::cout << "buffer event, start: " << epoch_to_relative_seconds(player_start, be.start) << ", end: " \
+        << epoch_to_relative_seconds(player_start, be.end) << endl;
+    }
 }
 
 // we need a queue to store the tasks
@@ -198,8 +274,9 @@ void multipath_round_robin_download() {
     playback_start = global_timer.tic();
 
     std::thread thread_download(multipath_round_robin_download_queue);
+    std::thread thread_player(player);
 
-    for (int i = 1; i < 10; i++) {
+    for (int i = 1; i < 5; i++) {
         for (int j = 0; j < layers; j++) {
             string filename = string("/1080/").append(urls[j][i]);
 
@@ -218,6 +295,7 @@ void multipath_round_robin_download() {
     tasks.push(finish);
     tasks.push(finish);
     thread_download.join();
+    thread_player.join();
 
     printf("stats size: %zu\n", stats.size());
     for (auto & stat : stats) {
@@ -228,7 +306,8 @@ void multipath_round_robin_download() {
     {
         std::cout << '[' << key << "] =" << " used: " << \
         double(std::chrono::duration_cast<std::chrono::microseconds>(value.end - value.start).count()) / 1e6 \
-        << " seconds, " << "ends at " << epoch_to_relative_seconds(playback_start, value.end) << endl;
+        << " seconds, " << "ends at " << epoch_to_relative_seconds(playback_start, value.end) \
+        << " finished layers " << value.finished_layers << endl;
     }
 }
 
@@ -273,6 +352,7 @@ int main(int argc, char* argv[])
 //    sequential_download();
 //    multipath_picoquic_builtin_minRTT_download();
     multipath_round_robin_download();
+
 
     return 0;
 }
