@@ -35,6 +35,7 @@ string default_mpd_url = "quic://server.local.me:4433/1080/BBB-I-1080p.mpd";
 string local_mpd_url = "./BBB-I-1080p.mpd";
 dash::mpd::IMPD* mpd_file;
 vector<vector<string>> urls;
+int PLAYER_BUFFER_MAX_SEGMENTS=5;
 
 string host;
 int port;
@@ -90,8 +91,9 @@ struct DownloadTask {
 
 std::queue<DownloadTask> tasks;
 
-string path_name[2] = {"h2-eth0", "h2-eth1"};
+//string path_name[2] = {"h2-eth0", "h2-eth1"};
 
+char *path_name[2] = {"h2-eth0", "h2-eth1"};
 
 struct DownloadStats {
     string filename;
@@ -143,6 +145,9 @@ int get_filesize(const string& req_filename) {
 void path_downloader(int path_index) {
     while (true) {
         if (!tasks.empty()) {
+            while (player_buffer.size() > PLAYER_BUFFER_MAX_SEGMENTS) {
+                PortableSleep(0.01);
+            }
             struct DownloadTask t = tasks.front();
             tasks.pop();
 
@@ -151,8 +156,8 @@ void path_downloader(int path_index) {
                 break;
             } else {
                 int ret = 0;
-                string if_name = path_name[path_index];
-                printf("\n\ndownloading %s on path %s\n", t.filename.c_str(), if_name.c_str());
+                char* if_name = path_name[path_index];
+                printf("\n\ndownloading %s on path %s\n", t.filename.c_str(), if_name);
 
                 struct DownloadStats st;
                 st.filename = t.filename;
@@ -165,7 +170,7 @@ void path_downloader(int path_index) {
 
                 pst.start = timer.tic();
 
-                ret = quic_client(host.c_str(), port, quic_config, 0, 0, t.filename.c_str(), (char *)if_name.c_str(), &picoquic_st);
+                ret = quic_client(host.c_str(), port, quic_config, 0, 0, t.filename.c_str(), if_name, &picoquic_st);
 
                 pst.finished_layers = 1;
 
