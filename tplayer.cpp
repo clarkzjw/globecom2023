@@ -109,11 +109,15 @@ struct PerSegmentStats {
     tic_clock::time_point start;
     tic_clock::time_point end;
     int finished_layers{};
+    int file_size{};
+    double download_time{};
+    double download_speed{};
 };
 
 struct PlayableSegment {
     int eos{};
     int nb_frames;
+    int seg_no;
 };
 
 
@@ -167,15 +171,18 @@ void path_downloader(int path_index) {
 
                 // if this segment is shown for the first time
                 if (!seg_stats.contains(t.seg_no)) {
+                    pst.file_size = get_filesize(t.filename);
                     seg_stats.insert({t.seg_no, pst});
                 } else {
                     seg_stats[t.seg_no].end = timer.toc();
                     seg_stats[t.seg_no].finished_layers++;
+                    seg_stats[t.seg_no].file_size += get_filesize(t.filename);
 
                     if (seg_stats[t.seg_no].finished_layers == 4) {
                         PlayableSegment ps{};
                         ps.nb_frames = 48;
                         ps.eos = 0;
+                        ps.seg_no = t.seg_no;
                         player_buffer.push(ps);
                     }
                 }
@@ -244,6 +251,7 @@ void player() {
             }
 
             int frames = s.nb_frames;
+            printf("Playing segment %d\n", s.seg_no);
             PortableSleep( 1 / FPS * frames);
         } else {
             if (buffering.empty() || buffering[buffering.size() - 1].completed == 1) {
@@ -259,6 +267,7 @@ void player() {
         }
     }
 
+    printf("\nbuffering event metrics, buffer event count: %zu\n", buffering.size());
     for (auto &be: buffering) {
         std::cout << "buffer event, start: " << epoch_to_relative_seconds(player_start, be.start) << ", end: " \
         << epoch_to_relative_seconds(player_start, be.end) << endl;
@@ -276,7 +285,7 @@ void multipath_round_robin_download() {
     std::thread thread_download(multipath_round_robin_download_queue);
     std::thread thread_player(player);
 
-    for (int i = 1; i < 5; i++) {
+    for (int i = 1; i < 50; i++) {
         for (int j = 0; j < layers; j++) {
             string filename = string("/1080/").append(urls[j][i]);
 
@@ -297,17 +306,22 @@ void multipath_round_robin_download() {
     thread_download.join();
     thread_player.join();
 
-    printf("stats size: %zu\n", stats.size());
+    printf("\nper layer download metrics, nb_layers downloaded: %zu\n", stats.size());
     for (auto & stat : stats) {
         printf("seg_no: %d, filename: %s, filesize: %d, time: %f, speed: %f, actual_speed: %f, path_index: %d\n", stat.seg_no, stat.filename.c_str(), stat.filesize, stat.time, stat.speed, stat.actual_speed, stat.path_index);
     }
 
-    for (const auto& [key, value] : seg_stats)
+    printf("\nper segment download metrics\n");
+    for (auto& [key, value] : seg_stats)
     {
+        value.download_time = double(std::chrono::duration_cast<std::chrono::microseconds>(value.end - value.start).count()) / 1e6;
+        value.download_speed = value.file_size / value.download_time / 1000000.0 * 8.0;
+
         std::cout << '[' << key << "] =" << " used: " << \
-        double(std::chrono::duration_cast<std::chrono::microseconds>(value.end - value.start).count()) / 1e6 \
+        value.download_time \
         << " seconds, " << "ends at " << epoch_to_relative_seconds(playback_start, value.end) \
-        << " finished layers " << value.finished_layers << endl;
+        << " speed: " << value.download_speed << " Mbps" \
+        << " total filesize " << value.file_size << " bytes" << endl;
     }
 }
 
