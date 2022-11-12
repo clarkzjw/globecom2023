@@ -583,14 +583,9 @@ int quic_client(const char* ip_address_text, int server_port,
         loop_cb.is_siduck = is_siduck;
         loop_cb.is_quicperf = is_quicperf;
         loop_cb.socket_buffer_size = config->socket_buffer_size;
-        if (is_siduck) {
-            loop_cb.siduck_ctx = siduck_ctx;
-        } else if (!is_quicperf) {
-            loop_cb.demo_callback_ctx = &callback_ctx;
-        }
+        loop_cb.demo_callback_ctx = &callback_ctx;
 
         if (strlen(if_name) > 0) {
-            printf("\n\n\n......calling picoquic_packet_loop_bind_interface\n");
             ret = picoquic_packet_loop_bind_interface(qclient, 0, loop_cb.server_address.ss_family, 0,
                 config->socket_buffer_size, config->do_not_use_gso, client_loop_cb, &loop_cb, if_name);
         } else {
@@ -703,32 +698,18 @@ int quic_client(const char* ip_address_text, int server_port,
             double duration_usec = (double)(close_time - start_time);
 
             if (duration_usec > 0) {
-                if (is_quicperf) {
-                    double duration_sec = duration_usec / 1000000.0;
-                    printf("Connection_duration_sec: %f\n", duration_sec);
-                    printf("Nb_transactions: %" PRIu64 "\n", quicperf_ctx->nb_streams);
-                    printf("Upload_bytes: %" PRIu64 "\n", quicperf_ctx->data_sent);
-                    printf("Download_bytes: %" PRIu64 "\n", quicperf_ctx->data_received);
-                    printf("TPS: %f\n", ((double)quicperf_ctx->nb_streams) / duration_sec);
-                    printf("Upload_Mbps: %f\n", ((double)quicperf_ctx->data_sent) * 8.0 / duration_usec);
-                    printf("Download_Mbps: %f\n", ((double)quicperf_ctx->data_received) * 8.0 / duration_usec);
-
-                    picoquic_log_app_message(cnx_client, "Received %" PRIu64 " bytes in %f seconds, %f Mbps.",
-                        picoquic_get_data_received(cnx_client), duration_usec, ((double)quicperf_ctx->data_received) * 8.0 / duration_usec);
-                } else {
-                    double receive_rate_mbps = 8.0 * ((double)picoquic_get_data_received(cnx_client)) / duration_usec;
-                    fprintf(stdout, "Received %s %" PRIu64 " bytes in %f seconds, %f Mbps.\n",
+                double receive_rate_mbps = 8.0 * ((double)picoquic_get_data_received(cnx_client)) / duration_usec;
+                fprintf(stdout, "Received %s %" PRIu64 " bytes in %f seconds, %f Mbps.\n",
                         client_scenario_text,
                         picoquic_get_data_received(cnx_client),
                         duration_usec / 1000000.0, receive_rate_mbps);
-                    picoquic_log_app_message(cnx_client, "Received %" PRIu64 " bytes in %f seconds, %f Mbps.",
-                        picoquic_get_data_received(cnx_client),
-                        duration_usec / 1000000.0, receive_rate_mbps);
+                picoquic_log_app_message(cnx_client, "Received %" PRIu64 " bytes in %f seconds, %f Mbps.",
+                                         picoquic_get_data_received(cnx_client),
+                                         duration_usec / 1000000.0, receive_rate_mbps);
 
-                    if (stat != NULL) {
-                        stat->time = duration_usec / 1000000.0;
-                        stat->throughput = receive_rate_mbps;
-                    }
+                if (stat != NULL) {
+                    stat->time = duration_usec / 1000000.0;
+                    stat->throughput = receive_rate_mbps;
                 }
 #if 0
                 /* Print those for debugging the effects of ack frequency and flow control */

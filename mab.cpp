@@ -3,7 +3,17 @@
 //
 #include "tplayer.h"
 
-void mab_path_downloader(int path_index)
+struct PerPathMetric {
+    int path_id;
+    vector<double> speed;
+    vector<double> rtt;
+    vector<double> loss_rate;
+    int nb_downloaded_file;
+};
+
+vector<PerPathMetric> path_metric[2];
+
+void mab_path_downloader(int path_id)
 {
     while (true) {
         if (!tasks.empty()) {
@@ -14,11 +24,11 @@ void mab_path_downloader(int path_index)
             tasks.pop();
 
             if (t.eos == 1) {
-                printf("path %d ends\n", path_index);
+                printf("path %d ends\n", path_id);
                 break;
             } else {
                 int ret = 0;
-                char* if_name = path_name[path_index];
+                char* if_name = path_name[path_id];
                 printf("\n\ndownloading %s on path %s\n", t.filename.c_str(), if_name);
 
                 struct DownloadStats st;
@@ -56,7 +66,7 @@ void mab_path_downloader(int path_index)
 
                 st.time = timer.elapsed();
                 st.speed = picoquic_st.throughput;
-                st.path_index = path_index;
+                st.path_index = path_id;
                 st.filesize = get_filesize(t.filename);
                 st.actual_speed = st.filesize / st.time / 1000000.0 * 8.0;
 
