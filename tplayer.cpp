@@ -91,9 +91,9 @@ int main(int argc, char* argv[])
     quic_config->out_dir = "./tmp";
 
     //    sequential_download();
-    //    multipath_picoquic_builtin_minRTT_download();
-    //    multipath_round_robin_download();
-    multipath_mab();
+//        multipath_picoquic_minRTT();
+        multipath_round_robin();
+//    multipath_mab();
 
     return 0;
 }
