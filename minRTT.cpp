@@ -6,7 +6,7 @@
 /*
  * minRTT
  * */
-void multipath_picoquic_builtin_minRTT_download()
+void multipath_picoquic_minRTT()
 {
     int nb_segments = (int)urls[0].size();
     int layers = (int)urls.size();
@@ -14,7 +14,7 @@ void multipath_picoquic_builtin_minRTT_download()
     TicToc global_timer;
     playback_start = global_timer.tic();
 
-    std::thread thread_player(player);
+    std::thread thread_player(mock_player);
 
     quic_config->multipath_option = 2;
     quic_config->multipath_alt_config = (char*)malloc(sizeof(char) * (strlen(multipath_links) + 1));

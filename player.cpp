@@ -9,7 +9,7 @@ std::vector<BufferEvent> buffering;
 /*
  * Mock Player
  * */
-void player()
+void mock_player()
 {
     double FPS = 24.0;
 

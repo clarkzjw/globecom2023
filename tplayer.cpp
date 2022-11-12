@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
     //    sequential_download();
     //    multipath_picoquic_builtin_minRTT_download();
     //    multipath_round_robin_download();
-    multipath_mab_download();
+    multipath_mab();
 
     return 0;
 }

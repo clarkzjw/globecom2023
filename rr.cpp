@@ -48,7 +48,7 @@ void path_downloader(int path_index)
                     pst.file_size = get_filesize(t.filename);
                     seg_stats.insert({ t.seg_no, pst });
                 } else {
-                    seg_stats[t.seg_no].end = timer.toc();
+                    seg_stats[t.seg_no].end = timer.tic();
                     seg_stats[t.seg_no].finished_layers++;
                     seg_stats[t.seg_no].file_size += get_filesize(t.filename);
 
@@ -89,7 +89,7 @@ void multipath_round_robin_download_queue()
 }
 
 // we need a queue to store the tasks
-void multipath_round_robin_download()
+void multipath_round_robin()
 {
     int nb_segments = (int)urls[0].size();
     int layers = (int)urls.size();
@@ -98,7 +98,7 @@ void multipath_round_robin_download()
     playback_start = global_timer.tic();
 
     std::thread thread_download(multipath_round_robin_download_queue);
-    std::thread thread_player(player);
+    std::thread thread_player(mock_player);
 
     for (int i = 1; i < 100; i++) {
         for (int j = 0; j < layers; j++) {

@@ -11,30 +11,22 @@
 class TicToc {
 private:
     typedef std::chrono::system_clock clock;
-    typedef std::chrono::microseconds res;
-    clock::time_point t1, t2;
+    typedef std::chrono::microseconds ms;
+    clock::time_point p;
 
 public:
     clock::time_point tic()
     {
-        t1 = clock::now();
-        return t1;
-    }
-
-    clock::time_point toc()
-    {
-        t2 = clock::now();
-        return t2;
+        return clock::now();
     }
 
     double elapsed()
     {
-        t2 = clock::now();
-        double t = double(std::chrono::duration_cast<res>(t2 - t1).count()) / 1e6;
+        double elapsed = double(std::chrono::duration_cast<ms>(clock::now() - p).count()) / 1e6;
         std::cout << "Elapsed time: "
-                  << t
+                  << elapsed
                   << " seconds." << std::endl;
-        return t;
+        return elapsed;
     }
 };
 
