@@ -13,27 +13,27 @@
 
 using namespace dash::mpd;
 
-Switching::Switching    ()  :
-                 type("media")
+Switching::Switching()
+    : type("media")
 {
 }
-Switching::~Switching   ()
+Switching::~Switching()
 {
 }
 
-uint32_t                 Switching::GetInterval           ()  const
+uint32_t Switching::GetInterval() const
 {
     return this->interval;
 }
-void                     Switching::SetInterval           (uint32_t interval)
+void Switching::SetInterval(uint32_t interval)
 {
     this->interval = interval;
 }
-const std::string&       Switching::GetType               ()  const
+const std::string& Switching::GetType() const
 {
     return this->type;
 }
-void                     Switching::SetType               (const std::string& type)
+void Switching::SetType(const std::string& type)
 {
     this->type = type;
 }

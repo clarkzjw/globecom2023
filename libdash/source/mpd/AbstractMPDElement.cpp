@@ -14,28 +14,28 @@
 using namespace dash::mpd;
 using namespace dash::xml;
 
-AbstractMPDElement::AbstractMPDElement      ()
+AbstractMPDElement::AbstractMPDElement()
 {
 }
-AbstractMPDElement::~AbstractMPDElement     ()
+AbstractMPDElement::~AbstractMPDElement()
 {
-    for(size_t i = 0; i < this->additionalSubNodes.size(); i++)
-        delete(this->additionalSubNodes.at(i));
+    for (size_t i = 0; i < this->additionalSubNodes.size(); i++)
+        delete (this->additionalSubNodes.at(i));
 }
 
-const std::vector<INode *>                  AbstractMPDElement::GetAdditionalSubNodes   ()  const
+const std::vector<INode*> AbstractMPDElement::GetAdditionalSubNodes() const
 {
     return this->additionalSubNodes;
 }
-const std::map<std::string, std::string>    AbstractMPDElement::GetRawAttributes        ()  const
+const std::map<std::string, std::string> AbstractMPDElement::GetRawAttributes() const
 {
     return this->rawAttributes;
 }
-void                                        AbstractMPDElement::AddAdditionalSubNode    (INode *node)
+void AbstractMPDElement::AddAdditionalSubNode(INode* node)
 {
     this->additionalSubNodes.push_back(node);
 }
-void                                        AbstractMPDElement::AddRawAttributes        (std::map<std::string, std::string> attributes)
+void AbstractMPDElement::AddRawAttributes(std::map<std::string, std::string> attributes)
 {
     this->rawAttributes = attributes;
 }

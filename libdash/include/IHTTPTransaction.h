@@ -15,42 +15,38 @@
 #ifndef IHTTPTRANSACTION_H_
 #define IHTTPTRANSACTION_H_
 
-#include "config.h"
 #include "IThroughputMeasurement.h"
+#include "config.h"
 
-namespace dash
-{
-    namespace metrics
-    {
-        enum HTTPTransactionType
-        {
-            MPD,
-            XLinkEpansion,
-            InitializationSegment,
-            IndexSegment,
-            MediaSegment,
-            BitstreamSwitchingSegment,
-            Other
-        };
+namespace dash {
+namespace metrics {
+    enum HTTPTransactionType {
+        MPD,
+        XLinkEpansion,
+        InitializationSegment,
+        IndexSegment,
+        MediaSegment,
+        BitstreamSwitchingSegment,
+        Other
+    };
 
-        class IHTTPTransaction
-        {
-            public:
-                virtual ~IHTTPTransaction (){}
+    class IHTTPTransaction {
+    public:
+        virtual ~IHTTPTransaction() { }
 
-                virtual uint32_t                                        TCPId                   () const = 0;
-                virtual HTTPTransactionType                             Type                    () const = 0;
-                virtual const std::string&                              OriginalUrl             () const = 0;
-                virtual const std::string&                              ActualUrl               () const = 0;
-                virtual const std::string&                              Range                   () const = 0;
-                virtual const std::string&                              RequestSentTime         () const = 0;
-                virtual const std::string&                              ResponseReceivedTime    () const = 0;
-                virtual uint16_t                                        ResponseCode            () const = 0;
-                virtual uint64_t                                        Interval                () const = 0;
-                virtual const std::vector<IThroughputMeasurement *>&    ThroughputTrace         () const = 0;
-                virtual const std::string&                              HTTPHeader              () const = 0;
-        };
-    }
+        virtual uint32_t TCPId() const = 0;
+        virtual HTTPTransactionType Type() const = 0;
+        virtual const std::string& OriginalUrl() const = 0;
+        virtual const std::string& ActualUrl() const = 0;
+        virtual const std::string& Range() const = 0;
+        virtual const std::string& RequestSentTime() const = 0;
+        virtual const std::string& ResponseReceivedTime() const = 0;
+        virtual uint16_t ResponseCode() const = 0;
+        virtual uint64_t Interval() const = 0;
+        virtual const std::vector<IThroughputMeasurement*>& ThroughputTrace() const = 0;
+        virtual const std::string& HTTPHeader() const = 0;
+    };
+}
 }
 
 #endif /* IHTTPTRANSACTION_H_ */

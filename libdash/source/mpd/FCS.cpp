@@ -13,28 +13,28 @@
 
 using namespace dash::mpd;
 
-FCS::FCS    ()  :
-    presentationTime(0),
-    duration(0)
+FCS::FCS()
+    : presentationTime(0)
+    , duration(0)
 {
 }
-FCS::~FCS   ()
+FCS::~FCS()
 {
 }
 
-uint64_t    FCS::GetPresentationTime     ()  const
+uint64_t FCS::GetPresentationTime() const
 {
     return this->presentationTime;
 }
-void        FCS::SetPresentationTime     (uint64_t presentationTime) 
+void FCS::SetPresentationTime(uint64_t presentationTime)
 {
     this->presentationTime = presentationTime;
 }
-uint64_t    FCS::GetDuration             ()  const
+uint64_t FCS::GetDuration() const
 {
     return this->duration;
 }
-void        FCS::SetDuration             (uint64_t duration) 
+void FCS::SetDuration(uint64_t duration)
 {
     this->duration = duration;
 }

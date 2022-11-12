@@ -13,43 +13,43 @@
 
 using namespace dash::mpd;
 
-SubRepresentation::SubRepresentation    () :
-                    level(0),
-                    bandWidth(0)
+SubRepresentation::SubRepresentation()
+    : level(0)
+    , bandWidth(0)
 {
 }
-SubRepresentation::~SubRepresentation   () 
+SubRepresentation::~SubRepresentation()
 {
 }
-uint32_t                        SubRepresentation::GetLevel             ()  const 
+uint32_t SubRepresentation::GetLevel() const
 {
     return this->level;
 }
-void                            SubRepresentation::SetLevel             (uint32_t level) 
+void SubRepresentation::SetLevel(uint32_t level)
 {
     this->level = level;
 }
-const std::vector<uint32_t>&    SubRepresentation::GetDependencyLevel   ()  const
+const std::vector<uint32_t>& SubRepresentation::GetDependencyLevel() const
 {
     return this->dependencyLevel;
 }
-void                            SubRepresentation::SetDependencyLevel   (const std::string& dependencyLevel)
+void SubRepresentation::SetDependencyLevel(const std::string& dependencyLevel)
 {
     dash::helpers::String::Split(dependencyLevel, ' ', this->dependencyLevel);
 }
-uint32_t                        SubRepresentation::GetBandWidth         ()  const
+uint32_t SubRepresentation::GetBandWidth() const
 {
     return this->bandWidth;
 }
-void                            SubRepresentation::SetBandWidth         (uint32_t bandWidth)
+void SubRepresentation::SetBandWidth(uint32_t bandWidth)
 {
     this->bandWidth = bandWidth;
 }
-const std::vector<std::string>& SubRepresentation::GetContentComponent  ()  const
+const std::vector<std::string>& SubRepresentation::GetContentComponent() const
 {
     return this->contentComponent;
 }
-void                            SubRepresentation::SetContentComponent  (const std::string& contentComponent)
+void SubRepresentation::SetContentComponent(const std::string& contentComponent)
 {
     dash::helpers::String::Split(contentComponent, ' ', this->contentComponent);
 }

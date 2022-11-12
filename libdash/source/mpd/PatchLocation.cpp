@@ -13,29 +13,29 @@
 
 using namespace dash::mpd;
 
-PatchLocation::PatchLocation    ()  :
-    url(""),
-    ttl(0.0)
-    
+PatchLocation::PatchLocation()
+    : url("")
+    , ttl(0.0)
+
 {
 }
-PatchLocation::~PatchLocation   ()
+PatchLocation::~PatchLocation()
 {
 }
 
-const std::string&  PatchLocation::GetUrl    ()  const
+const std::string& PatchLocation::GetUrl() const
 {
     return this->url;
 }
-void                PatchLocation::SetUrl    (const std::string& url) 
+void PatchLocation::SetUrl(const std::string& url)
 {
     this->url = url;
 }
-double              PatchLocation::GetTtl    ()  const
+double PatchLocation::GetTtl() const
 {
     return this->ttl;
 }
-void                PatchLocation::SetTtl    (double ttl) 
+void PatchLocation::SetTtl(double ttl)
 {
     this->ttl = ttl;
 }

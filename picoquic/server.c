@@ -61,17 +61,16 @@ static const char* default_server_name = "::";
 static const char* ticket_store_filename = "demo_ticket_store.bin";
 static const char* token_store_filename = "demo_token_store.bin";
 
-#include "autoqlog.h"
 #include "h3zero.h"
 #include "picosplay.h"
+
+#include "autoqlog.h"
 #include "demoserver.h"
 #include "performance_log.h"
 #include "picoquic.h"
-#include "picoquic_binlog.h"
 #include "picoquic_config.h"
 #include "picoquic_internal.h"
 #include "picoquic_lb.h"
-#include "picoquic_logger.h"
 #include "picoquic_packet_loop.h"
 #include "picoquic_unified_log.h"
 #include "picoquic_utils.h"

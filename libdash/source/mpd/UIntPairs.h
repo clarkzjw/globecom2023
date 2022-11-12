@@ -14,31 +14,27 @@
 
 #include "config.h"
 
-#include "IUIntPairs.h"
 #include "AbstractMPDElement.h"
+#include "IUIntPairs.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class UIntPairs : public IUIntPairs, public AbstractMPDElement
-        {
-            public:
-                UIntPairs             ();
-                virtual ~UIntPairs    ();
+namespace dash {
+namespace mpd {
+    class UIntPairs : public IUIntPairs, public AbstractMPDElement {
+    public:
+        UIntPairs();
+        virtual ~UIntPairs();
 
-                uint32_t    GetLatency    ()  const;
-                uint32_t    GetQuality    ()  const;
+        uint32_t GetLatency() const;
+        uint32_t GetQuality() const;
 
-                void    SetLatency    (uint32_t latency);
-                void    SetQuality    (uint32_t quality);
+        void SetLatency(uint32_t latency);
+        void SetQuality(uint32_t quality);
 
-            private:
-                uint32_t    latency;
-                uint32_t    quality;
-                
-        };
-    }
+    private:
+        uint32_t latency;
+        uint32_t quality;
+    };
+}
 }
 
 #endif /* UINTPAIRS_H_ */

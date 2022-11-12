@@ -14,23 +14,21 @@
 
 #include "config.h"
 
-#include "../xml/Node.h"
-#include "../xml/DOMParser.h"
-#include "IDASHManager.h"
 #include "../helpers/Time.h"
+#include "../xml/DOMParser.h"
+#include "../xml/Node.h"
+#include "IDASHManager.h"
 
-namespace dash
-{
-    class DASHManager : public IDASHManager
-    {
-        public:
-            DASHManager             ();
-            virtual ~DASHManager    ();
+namespace dash {
+class DASHManager : public IDASHManager {
+public:
+    DASHManager();
+    virtual ~DASHManager();
 
-            mpd::IMPD*  Open    (char *path);
-            std::string  OpenQUIC    (char *path);
-            void        Delete  ();
-    };
+    mpd::IMPD* Open(char* path);
+    std::string OpenQUIC(char* path);
+    void Delete();
+};
 }
 
 #endif /* DASHMANAGER_H_ */

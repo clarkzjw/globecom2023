@@ -14,30 +14,27 @@
 
 #include "config.h"
 
-#include "IFCS.h"
 #include "AbstractMPDElement.h"
+#include "IFCS.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class FCS : public IFCS, public AbstractMPDElement
-        {
-            public:
-                FCS             ();
-                virtual ~FCS    ();
+namespace dash {
+namespace mpd {
+    class FCS : public IFCS, public AbstractMPDElement {
+    public:
+        FCS();
+        virtual ~FCS();
 
-                uint64_t    GetPresentationTime    ()  const;
-                uint64_t    GetDuration            ()  const;
+        uint64_t GetPresentationTime() const;
+        uint64_t GetDuration() const;
 
-                void    SetPresentationTime    (uint64_t presentationTime);
-                void    SetDuration            (uint64_t duration);
+        void SetPresentationTime(uint64_t presentationTime);
+        void SetDuration(uint64_t duration);
 
-            private:
-                uint64_t    presentationTime;
-                uint64_t    duration;
-        };
-    }
+    private:
+        uint64_t presentationTime;
+        uint64_t duration;
+    };
+}
 }
 
 #endif /* IFCS_H_ */

@@ -12,24 +12,20 @@
 #ifndef DASH_HELPERS_TIME_H_
 #define DASH_HELPERS_TIME_H_
 
-#include <time.h>
 #include "config.h"
+#include <time.h>
 
-namespace dash
-{
-    namespace helpers
-    {
-        class Time
-        {
-            public:
-                static uint32_t     GetCurrentUTCTimeInSec  ();
-                static std::string  GetCurrentUTCTimeStr    ();
+namespace dash {
+namespace helpers {
+    class Time {
+    public:
+        static uint32_t GetCurrentUTCTimeInSec();
+        static std::string GetCurrentUTCTimeStr();
 
-            private:
-                static struct tm*   GetCurrentUTCTime       ();
-
-        };
-    }
+    private:
+        static struct tm* GetCurrentUTCTime();
+    };
+}
 }
 
 #endif /* DASH_HELPERS_TIME_H_ */

@@ -13,52 +13,52 @@
 
 using namespace dash::mpd;
 
-Latency::Latency    ()
+Latency::Latency()
 {
 }
-Latency::~Latency   ()
+Latency::~Latency()
 {
-    for (size_t i=0; i < this->qltpairs.size(); i++)
-        delete(this->qltpairs.at(i));
+    for (size_t i = 0; i < this->qltpairs.size(); i++)
+        delete (this->qltpairs.at(i));
 }
 
-const std::vector<IUIntPairsWithID *>&     Latency::GetQualityLatencyType        ()  const
+const std::vector<IUIntPairsWithID*>& Latency::GetQualityLatencyType() const
 {
-    return (std::vector<IUIntPairsWithID *> &) this->qltpairs;
+    return (std::vector<IUIntPairsWithID*>&)this->qltpairs;
 }
-void                                       Latency::AddQualityLatencyType        (UIntPairsWithID* qlt)
+void Latency::AddQualityLatencyType(UIntPairsWithID* qlt)
 {
     this->qltpairs.push_back(qlt);
 }
-uint32_t                                   Latency::GetReferenceId               ()  const
+uint32_t Latency::GetReferenceId() const
 {
     return this->referenceId;
 }
-void                                       Latency::SetReferenceId               (uint32_t referenceId)
+void Latency::SetReferenceId(uint32_t referenceId)
 {
     this->referenceId = referenceId;
 }
-uint32_t                                   Latency::GetTarget                    ()  const
+uint32_t Latency::GetTarget() const
 {
     return this->target;
 }
-void                                       Latency::SetTarget                    (uint32_t target)
+void Latency::SetTarget(uint32_t target)
 {
     this->target = target;
 }
-uint32_t                                   Latency::GetMax                       ()  const
+uint32_t Latency::GetMax() const
 {
     return this->max;
 }
-void                                       Latency::SetMax                       (uint32_t max)
+void Latency::SetMax(uint32_t max)
 {
     this->max = max;
 }
-uint32_t                                   Latency::GetMin                       ()  const
+uint32_t Latency::GetMin() const
 {
     return this->min;
 }
-void                                       Latency::SetMin                       (uint32_t min)
+void Latency::SetMin(uint32_t min)
 {
     this->min = min;
 }

@@ -13,42 +13,38 @@
 
 using namespace dash::xml;
 
-std::vector<Node *> DOMHelper::GetElementByTagName      (Node *root, const std::string &name, bool selfContain)
+std::vector<Node*> DOMHelper::GetElementByTagName(Node* root, const std::string& name, bool selfContain)
 {
-    std::vector<Node *> elements;
+    std::vector<Node*> elements;
 
-    for(unsigned int i = 0; i < root->GetSubNodes().size(); i++)
-    {
+    for (unsigned int i = 0; i < root->GetSubNodes().size(); i++) {
         GetElementsByTagName(root->GetSubNodes().at(i), name, &elements, selfContain);
     }
 
     return elements;
 }
-std::vector<Node *> DOMHelper::GetChildElementByTagName (Node *root, const std::string &name)
+std::vector<Node*> DOMHelper::GetChildElementByTagName(Node* root, const std::string& name)
 {
-    std::vector<Node *> elements;
+    std::vector<Node*> elements;
 
-    for(unsigned int i = 0; i < root->GetSubNodes().size(); i++)
-    {
-        if(!root->GetSubNodes().at(i)->GetName().compare(name))
+    for (unsigned int i = 0; i < root->GetSubNodes().size(); i++) {
+        if (!root->GetSubNodes().at(i)->GetName().compare(name))
             elements.push_back(root->GetSubNodes().at(i));
     }
 
     return elements;
 }
-void                DOMHelper::GetElementsByTagName     (Node *root, const std::string &name, std::vector<Node*> *elements, bool selfContain)
+void DOMHelper::GetElementsByTagName(Node* root, const std::string& name, std::vector<Node*>* elements, bool selfContain)
 {
-    if(!selfContain && !root->GetName().compare(name))
-    {
+    if (!selfContain && !root->GetName().compare(name)) {
         elements->push_back(root);
         return;
     }
 
-    if(!root->GetName().compare(name))
+    if (!root->GetName().compare(name))
         elements->push_back(root);
 
-    for(unsigned int i = 0; i < root->GetSubNodes().size(); i++)
-    {
+    for (unsigned int i = 0; i < root->GetSubNodes().size(); i++) {
         GetElementsByTagName(root->GetSubNodes().at(i), name, elements, selfContain);
     }
 }

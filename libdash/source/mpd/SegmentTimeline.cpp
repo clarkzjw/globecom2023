@@ -13,20 +13,20 @@
 
 using namespace dash::mpd;
 
-SegmentTimeline::SegmentTimeline    ()
+SegmentTimeline::SegmentTimeline()
 {
 }
-SegmentTimeline::~SegmentTimeline   ()
+SegmentTimeline::~SegmentTimeline()
 {
-    for (size_t i=0; i < this->timelines.size(); i++)
-        delete(this->timelines.at(i));
+    for (size_t i = 0; i < this->timelines.size(); i++)
+        delete (this->timelines.at(i));
 }
 
-std::vector<ITimeline *>&   SegmentTimeline::GetTimelines   ()  const
+std::vector<ITimeline*>& SegmentTimeline::GetTimelines() const
 {
-    return (std::vector<ITimeline*> &) this->timelines;
+    return (std::vector<ITimeline*>&)this->timelines;
 }
-void                        SegmentTimeline::AddTimeline    (Timeline *timeline)
+void SegmentTimeline::AddTimeline(Timeline* timeline)
 {
     this->timelines.push_back(timeline);
 }

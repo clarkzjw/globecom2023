@@ -14,31 +14,27 @@
 
 #include "config.h"
 
-#include "IPatchLocation.h"
 #include "AbstractMPDElement.h"
+#include "IPatchLocation.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class PatchLocation : public IPatchLocation, public AbstractMPDElement
-        {
-            public:
-                PatchLocation             ();
-                virtual ~PatchLocation    ();
-                
-                const std::string&   GetUrl    ()  const;
-                double               GetTtl    ()  const;
+namespace dash {
+namespace mpd {
+    class PatchLocation : public IPatchLocation, public AbstractMPDElement {
+    public:
+        PatchLocation();
+        virtual ~PatchLocation();
 
-                void    SetUrl    (const std::string& url);
-                void    SetTtl    (double ttl);
-                
-            private:
-                std::string url;
-                double      ttl;
-                
-        };
-    }
+        const std::string& GetUrl() const;
+        double GetTtl() const;
+
+        void SetUrl(const std::string& url);
+        void SetTtl(double ttl);
+
+    private:
+        std::string url;
+        double ttl;
+    };
+}
 }
 
 #endif /* PATCHLOCATION_H_ */

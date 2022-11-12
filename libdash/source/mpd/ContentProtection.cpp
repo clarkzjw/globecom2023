@@ -13,37 +13,37 @@
 
 using namespace dash::mpd;
 
-ContentProtection::ContentProtection    () :
-                robustness(""),
-                refId(""),
-                ref("")
+ContentProtection::ContentProtection()
+    : robustness("")
+    , refId("")
+    , ref("")
 {
 }
-ContentProtection::~ContentProtection   ()
+ContentProtection::~ContentProtection()
 {
 }
 
-const std::string&                      ContentProtection::GetRobustness                     ()  const
+const std::string& ContentProtection::GetRobustness() const
 {
     return this->robustness;
 }
-void                                    ContentProtection::SetRobustness                     (const std::string& robustness)
+void ContentProtection::SetRobustness(const std::string& robustness)
 {
     this->robustness = robustness;
 }
-const std::string&                      ContentProtection::GetRefId                          ()  const
+const std::string& ContentProtection::GetRefId() const
 {
     return this->refId;
 }
-void                                    ContentProtection::SetRefId                          (const std::string& refId)
+void ContentProtection::SetRefId(const std::string& refId)
 {
     this->refId = refId;
 }
-const std::string&                      ContentProtection::GetRef                            ()  const
+const std::string& ContentProtection::GetRef() const
 {
     return this->ref;
 }
-void                                    ContentProtection::SetRef                            (const std::string& ref)
+void ContentProtection::SetRef(const std::string& ref)
 {
     this->ref = ref;
 }

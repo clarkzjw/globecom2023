@@ -13,28 +13,28 @@
 
 using namespace dash::mpd;
 
-Range::Range    () :
-        starttime(""),
-        duration("")
+Range::Range()
+    : starttime("")
+    , duration("")
 {
 }
-Range::~Range   ()
+Range::~Range()
 {
 }
 
-const std::string&  Range::GetStarttime ()  const
+const std::string& Range::GetStarttime() const
 {
     return this->starttime;
 }
-void                Range::SetStarttime (const std::string& starttime)
+void Range::SetStarttime(const std::string& starttime)
 {
     this->starttime = starttime;
 }
-const std::string&  Range::GetDuration  ()  const
+const std::string& Range::GetDuration() const
 {
     return this->duration;
 }
-void                Range::SetDuration  (const std::string& duration)
+void Range::SetDuration(const std::string& duration)
 {
     this->duration = duration;
 }

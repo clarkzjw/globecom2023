@@ -23,56 +23,53 @@
 
 #include "config.h"
 
-#include "ISegmentTimeline.h"
 #include "ISegmentBase.h"
+#include "ISegmentTimeline.h"
 #include "IURLType.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class IMultipleSegmentBase : public virtual ISegmentBase
-        {
-            public:
-                virtual ~IMultipleSegmentBase(){}
+namespace dash {
+namespace mpd {
+    class IMultipleSegmentBase : public virtual ISegmentBase {
+    public:
+        virtual ~IMultipleSegmentBase() { }
 
-                /**
-                 *  Return a pointer to a dash::mpd::ISegmentTimeline object
-                 *  @return     a pointer to a dash::mpd::ISegmentTimeline object
-                 */
-                virtual const ISegmentTimeline*     GetSegmentTimeline      ()  const = 0;
+        /**
+         *  Return a pointer to a dash::mpd::ISegmentTimeline object
+         *  @return     a pointer to a dash::mpd::ISegmentTimeline object
+         */
+        virtual const ISegmentTimeline* GetSegmentTimeline() const = 0;
 
-                /**
-                 *  Returns a pointer to a dash::mpd::IURLType object that specifies the URL including a possible byte range for the Bitstream Switching Segment.
-                 *  @return     a pointer to a dash::mpd::IURLType object
-                 */
-                virtual const IURLType*             GetBitstreamSwitching   ()  const = 0;
+        /**
+         *  Returns a pointer to a dash::mpd::IURLType object that specifies the URL including a possible byte range for the Bitstream Switching Segment.
+         *  @return     a pointer to a dash::mpd::IURLType object
+         */
+        virtual const IURLType* GetBitstreamSwitching() const = 0;
 
-                /**
-                 *  Returns a integer specifying the constant approximate Segment duration. \n
-                 *  All Segments within this Representation element have the same duration unless it is the last Segment within the Period, which could be significantly shorter.\n
-                 *  The value of the duration in seconds is the division of the value of this attribute and the value of the \c \@timescale attribute associated to the containing Representation.\n
-                 *  For more details refer to section 5.3.9.5.3. of <em>ISO/IEC 23009-1, Part 1, 2012</em>.
-                 *  @return     an unsigned integer
-                 */
-                virtual uint32_t                    GetDuration             ()  const = 0;
+        /**
+         *  Returns a integer specifying the constant approximate Segment duration. \n
+         *  All Segments within this Representation element have the same duration unless it is the last Segment within the Period, which could be significantly shorter.\n
+         *  The value of the duration in seconds is the division of the value of this attribute and the value of the \c \@timescale attribute associated to the containing Representation.\n
+         *  For more details refer to section 5.3.9.5.3. of <em>ISO/IEC 23009-1, Part 1, 2012</em>.
+         *  @return     an unsigned integer
+         */
+        virtual uint32_t GetDuration() const = 0;
 
-                /**
-                 *  Returns a integer specifying the number of the first Media Segment in this Representation in the Period.\n
-                 *  For more details refer to 5.3.9.5.3. of <em>ISO/IEC 23009-1, Part 1, 2012</em>.
-                 *  @return     an unsigned integer
-                 */
-                virtual uint32_t                    GetStartNumber          ()  const = 0;
-                
-                /**
-                 *  Returns a integer specifying the number of the last Media Segment in this Representation in the Period. \n
-                 *  If not present, the number is inferred from the duration of the Period.
-                 *  For more details refer to 5.3.9.5.3. of <em>ISO/IEC 23009-1, Part 1, 2012</em>.
-                 *  @return     an unsigned integer
-                 */
-                virtual uint32_t                    GetEndNumber          ()  const = 0;
-        };
-    }
+        /**
+         *  Returns a integer specifying the number of the first Media Segment in this Representation in the Period.\n
+         *  For more details refer to 5.3.9.5.3. of <em>ISO/IEC 23009-1, Part 1, 2012</em>.
+         *  @return     an unsigned integer
+         */
+        virtual uint32_t GetStartNumber() const = 0;
+
+        /**
+         *  Returns a integer specifying the number of the last Media Segment in this Representation in the Period. \n
+         *  If not present, the number is inferred from the duration of the Period.
+         *  For more details refer to 5.3.9.5.3. of <em>ISO/IEC 23009-1, Part 1, 2012</em>.
+         *  @return     an unsigned integer
+         */
+        virtual uint32_t GetEndNumber() const = 0;
+    };
+}
 }
 
 #endif /* IMULTIPLESEGMENTBASE_H_ */

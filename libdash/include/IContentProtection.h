@@ -2,7 +2,7 @@
  *  @class      dash::mpd::IContentProtection
  *  @brief      This interface is needed for accessing the common attributes of <tt><b>ContentProtection</b></tt>
  *              as specified in <em>ISO/IEC 23009-1</em>, section 5.8.4.1
- *  @details    Content protection descriptors are signalled by the <b>ContentProtection</b> element and are used to provide content protection, encryption, and DRM related information in order to access encrypted and/or DRM-protected content. 
+ *  @details    Content protection descriptors are signalled by the <b>ContentProtection</b> element and are used to provide content protection, encryption, and DRM related information in order to access encrypted and/or DRM-protected content.
  *              The <b>ContentProtection</b> element is an extended descriptor type.\n
  *              For the element <b>ContentProtection</b>, the \c @schemeIdUri attribute is used to identify a content protection descriptor scheme. \n
  *              The <b>ContentProtection</b> descriptors is expected to provide sufficient information, possibly in conjunction with the \c @value and/or extension attributes and elements, such as the DRM system(s), encryption algorithm(s), and key distribution scheme(s) employed, to enable a client to determine whether it can possibly play the protected content. The <b>ContentProtection</b> element can be extended in a separate namespace to provide information specific to a content protection scheme (e.g. particular key management systems or encryption methods). \n
@@ -12,14 +12,14 @@
  *              The content protection information may be provided explicitly in a <b>ContentProtection</b> element or may be referenced from another <b>ContentProtection</b> element. For details refer to subclause 5.8.4.1.3. \n
  *              The semantics of the attributes within the <b>ContentProtection</b> element are provided in subclause 5.8.4.1.4, Table 30. The XML syntax of <b>ContentProtection</b> element is provided in subclause 5.8.4.1.5. \n
  *              Subclause 5.8.4.1.6 provides information on how to define a content protection scheme.
- *  @see        
+ *  @see
  *
  *  @author     Daniele Lorenzi \n
  *              Email: lorenzidaniele.97@gmail.com
  *  @version    2.1
  *  @date       2021
  */
- 
+
 #ifndef ICONTENTPROTECTION_H_
 #define ICONTENTPROTECTION_H_
 
@@ -27,38 +27,35 @@
 
 #include "IDescriptor.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class IContentProtection : public virtual IDescriptor
-        {
-            public:
-                virtual ~IContentProtection(){}
+namespace dash {
+namespace mpd {
+    class IContentProtection : public virtual IDescriptor {
+    public:
+        virtual ~IContentProtection() { }
 
-                /**
-                 *  Returns the reference to a string that specifies the robustness level required for this content protection scheme for accessing content represented by the associated Representation(s). For more details refer to subclause 5.8.4.1.2 and 5.8.4.1.6. \n
-                 *  If not present, then the lowest robustness level for the identified content protection scheme applies. 
-                 *  @return     a reference to a string
-                 */
-                virtual const std::string&            GetRobustness      ()  const = 0;
-                
-                /**
-                 *  Returns the reference to a string that specifies an identifier of this descriptor. The identifier shall be unique within an MPD. \n
-                 *  The attribute shall not be present if the \c @ref attribute is present.
-                 *  @return     a reference to a string
-                 */
-                virtual const std::string&            GetRefId           ()  const = 0;
-                
-                /**
-                 *  Returns the reference to a string that - if present - makes this a referencing content protection descriptor 
-                 *  that inherits from a “source” content protection descriptor which is identified by the equivalent value of \c @refId attribute. For details, refer to subclause 5.8.4.1.3. \n
-                 *  The attribute shall not be present if the \c @refId attribute is present.
-                 *  @return     a reference to a string
-                 */
-                virtual const std::string&            GetRef             ()  const = 0;
-        };
-    }
+        /**
+         *  Returns the reference to a string that specifies the robustness level required for this content protection scheme for accessing content represented by the associated Representation(s). For more details refer to subclause 5.8.4.1.2 and 5.8.4.1.6. \n
+         *  If not present, then the lowest robustness level for the identified content protection scheme applies.
+         *  @return     a reference to a string
+         */
+        virtual const std::string& GetRobustness() const = 0;
+
+        /**
+         *  Returns the reference to a string that specifies an identifier of this descriptor. The identifier shall be unique within an MPD. \n
+         *  The attribute shall not be present if the \c @ref attribute is present.
+         *  @return     a reference to a string
+         */
+        virtual const std::string& GetRefId() const = 0;
+
+        /**
+         *  Returns the reference to a string that - if present - makes this a referencing content protection descriptor
+         *  that inherits from a “source” content protection descriptor which is identified by the equivalent value of \c @refId attribute. For details, refer to subclause 5.8.4.1.3. \n
+         *  The attribute shall not be present if the \c @refId attribute is present.
+         *  @return     a reference to a string
+         */
+        virtual const std::string& GetRef() const = 0;
+    };
+}
 }
 
 #endif /* ICONTENTPROTECTION_H_ */

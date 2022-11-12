@@ -14,30 +14,27 @@
 
 #include "IThroughputMeasurement.h"
 
-namespace dash
-{
-    namespace metrics
-    {
-        class ThroughputMeasurement : public IThroughputMeasurement
-        {
-            public:
-                ThroughputMeasurement          ();
-                virtual ~ThroughputMeasurement ();
+namespace dash {
+namespace metrics {
+    class ThroughputMeasurement : public IThroughputMeasurement {
+    public:
+        ThroughputMeasurement();
+        virtual ~ThroughputMeasurement();
 
-                const std::string&              StartOfPeriod           () const;
-                uint64_t                        DurationOfPeriod        () const;
-                const std::vector<uint32_t>&    ReceivedBytesPerTrace   () const;
+        const std::string& StartOfPeriod() const;
+        uint64_t DurationOfPeriod() const;
+        const std::vector<uint32_t>& ReceivedBytesPerTrace() const;
 
-                void    SetStartOfPeriod        (std::string startOfPeriod);
-                void    SetDurationOfPeriod     (uint64_t duration);
-                void    AddReceivedBytes        (uint32_t numberOfBytes);
+        void SetStartOfPeriod(std::string startOfPeriod);
+        void SetDurationOfPeriod(uint64_t duration);
+        void AddReceivedBytes(uint32_t numberOfBytes);
 
-            private:
-                std::string             startOfPeriod;
-                uint64_t                durationOfPeriod;
-                std::vector<uint32_t>   receivedBytesPerTrace;
-        };
-    }
+    private:
+        std::string startOfPeriod;
+        uint64_t durationOfPeriod;
+        std::vector<uint32_t> receivedBytesPerTrace;
+    };
+}
 }
 
 #endif /* THROUGHPUTMEASUREMENT_H_ */

@@ -17,36 +17,32 @@
 
 #include "config.h"
 
-namespace dash
-{
-    namespace network
-    {
-        enum DownloadState
-        {
-            NOT_STARTED     = 0,
-            IN_PROGRESS     = 1,
-            REQUEST_ABORT   = 2,
-            ABORTED         = 3,
-            COMPLETED       = 4
-        };
-        class IDownloadObserver
-        {
-            public:
-                virtual ~IDownloadObserver(){}
+namespace dash {
+namespace network {
+    enum DownloadState {
+        NOT_STARTED = 0,
+        IN_PROGRESS = 1,
+        REQUEST_ABORT = 2,
+        ABORTED = 3,
+        COMPLETED = 4
+    };
+    class IDownloadObserver {
+    public:
+        virtual ~IDownloadObserver() { }
 
-                /**
-                 *  Informs the dash::network::IDownloadObserver object that the download rate has changed.
-                 *  @param      bytesDownloaded     the number of downloaded bytes
-                 */
-                virtual void OnDownloadRateChanged  (uint64_t bytesDownloaded)  = 0;
+        /**
+         *  Informs the dash::network::IDownloadObserver object that the download rate has changed.
+         *  @param      bytesDownloaded     the number of downloaded bytes
+         */
+        virtual void OnDownloadRateChanged(uint64_t bytesDownloaded) = 0;
 
-                /**
-                 *  Informs the dash::network::IDownloadObserver object that the download state has changed.
-                 *  @param      state               the download state
-                 */
-                virtual void OnDownloadStateChanged (DownloadState state)       = 0;
-        };
-    }
+        /**
+         *  Informs the dash::network::IDownloadObserver object that the download state has changed.
+         *  @param      state               the download state
+         */
+        virtual void OnDownloadStateChanged(DownloadState state) = 0;
+    };
+}
 }
 
 #endif /* IDOWNLOADOBSERVER_H_ */

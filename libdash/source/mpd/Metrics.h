@@ -17,35 +17,32 @@
 #include <string>
 #include <vector>
 
-#include "IMetrics.h"
-#include "Descriptor.h"
-#include "Range.h"
 #include "AbstractMPDElement.h"
+#include "Descriptor.h"
+#include "IMetrics.h"
+#include "Range.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class Metrics : public IMetrics, public AbstractMPDElement
-        {
-            public:
-                Metrics             ();
-                virtual ~Metrics    ();
+namespace dash {
+namespace mpd {
+    class Metrics : public IMetrics, public AbstractMPDElement {
+    public:
+        Metrics();
+        virtual ~Metrics();
 
-                const std::vector<IDescriptor *>&   GetReportings   ()  const;
-                const std::vector<IRange *>&        GetRanges       ()  const;
-                const std::string&                  GetMetrics      ()  const;
+        const std::vector<IDescriptor*>& GetReportings() const;
+        const std::vector<IRange*>& GetRanges() const;
+        const std::string& GetMetrics() const;
 
-                void    AddReporting    (Descriptor *reporting);
-                void    AddRange        (Range *range);
-                void    SetMetrics      (const std::string& metrics);
+        void AddReporting(Descriptor* reporting);
+        void AddRange(Range* range);
+        void SetMetrics(const std::string& metrics);
 
-            private:
-                std::vector<Descriptor *>   reportings;
-                std::vector<Range *>        ranges;
-                std::string metrics;
-        };
-    }
+    private:
+        std::vector<Descriptor*> reportings;
+        std::vector<Range*> ranges;
+        std::string metrics;
+    };
+}
 }
 
 #endif /* METRICS_H_ */

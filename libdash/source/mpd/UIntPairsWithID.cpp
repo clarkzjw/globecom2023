@@ -13,21 +13,21 @@
 
 using namespace dash::mpd;
 
-UIntPairsWithID::UIntPairsWithID    ()  :
-                 type("")
+UIntPairsWithID::UIntPairsWithID()
+    : type("")
 {
 }
-UIntPairsWithID::~UIntPairsWithID   ()
+UIntPairsWithID::~UIntPairsWithID()
 {
-    for (size_t i=0; i < this->qlpairs.size(); i++)
-        delete(this->qlpairs.at(i));
+    for (size_t i = 0; i < this->qlpairs.size(); i++)
+        delete (this->qlpairs.at(i));
 }
 
-const std::vector<IUIntPairs *>&     UIntPairsWithID::GetQualityLatency            ()  const
+const std::vector<IUIntPairs*>& UIntPairsWithID::GetQualityLatency() const
 {
-    return (std::vector<IUIntPairs *> &) this->qlpairs;
+    return (std::vector<IUIntPairs*>&)this->qlpairs;
 }
-void                                 UIntPairsWithID::AddQualityLatency            (const std::string& ql)
+void UIntPairsWithID::AddQualityLatency(const std::string& ql)
 {
     std::vector<std::string> temp;
     dash::helpers::String::Split(ql, ' ', temp);
@@ -36,11 +36,11 @@ void                                 UIntPairsWithID::AddQualityLatency         
     pair->SetQuality(strtoul(temp[1].c_str(), NULL, 10));
     this->qlpairs.push_back(pair);
 }
-const std::string&                   UIntPairsWithID::GetType                      ()  const
+const std::string& UIntPairsWithID::GetType() const
 {
     return this->type;
 }
-void                                 UIntPairsWithID::SetType                      (const std::string& type)
+void UIntPairsWithID::SetType(const std::string& type)
 {
     this->type = type;
 }

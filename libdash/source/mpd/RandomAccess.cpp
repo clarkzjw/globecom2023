@@ -13,43 +13,43 @@
 
 using namespace dash::mpd;
 
-RandomAccess::RandomAccess    ()  :
-                 type("closed")
+RandomAccess::RandomAccess()
+    : type("closed")
 {
 }
-RandomAccess::~RandomAccess   ()
+RandomAccess::~RandomAccess()
 {
 }
 
-uint32_t                                RandomAccess::GetInterval               ()  const
+uint32_t RandomAccess::GetInterval() const
 {
     return this->interval;
 }
-void                                    RandomAccess::SetInterval               (uint32_t interval)
+void RandomAccess::SetInterval(uint32_t interval)
 {
     this->interval = interval;
 }
-const std::string&                      RandomAccess::GetType                   ()  const
+const std::string& RandomAccess::GetType() const
 {
     return this->type;
 }
-void                                    RandomAccess::SetType                   (const std::string& type)
+void RandomAccess::SetType(const std::string& type)
 {
     this->type = type;
 }
-const std::string&                      RandomAccess::GetMinBufferTime          ()  const
+const std::string& RandomAccess::GetMinBufferTime() const
 {
     return this->minBufferTime;
 }
-void                                    RandomAccess::SetMinBufferTime          (const std::string& minBufferTime)
+void RandomAccess::SetMinBufferTime(const std::string& minBufferTime)
 {
     this->minBufferTime = minBufferTime;
 }
-uint32_t                                RandomAccess::GetBandwidth              ()  const
+uint32_t RandomAccess::GetBandwidth() const
 {
     return this->bandwidth;
 }
-void                                    RandomAccess::SetBandwidth              (uint32_t bandwidth)
+void RandomAccess::SetBandwidth(uint32_t bandwidth)
 {
     this->bandwidth = bandwidth;
 }

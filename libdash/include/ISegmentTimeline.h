@@ -26,25 +26,22 @@
 
 #include "config.h"
 
-#include "ITimeline.h"
 #include "IMPDElement.h"
+#include "ITimeline.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class ISegmentTimeline : public virtual IMPDElement
-        {
-            public:
-                virtual ~ISegmentTimeline(){}
+namespace dash {
+namespace mpd {
+    class ISegmentTimeline : public virtual IMPDElement {
+    public:
+        virtual ~ISegmentTimeline() { }
 
-                /**
-                 *  Returns a reference to a vector of pointers to dash::mpd::ITimeline objects, that correspond to the to <b><tt>S</tt></b> elements.
-                 *  @return     a reference to vector of pointers to dash::mpd::ITimeline objects
-                 */
-                virtual std::vector<ITimeline *>&   GetTimelines ()  const = 0;
-        };
-    }
+        /**
+         *  Returns a reference to a vector of pointers to dash::mpd::ITimeline objects, that correspond to the to <b><tt>S</tt></b> elements.
+         *  @return     a reference to vector of pointers to dash::mpd::ITimeline objects
+         */
+        virtual std::vector<ITimeline*>& GetTimelines() const = 0;
+    };
+}
 }
 
 #endif /* ISEGMENTTIMELINE_H_ */

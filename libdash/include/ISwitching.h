@@ -13,7 +13,7 @@
  *  @version    2.1
  *  @date       2021
  */
- 
+
 #ifndef ISWITCHING_H_
 #define ISWITCHING_H_
 
@@ -21,35 +21,31 @@
 
 #include "IMPDElement.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class ISwitching : public virtual IMPDElement
-        {
-            public:
-                virtual ~ISwitching(){}
-                
-                /**
-                 *  Returns an unsigned integer that specifies the interval between two switching points in the scale of the \c @timescale on Representation level.\n
-                 *  Any Segment for which the earliest presentation time minus the \c @t value of the \b S element describing the segment is an integer multiple of the product of \c @timescale and \c @interval is a switch-to opportunity,
-                 *  i.e. it enables to switch to this Representation with the switching strategy as defined by the \c @type value.\n
-                 *  The value should be chosen such that the resulting time matches MPD start time of segments, otherwise no switching will be described.    
-                 *  
-                 *  @return     an unsigned integer
-                 */
-                virtual uint32_t                     GetInterval          ()  const = 0;
-                
-                /**
-                 *  Returns a reference to a string that specifies the switching strategy for the switch points identified in by the \c @interval attribute.\n
-                 *  Switching strategies are defined in Table 7 of <em>ISO/IEC 23009-1</em>.    
-                 *  
-                 *  @return     a reference to a string
-                 */
-                virtual const std::string&           GetType              ()  const = 0;
-                
-        };
-    }
+namespace dash {
+namespace mpd {
+    class ISwitching : public virtual IMPDElement {
+    public:
+        virtual ~ISwitching() { }
+
+        /**
+         *  Returns an unsigned integer that specifies the interval between two switching points in the scale of the \c @timescale on Representation level.\n
+         *  Any Segment for which the earliest presentation time minus the \c @t value of the \b S element describing the segment is an integer multiple of the product of \c @timescale and \c @interval is a switch-to opportunity,
+         *  i.e. it enables to switch to this Representation with the switching strategy as defined by the \c @type value.\n
+         *  The value should be chosen such that the resulting time matches MPD start time of segments, otherwise no switching will be described.
+         *
+         *  @return     an unsigned integer
+         */
+        virtual uint32_t GetInterval() const = 0;
+
+        /**
+         *  Returns a reference to a string that specifies the switching strategy for the switch points identified in by the \c @interval attribute.\n
+         *  Switching strategies are defined in Table 7 of <em>ISO/IEC 23009-1</em>.
+         *
+         *  @return     a reference to a string
+         */
+        virtual const std::string& GetType() const = 0;
+    };
+}
 }
 
 #endif /* ISWITCHING_H_ */

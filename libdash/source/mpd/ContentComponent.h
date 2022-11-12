@@ -8,7 +8,7 @@
  * @contributor        Daniele Lorenzi
  * @contributoremail   lorenzidaniele.97@gmail.com
  * @contributiondate   2021
- * 
+ *
  * This source code and its use and distribution, is subject to the terms
  * and conditions of the applicable license agreement.
  *****************************************************************************/
@@ -18,52 +18,49 @@
 
 #include "config.h"
 
-#include "IContentComponent.h"
-#include "Descriptor.h"
 #include "AbstractMPDElement.h"
+#include "Descriptor.h"
+#include "IContentComponent.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class ContentComponent : public IContentComponent, public AbstractMPDElement
-        {
-            public:
-                ContentComponent          ();
-                virtual ~ContentComponent ();
+namespace dash {
+namespace mpd {
+    class ContentComponent : public IContentComponent, public AbstractMPDElement {
+    public:
+        ContentComponent();
+        virtual ~ContentComponent();
 
-                const std::vector<IDescriptor *>&   GetAccessibility    ()  const;
-                const std::vector<IDescriptor *>&   GetRole             ()  const;
-                const std::vector<IDescriptor *>&   GetRating           ()  const;
-                const std::vector<IDescriptor *>&   GetViewpoint        ()  const;
-                uint32_t                            GetId               ()  const;
-                const std::string&                  GetLang             ()  const;
-                const std::string&                  GetContentType      ()  const;
-                const std::string&                  GetPar              ()  const;
-                const std::string&                  GetTag              ()  const;
+        const std::vector<IDescriptor*>& GetAccessibility() const;
+        const std::vector<IDescriptor*>& GetRole() const;
+        const std::vector<IDescriptor*>& GetRating() const;
+        const std::vector<IDescriptor*>& GetViewpoint() const;
+        uint32_t GetId() const;
+        const std::string& GetLang() const;
+        const std::string& GetContentType() const;
+        const std::string& GetPar() const;
+        const std::string& GetTag() const;
 
-                void    AddAccessibity  (Descriptor *accessibility);
-                void    AddRole         (Descriptor *role);
-                void    AddRating       (Descriptor *rating);
-                void    AddViewpoint    (Descriptor *viewpoint);
-                void    SetId           (uint32_t id);
-                void    SetLang         (const std::string& lang);
-                void    SetContentType  (const std::string& contentType);
-                void    SetPar          (const std::string& par);
-                void    SetTag          (const std::string& tag);
+        void AddAccessibity(Descriptor* accessibility);
+        void AddRole(Descriptor* role);
+        void AddRating(Descriptor* rating);
+        void AddViewpoint(Descriptor* viewpoint);
+        void SetId(uint32_t id);
+        void SetLang(const std::string& lang);
+        void SetContentType(const std::string& contentType);
+        void SetPar(const std::string& par);
+        void SetTag(const std::string& tag);
 
-            private:
-                std::vector<Descriptor *>   accessibility;
-                std::vector<Descriptor *>   role;
-                std::vector<Descriptor *>   rating;
-                std::vector<Descriptor *>   viewpoint;
-                uint32_t                    id;
-                std::string                 lang;
-                std::string                 contentType;
-                std::string                 par;
-                std::string                 tag;
-        };
-    }
+    private:
+        std::vector<Descriptor*> accessibility;
+        std::vector<Descriptor*> role;
+        std::vector<Descriptor*> rating;
+        std::vector<Descriptor*> viewpoint;
+        uint32_t id;
+        std::string lang;
+        std::string contentType;
+        std::string par;
+        std::string tag;
+    };
+}
 }
 
 #endif /* CONTENTCOMPONENT_H_ */

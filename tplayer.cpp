@@ -2,15 +2,15 @@
 // Created by Jinwei Zhao on 2022-08-12.
 //
 
-#include <cstring>
-#include <iostream>
-#include <queue>
-#include <mutex>
-#include <vector>
 #include <algorithm>
+#include <cstring>
 #include <filesystem>
+#include <iostream>
 #include <map>
+#include <mutex>
+#include <queue>
 #include <tplayer.h>
+#include <vector>
 
 using namespace std;
 
@@ -26,8 +26,8 @@ picoquic_quic_config_t* quic_config = nullptr;
 dash::mpd::IMPD* mpd_file;
 vector<vector<string>> urls;
 
-char *path_name[2] = {"h2-eth0", "h2-eth1"};
-int PLAYER_BUFFER_MAX_SEGMENTS=5;
+char* path_name[2] = { "h2-eth0", "h2-eth1" };
+int PLAYER_BUFFER_MAX_SEGMENTS = 5;
 
 int enable_multipath = 1;
 char const* multipath_links = "10.0.2.2/2,10.0.3.2/3";
@@ -38,27 +38,29 @@ string local_mpd_url = "./BBB-I-1080p.mpd";
 
 auto level = 3; // 0, 1, 2, 3
 
-double epoch_to_relative_seconds(tic_clock::time_point start, tic_clock::time_point end) {
+double epoch_to_relative_seconds(tic_clock::time_point start, tic_clock::time_point end)
+{
     return double(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()) / 1e6;
 }
 
-int get_filesize(const string& req_filename) {
+int get_filesize(const string& req_filename)
+{
     std::string default_dir = "./tmp/";
     std::string a = req_filename.substr(1);
     std::replace(a.begin(), a.end(), '/', '_');
     std::string path = default_dir + a;
 
-    std::filesystem::path p{path};
+    std::filesystem::path p { path };
     size_t realsize = std::filesystem::file_size(p);
     std::cout << "filesize: " << realsize << std::endl;
     return (int)realsize;
 }
 
-
 /*
  * Sequential Download
  * */
-void sequential_download() {
+void sequential_download()
+{
     for (int i = 1; i < 10; i++) {
         string filename = string("/1080/").append(urls[0][i]);
         printf("%s\n", filename.c_str());
@@ -67,7 +69,6 @@ void sequential_download() {
         printf("download ret = %d\n", ret);
     }
 }
-
 
 int main(int argc, char* argv[])
 {
@@ -84,14 +85,14 @@ int main(int argc, char* argv[])
     mpd_file = parse_mpd(local_mpd_url, quic_config);
     urls = get_segment_urls(mpd_file);
 
-    quic_config = (picoquic_quic_config_t *)malloc(sizeof(picoquic_quic_config_t));
+    quic_config = (picoquic_quic_config_t*)malloc(sizeof(picoquic_quic_config_t));
 
     picoquic_config_init(quic_config);
     quic_config->out_dir = "./tmp";
 
-//    sequential_download();
-//    multipath_picoquic_builtin_minRTT_download();
-//    multipath_round_robin_download();
+    //    sequential_download();
+    //    multipath_picoquic_builtin_minRTT_download();
+    //    multipath_round_robin_download();
     multipath_mab_download();
 
     return 0;

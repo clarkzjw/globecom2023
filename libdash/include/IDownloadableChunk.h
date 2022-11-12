@@ -18,76 +18,73 @@
 
 #include "config.h"
 
-#include "IDownloadObserver.h"
-#include "IConnection.h"
 #include "IChunk.h"
+#include "IConnection.h"
 #include "IDASHMetrics.h"
+#include "IDownloadObserver.h"
 
-namespace dash
-{
-    namespace network
-    {
-        class IDownloadableChunk : public IChunk, public dash::metrics::IDASHMetrics
-        {
-            public:
-                virtual ~IDownloadableChunk(){}
+namespace dash {
+namespace network {
+    class IDownloadableChunk : public IChunk, public dash::metrics::IDASHMetrics {
+    public:
+        virtual ~IDownloadableChunk() { }
 
-                /**
-                 *  Starts the download of this chunk and returns a bool value whether the starting of the download was possible or not
-                 *  @return     a bool value
-                 */
-                virtual bool    StartDownload           ()                              = 0;
-                virtual bool    StartQUICDownload           ()                              = 0;
-                /**
-                 *  Starts the download of this chunk and returns a bool value whether the starting of the download was possible or not
-                 *  @param      connection      the dash::network::IConnection that shall be used for downloading
-                 *  @return     a bool value
-                 */
-                virtual bool    StartDownload           (IConnection *connection)       = 0;
+        /**
+         *  Starts the download of this chunk and returns a bool value whether the starting of the download was possible or not
+         *  @return     a bool value
+         */
+        virtual bool StartDownload() = 0;
+        virtual bool StartQUICDownload() = 0;
+        /**
+         *  Starts the download of this chunk and returns a bool value whether the starting of the download was possible or not
+         *  @param      connection      the dash::network::IConnection that shall be used for downloading
+         *  @return     a bool value
+         */
+        virtual bool StartDownload(IConnection* connection) = 0;
 
-                /**
-                 *  Aborts the download of a chunk
-                 */
-                virtual void    AbortDownload           ()                              = 0;
+        /**
+         *  Aborts the download of a chunk
+         */
+        virtual void AbortDownload() = 0;
 
-                /**
-                 *  Reads
-                 *  @param      data    pointer to a block of memory
-                 *  @param      len     size of the memory block that can be used by the method
-                 *  @return     amount of data that has been read
-                 */
-                virtual int     Read                    (uint8_t *data, size_t len)     = 0;
+        /**
+         *  Reads
+         *  @param      data    pointer to a block of memory
+         *  @param      len     size of the memory block that can be used by the method
+         *  @return     amount of data that has been read
+         */
+        virtual int Read(uint8_t* data, size_t len) = 0;
 
-                /**
-                 *  Reads
-                 *  @param      data    pointer to a block of memory
-                 *  @param      len     size of the memory block that can be used by the method
-                 *  @return     amount of data that has been peeked
-                 */
-                virtual int     Peek                    (uint8_t *data, size_t len)     = 0;
+        /**
+         *  Reads
+         *  @param      data    pointer to a block of memory
+         *  @param      len     size of the memory block that can be used by the method
+         *  @return     amount of data that has been peeked
+         */
+        virtual int Peek(uint8_t* data, size_t len) = 0;
 
-                /**
-                 *  Reads
-                 *  @param      data    pointer to a block of memory
-                 *  @param      len     size of the memory block that can be used by the method
-                 *  @param      offset  the offset to start with
-                 *  @return     amount of data that has been peeked
-                 */
-                virtual int     Peek                    (uint8_t *data, size_t len, size_t offset)     = 0;
+        /**
+         *  Reads
+         *  @param      data    pointer to a block of memory
+         *  @param      len     size of the memory block that can be used by the method
+         *  @param      offset  the offset to start with
+         *  @return     amount of data that has been peeked
+         */
+        virtual int Peek(uint8_t* data, size_t len, size_t offset) = 0;
 
-                /**
-                 *  Attaches a dash::network::IDownloadObserver to this Chunk
-                 *  @param      observer    a dash::network::IDownloadObserver
-                 */
-                virtual void    AttachDownloadObserver  (IDownloadObserver *observer)   = 0;
+        /**
+         *  Attaches a dash::network::IDownloadObserver to this Chunk
+         *  @param      observer    a dash::network::IDownloadObserver
+         */
+        virtual void AttachDownloadObserver(IDownloadObserver* observer) = 0;
 
-                /**
-                 *  Detaches a dash::network::IDownloadObserver from this Chunk
-                 *  @param      observer    a dash::network::IDownloadObserver
-                 */
-                virtual void    DetachDownloadObserver  (IDownloadObserver *observer)   = 0;
-        };
-    }
+        /**
+         *  Detaches a dash::network::IDownloadObserver from this Chunk
+         *  @param      observer    a dash::network::IDownloadObserver
+         */
+        virtual void DetachDownloadObserver(IDownloadObserver* observer) = 0;
+    };
+}
 }
 
 #endif /* IDOWNLOADABLECHUNK_H_ */

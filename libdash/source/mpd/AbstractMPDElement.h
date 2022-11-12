@@ -16,26 +16,23 @@
 
 #include "IMPDElement.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class AbstractMPDElement : public virtual IMPDElement
-        {
-            public:
-                AbstractMPDElement          ();
-                virtual ~AbstractMPDElement ();
+namespace dash {
+namespace mpd {
+    class AbstractMPDElement : public virtual IMPDElement {
+    public:
+        AbstractMPDElement();
+        virtual ~AbstractMPDElement();
 
-                virtual const std::vector<xml::INode *>             GetAdditionalSubNodes   ()  const;
-                virtual const std::map<std::string, std::string>    GetRawAttributes        ()  const;
-                virtual void                                        AddAdditionalSubNode    (xml::INode * node);
-                virtual void                                        AddRawAttributes        (std::map<std::string, std::string> attributes);
+        virtual const std::vector<xml::INode*> GetAdditionalSubNodes() const;
+        virtual const std::map<std::string, std::string> GetRawAttributes() const;
+        virtual void AddAdditionalSubNode(xml::INode* node);
+        virtual void AddRawAttributes(std::map<std::string, std::string> attributes);
 
-            private:
-                std::vector<xml::INode *>           additionalSubNodes;
-                std::map<std::string, std::string>  rawAttributes;
-        };
-    }
+    private:
+        std::vector<xml::INode*> additionalSubNodes;
+        std::map<std::string, std::string> rawAttributes;
+    };
+}
 }
 
 #endif /* ABSTRACTMPDELEMENT_H_ */

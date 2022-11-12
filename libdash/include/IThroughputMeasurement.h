@@ -18,21 +18,17 @@
 
 #include "config.h"
 
-namespace dash
-{
-    namespace metrics
-    {
-        class IThroughputMeasurement
-        {
-            public:
-                virtual ~IThroughputMeasurement (){}
+namespace dash {
+namespace metrics {
+    class IThroughputMeasurement {
+    public:
+        virtual ~IThroughputMeasurement() { }
 
-                virtual const std::string&              StartOfPeriod           () const = 0;
-                virtual uint64_t                        DurationOfPeriod        () const = 0;
-                virtual const std::vector<uint32_t>&    ReceivedBytesPerTrace   () const = 0;
-
-        };
-    }
+        virtual const std::string& StartOfPeriod() const = 0;
+        virtual uint64_t DurationOfPeriod() const = 0;
+        virtual const std::vector<uint32_t>& ReceivedBytesPerTrace() const = 0;
+    };
+}
 }
 
 #endif /* ITHROUGHPUTMEASUREMENT_H_ */

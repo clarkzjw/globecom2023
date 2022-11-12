@@ -14,35 +14,32 @@
 
 #include "config.h"
 
-#include "IURLType.h"
-#include "Segment.h"
 #include "../helpers/Path.h"
 #include "AbstractMPDElement.h"
+#include "IURLType.h"
+#include "Segment.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class URLType : public IURLType, public AbstractMPDElement
-        {
-            public:
-                URLType             ();
-                virtual ~URLType    ();
+namespace dash {
+namespace mpd {
+    class URLType : public IURLType, public AbstractMPDElement {
+    public:
+        URLType();
+        virtual ~URLType();
 
-                const std::string&  GetSourceURL    ()  const;
-                const std::string&  GetRange        ()  const;
-                ISegment*           ToSegment       (const std::vector<IBaseUrl *>& baseurls) const;
+        const std::string& GetSourceURL() const;
+        const std::string& GetRange() const;
+        ISegment* ToSegment(const std::vector<IBaseUrl*>& baseurls) const;
 
-                void    SetSourceURL    (const std::string& sourceURL);
-                void    SetRange        (const std::string& range);
-                void    SetType         (dash::metrics::HTTPTransactionType type);
+        void SetSourceURL(const std::string& sourceURL);
+        void SetRange(const std::string& range);
+        void SetType(dash::metrics::HTTPTransactionType type);
 
-            private:
-                std::string                         sourceURL;
-                std::string                         range;
-                dash::metrics::HTTPTransactionType  type;
-        };
-    }
+    private:
+        std::string sourceURL;
+        std::string range;
+        dash::metrics::HTTPTransactionType type;
+    };
+}
 }
 
 #endif /* URLTYPE_H_ */

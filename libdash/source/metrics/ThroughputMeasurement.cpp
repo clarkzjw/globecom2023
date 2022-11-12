@@ -13,34 +13,34 @@
 
 using namespace dash::metrics;
 
-ThroughputMeasurement::ThroughputMeasurement ()
+ThroughputMeasurement::ThroughputMeasurement()
 {
 }
 ThroughputMeasurement::~ThroughputMeasurement()
 {
 }
 
-const std::string&              ThroughputMeasurement::StartOfPeriod           () const
+const std::string& ThroughputMeasurement::StartOfPeriod() const
 {
     return this->startOfPeriod;
 }
-void                            ThroughputMeasurement::SetStartOfPeriod        (std::string start)
+void ThroughputMeasurement::SetStartOfPeriod(std::string start)
 {
     this->startOfPeriod = start;
 }
-uint64_t                        ThroughputMeasurement::DurationOfPeriod        () const
+uint64_t ThroughputMeasurement::DurationOfPeriod() const
 {
     return this->durationOfPeriod;
 }
-void                            ThroughputMeasurement::SetDurationOfPeriod     (uint64_t duration)
+void ThroughputMeasurement::SetDurationOfPeriod(uint64_t duration)
 {
     this->durationOfPeriod = duration;
 }
-const std::vector<uint32_t>&    ThroughputMeasurement::ReceivedBytesPerTrace   () const
+const std::vector<uint32_t>& ThroughputMeasurement::ReceivedBytesPerTrace() const
 {
     return this->receivedBytesPerTrace;
 }
-void                            ThroughputMeasurement::AddReceivedBytes        (uint32_t numberOfBytes)
+void ThroughputMeasurement::AddReceivedBytes(uint32_t numberOfBytes)
 {
     this->receivedBytesPerTrace.push_back(numberOfBytes);
 }

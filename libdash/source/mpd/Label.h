@@ -14,32 +14,27 @@
 
 #include "config.h"
 
-#include "ILabel.h"
 #include "AbstractMPDElement.h"
+#include "ILabel.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class Label : public ILabel, public AbstractMPDElement
-        {
-            public:
-                Label             ();
-                virtual ~Label    ();
+namespace dash {
+namespace mpd {
+    class Label : public ILabel, public AbstractMPDElement {
+    public:
+        Label();
+        virtual ~Label();
 
-                uint32_t             GetId        ()  const;
-                const std::string&   GetLang      ()  const;
-                
+        uint32_t GetId() const;
+        const std::string& GetLang() const;
 
-                void    SetId       (uint32_t  id);
-                void    SetLang     (const std::string& lang);
+        void SetId(uint32_t id);
+        void SetLang(const std::string& lang);
 
-            private:
-                uint32_t    id;
-                std::string lang;
-                
-        };
-    }
+    private:
+        uint32_t id;
+        std::string lang;
+    };
+}
 }
 
 #endif /* ILABEL_H_ */

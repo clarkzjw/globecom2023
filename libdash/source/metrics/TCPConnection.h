@@ -14,36 +14,33 @@
 
 #include "ITCPConnection.h"
 
-namespace dash
-{
-    namespace metrics
-    {
-        class TCPConnection : public ITCPConnection
-        {
-            public:
-                TCPConnection          ();
-                virtual ~TCPConnection ();
+namespace dash {
+namespace metrics {
+    class TCPConnection : public ITCPConnection {
+    public:
+        TCPConnection();
+        virtual ~TCPConnection();
 
-                uint32_t                TCPId                   () const;
-                const std::string&      DestinationAddress      () const;
-                const std::string&      ConnectionOpenedTime    () const;
-                const std::string&      ConnectionClosedTime    () const;
-                uint64_t                ConnectionTime          () const;
+        uint32_t TCPId() const;
+        const std::string& DestinationAddress() const;
+        const std::string& ConnectionOpenedTime() const;
+        const std::string& ConnectionClosedTime() const;
+        uint64_t ConnectionTime() const;
 
-                void    SetTCPId                (uint32_t tcpId);
-                void    SetDestinationAddress   (const std::string& destAddress);
-                void    SetConnectionOpenedTime (std::string tOpen);
-                void    SetConnectionClosedTime (std::string tClose);
-                void    SetConnectionTime       (uint64_t tConnect);
+        void SetTCPId(uint32_t tcpId);
+        void SetDestinationAddress(const std::string& destAddress);
+        void SetConnectionOpenedTime(std::string tOpen);
+        void SetConnectionClosedTime(std::string tClose);
+        void SetConnectionTime(uint64_t tConnect);
 
-            private:
-                uint32_t        tcpId;
-                std::string     dest;
-                std::string     tOpen;
-                std::string     tClose;
-                uint64_t        tConnect;
-        };
-    }
+    private:
+        uint32_t tcpId;
+        std::string dest;
+        std::string tOpen;
+        std::string tClose;
+        uint64_t tConnect;
+    };
+}
 }
 
 #endif /* TCPCONNECTION_H_ */

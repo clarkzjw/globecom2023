@@ -8,7 +8,7 @@
  * @contributor        Daniele Lorenzi
  * @contributoremail   lorenzidaniele.97@gmail.com
  * @contributiondate   2021
- * 
+ *
  * This source code and its use and distribution, is subject to the terms
  * and conditions of the applicable license agreement.
  *****************************************************************************/
@@ -17,57 +17,57 @@
 
 using namespace dash::mpd;
 
-MultipleSegmentBase::MultipleSegmentBase    () :
-                        bitstreamSwitching(NULL),
-                        segmentTimeline(NULL),
-                        duration(0),
-                        startNumber(1),
-                        endNumber(1)
+MultipleSegmentBase::MultipleSegmentBase()
+    : bitstreamSwitching(NULL)
+    , segmentTimeline(NULL)
+    , duration(0)
+    , startNumber(1)
+    , endNumber(1)
 {
 }
-MultipleSegmentBase::~MultipleSegmentBase   ()
+MultipleSegmentBase::~MultipleSegmentBase()
 {
-    delete(this->segmentTimeline);
-    delete(this->bitstreamSwitching);
+    delete (this->segmentTimeline);
+    delete (this->bitstreamSwitching);
 }
 
-const ISegmentTimeline *    MultipleSegmentBase::GetSegmentTimeline     ()  const
+const ISegmentTimeline* MultipleSegmentBase::GetSegmentTimeline() const
 {
-    return (ISegmentTimeline *) this->segmentTimeline;
+    return (ISegmentTimeline*)this->segmentTimeline;
 }
-void                        MultipleSegmentBase::SetSegmentTimeline     (SegmentTimeline *segmentTimeline)
+void MultipleSegmentBase::SetSegmentTimeline(SegmentTimeline* segmentTimeline)
 {
     this->segmentTimeline = segmentTimeline;
 }
-const IURLType*             MultipleSegmentBase::GetBitstreamSwitching  ()  const
+const IURLType* MultipleSegmentBase::GetBitstreamSwitching() const
 {
     return this->bitstreamSwitching;
 }
-void                        MultipleSegmentBase::SetBitstreamSwitching  (URLType *bitstreamSwitching)
+void MultipleSegmentBase::SetBitstreamSwitching(URLType* bitstreamSwitching)
 {
     this->bitstreamSwitching = bitstreamSwitching;
 }
-uint32_t                    MultipleSegmentBase::GetDuration            ()  const
+uint32_t MultipleSegmentBase::GetDuration() const
 {
     return this->duration;
 }
-void                        MultipleSegmentBase::SetDuration            (uint32_t duration)
+void MultipleSegmentBase::SetDuration(uint32_t duration)
 {
     this->duration = duration;
 }
-uint32_t                    MultipleSegmentBase::GetStartNumber         ()  const
+uint32_t MultipleSegmentBase::GetStartNumber() const
 {
     return this->startNumber;
 }
-void                        MultipleSegmentBase::SetStartNumber         (uint32_t startNumber)
+void MultipleSegmentBase::SetStartNumber(uint32_t startNumber)
 {
     this->startNumber = startNumber;
 }
-uint32_t                    MultipleSegmentBase::GetEndNumber           ()  const
+uint32_t MultipleSegmentBase::GetEndNumber() const
 {
     return this->endNumber;
 }
-void                        MultipleSegmentBase::SetEndNumber           (uint32_t endNumber)
+void MultipleSegmentBase::SetEndNumber(uint32_t endNumber)
 {
     this->endNumber = endNumber;
 }

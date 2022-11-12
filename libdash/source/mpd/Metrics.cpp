@@ -13,39 +13,39 @@
 
 using namespace dash::mpd;
 
-Metrics::Metrics    () :
-            metrics("")
+Metrics::Metrics()
+    : metrics("")
 {
 }
-Metrics::~Metrics   ()
+Metrics::~Metrics()
 {
-    for(size_t i = 0; i < this->reportings.size(); i++)
-        delete(this->reportings.at(i));
-    for(size_t i = 0; i < this->ranges.size(); i++)
-        delete(this->ranges.at(i));
+    for (size_t i = 0; i < this->reportings.size(); i++)
+        delete (this->reportings.at(i));
+    for (size_t i = 0; i < this->ranges.size(); i++)
+        delete (this->ranges.at(i));
 }
 
-const std::vector<IDescriptor *>&   Metrics::GetReportings  ()  const
+const std::vector<IDescriptor*>& Metrics::GetReportings() const
 {
-    return (std::vector<IDescriptor *> &)this->reportings;
+    return (std::vector<IDescriptor*>&)this->reportings;
 }
-void                                Metrics::AddReporting   (Descriptor *reporting)
+void Metrics::AddReporting(Descriptor* reporting)
 {
     this->reportings.push_back(reporting);
 }
-const std::vector<IRange *>&        Metrics::GetRanges      ()  const
+const std::vector<IRange*>& Metrics::GetRanges() const
 {
-    return (std::vector<IRange *> &)this->ranges;
+    return (std::vector<IRange*>&)this->ranges;
 }
-void                                Metrics::AddRange       (Range *range)
+void Metrics::AddRange(Range* range)
 {
     this->ranges.push_back(range);
 }
-const std::string&                  Metrics::GetMetrics     ()  const
+const std::string& Metrics::GetMetrics() const
 {
     return this->metrics;
 }
-void                                Metrics::SetMetrics     (const std::string& metrics)
+void Metrics::SetMetrics(const std::string& metrics)
 {
     this->metrics = metrics;
 }

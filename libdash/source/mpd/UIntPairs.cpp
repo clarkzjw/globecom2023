@@ -13,26 +13,26 @@
 
 using namespace dash::mpd;
 
-UIntPairs::UIntPairs    ()    
+UIntPairs::UIntPairs()
 {
 }
-UIntPairs::~UIntPairs   ()
+UIntPairs::~UIntPairs()
 {
 }
 
-uint32_t            UIntPairs::GetLatency    ()  const
+uint32_t UIntPairs::GetLatency() const
 {
     return this->latency;
 }
-void                UIntPairs::SetLatency    (uint32_t latency) 
+void UIntPairs::SetLatency(uint32_t latency)
 {
     this->latency = latency;
 }
-uint32_t            UIntPairs::GetQuality    ()  const
+uint32_t UIntPairs::GetQuality() const
 {
     return this->quality;
 }
-void                UIntPairs::SetQuality    (uint32_t quality) 
+void UIntPairs::SetQuality(uint32_t quality)
 {
     this->quality = quality;
 }

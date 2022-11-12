@@ -13,29 +13,29 @@
 
 using namespace dash::mpd;
 
-ExtendedBandwidth::ExtendedBandwidth    () :
-                vbr(false)
+ExtendedBandwidth::ExtendedBandwidth()
+    : vbr(false)
 {
 }
-ExtendedBandwidth::~ExtendedBandwidth   ()
+ExtendedBandwidth::~ExtendedBandwidth()
 {
-    for (size_t i=0; i < this->modelPairs.size(); i++)
-        delete(this->modelPairs.at(i));
+    for (size_t i = 0; i < this->modelPairs.size(); i++)
+        delete (this->modelPairs.at(i));
 }
 
-const std::vector<IModelPair *>&   ExtendedBandwidth::GetModelPairs        ()  const
+const std::vector<IModelPair*>& ExtendedBandwidth::GetModelPairs() const
 {
-    return (std::vector<IModelPair*> &) this->modelPairs;
+    return (std::vector<IModelPair*>&)this->modelPairs;
 }
-void                               ExtendedBandwidth::AddModelPair         (ModelPair *modelPair)
+void ExtendedBandwidth::AddModelPair(ModelPair* modelPair)
 {
     this->modelPairs.push_back(modelPair);
 }
-bool                               ExtendedBandwidth::GetVbr               ()  const
+bool ExtendedBandwidth::GetVbr() const
 {
     return this->vbr;
 }
-void                               ExtendedBandwidth::SetVbr               (bool vbr)
+void ExtendedBandwidth::SetVbr(bool vbr)
 {
     this->vbr = vbr;
 }

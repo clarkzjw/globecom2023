@@ -13,41 +13,36 @@
 
 using namespace dash::helpers;
 
-void    String::Split   (const std::string &s, char delim, std::vector<std::string>& vector)
+void String::Split(const std::string& s, char delim, std::vector<std::string>& vector)
 {
-    std::stringstream           ss(s);
-    std::string                 item;
+    std::stringstream ss(s);
+    std::string item;
 
-    while(std::getline(ss, item, delim))
+    while (std::getline(ss, item, delim))
         vector.push_back(item);
 }
-void    String::Split   (const std::string &s, char delim, std::vector<uint32_t>& vector)
+void String::Split(const std::string& s, char delim, std::vector<uint32_t>& vector)
 {
     size_t lengthOfString = s.length();
     size_t pos = 0;
     size_t i = 0;
     uint32_t level = 0;
 
-    while (pos != std::string::npos)
-    {
+    while (pos != std::string::npos) {
         pos = s.find(delim, i);
 
-        if (i < lengthOfString)
-        {
-            level = strtoul(s.substr(i, pos-i).c_str(), NULL, 10);
+        if (i < lengthOfString) {
+            level = strtoul(s.substr(i, pos - i).c_str(), NULL, 10);
             vector.push_back(level);
             i = pos + 1;
         }
     }
 }
-bool    String::ToBool  (const std::string &s)
+bool String::ToBool(const std::string& s)
 {
-    if (s == "true" || s == "True" || s == "TRUE")
-    {
+    if (s == "true" || s == "True" || s == "TRUE") {
         return true;
-    }
-    else
-    {
+    } else {
         return false;
     }
 }

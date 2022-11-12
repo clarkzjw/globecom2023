@@ -14,33 +14,29 @@
 
 #include "config.h"
 
+#include "../helpers/String.h"
+#include "AbstractMPDElement.h"
 #include "IUIntPairsWithID.h"
 #include "UIntPairs.h"
-#include "AbstractMPDElement.h"
-#include "../helpers/String.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class UIntPairsWithID : public IUIntPairsWithID, public AbstractMPDElement
-        {
-            public:
-                UIntPairsWithID             ();
-                virtual ~UIntPairsWithID    ();
+namespace dash {
+namespace mpd {
+    class UIntPairsWithID : public IUIntPairsWithID, public AbstractMPDElement {
+    public:
+        UIntPairsWithID();
+        virtual ~UIntPairsWithID();
 
-                const std::vector<IUIntPairs *>&     GetQualityLatency         ()  const;
-                const std::string&                   GetType                   ()  const;
+        const std::vector<IUIntPairs*>& GetQualityLatency() const;
+        const std::string& GetType() const;
 
-                void    AddQualityLatency    (const std::string& ql);
-                void    SetType              (const std::string& type);
+        void AddQualityLatency(const std::string& ql);
+        void SetType(const std::string& type);
 
-            private:
-                std::vector<IUIntPairs *>   qlpairs;
-                std::string                 type;
-                
-        };
-    }
+    private:
+        std::vector<IUIntPairs*> qlpairs;
+        std::string type;
+    };
+}
 }
 
 #endif /* UINTPAIRSWITHID_H_ */

@@ -14,40 +14,36 @@
 
 #include "config.h"
 
-#include "IEvent.h"
 #include "AbstractMPDElement.h"
+#include "IEvent.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class Event : public IEvent, public AbstractMPDElement
-        {
-            public:
-                Event             ();
-                virtual ~Event    ();
+namespace dash {
+namespace mpd {
+    class Event : public IEvent, public AbstractMPDElement {
+    public:
+        Event();
+        virtual ~Event();
 
-                uint64_t             GetPresentationTime    ()  const;
-                const std::string&   GetDuration            ()  const;
-                uint32_t             GetId                  ()  const;
-                const std::string&   GetContentEncoding     ()  const;
-                const std::string&   GetMessageData         ()  const;
+        uint64_t GetPresentationTime() const;
+        const std::string& GetDuration() const;
+        uint32_t GetId() const;
+        const std::string& GetContentEncoding() const;
+        const std::string& GetMessageData() const;
 
-                void    SetPresentationTime    (uint64_t presentationTime);
-                void    SetDuration            (const std::string& duration);
-                void    SetId                  (uint32_t  id);
-                void    SetContentEncoding     (const std::string&  contentEncoding);
-                void    SetMessageData         (const std::string&  messageData);
+        void SetPresentationTime(uint64_t presentationTime);
+        void SetDuration(const std::string& duration);
+        void SetId(uint32_t id);
+        void SetContentEncoding(const std::string& contentEncoding);
+        void SetMessageData(const std::string& messageData);
 
-            private:
-                uint64_t    presentationTime;
-                std::string duration;
-                uint32_t    id;
-                std::string contentEncoding;
-                std::string messageData;
-                
-        };
-    }
+    private:
+        uint64_t presentationTime;
+        std::string duration;
+        uint32_t id;
+        std::string contentEncoding;
+        std::string messageData;
+    };
+}
 }
 
 #endif /* IEVENT_H_ */

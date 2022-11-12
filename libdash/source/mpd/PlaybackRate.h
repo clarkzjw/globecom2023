@@ -14,31 +14,27 @@
 
 #include "config.h"
 
-#include "IPlaybackRate.h"
 #include "AbstractMPDElement.h"
+#include "IPlaybackRate.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class PlaybackRate : public IPlaybackRate, public AbstractMPDElement
-        {
-            public:
-                PlaybackRate             ();
-                virtual ~PlaybackRate    ();
+namespace dash {
+namespace mpd {
+    class PlaybackRate : public IPlaybackRate, public AbstractMPDElement {
+    public:
+        PlaybackRate();
+        virtual ~PlaybackRate();
 
-                double                                   GetMax                        ()  const;
-                double                                   GetMin                        ()  const;
+        double GetMax() const;
+        double GetMin() const;
 
-                void    SetMax                   (double max);
-                void    SetMin                   (double min);
+        void SetMax(double max);
+        void SetMin(double min);
 
-            private:
-                double                          max;
-                double                          min;
-                
-        };
-    }
+    private:
+        double max;
+        double min;
+    };
+}
 }
 
 #endif /* PLAYBACKRATE_H_ */

@@ -19,19 +19,19 @@
 /********************************
  * Pragmas
  ********************************/
-#pragma warning( disable : 4250 ) // virtual inheritance
+#pragma warning(disable : 4250) // virtual inheritance
 /********************************
  * Standard includes
  ********************************/
-#include <stdlib.h>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <stdint.h>
-#include <map>
+#include <cstdlib>
 #include <deque>
 #include <iostream>
-#include <cstdlib>
+#include <map>
+#include <sstream>
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
+#include <string>
+#include <vector>
 
 #endif /* CONFIG_H_ */

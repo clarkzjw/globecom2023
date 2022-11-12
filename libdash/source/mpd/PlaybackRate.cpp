@@ -13,26 +13,26 @@
 
 using namespace dash::mpd;
 
-PlaybackRate::PlaybackRate    ()
+PlaybackRate::PlaybackRate()
 {
 }
-PlaybackRate::~PlaybackRate   ()
+PlaybackRate::~PlaybackRate()
 {
 }
 
-double                                     PlaybackRate::GetMax                      ()  const
+double PlaybackRate::GetMax() const
 {
     return this->max;
 }
-void                                       PlaybackRate::SetMax                      (double max)
+void PlaybackRate::SetMax(double max)
 {
     this->max = max;
 }
-double                                     PlaybackRate::GetMin                      ()  const
+double PlaybackRate::GetMin() const
 {
     return this->min;
 }
-void                                       PlaybackRate::SetMin                      (double min)
+void PlaybackRate::SetMin(double min)
 {
     this->min = min;
 }

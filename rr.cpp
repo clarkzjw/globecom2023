@@ -10,7 +10,8 @@
 
 // create a downloader for each path
 // each path poll available tasks at the same time
-void path_downloader(int path_index) {
+void path_downloader(int path_index)
+{
     while (true) {
         if (!tasks.empty()) {
             while (player_buffer.size() > PLAYER_BUFFER_MAX_SEGMENTS) {
@@ -31,7 +32,7 @@ void path_downloader(int path_index) {
                 st.filename = t.filename;
                 st.seg_no = t.seg_no;
 
-                struct picoquic_download_stat picoquic_st{};
+                struct picoquic_download_stat picoquic_st { };
 
                 PerSegmentStats pst;
                 TicToc timer;
@@ -45,14 +46,14 @@ void path_downloader(int path_index) {
                 // if this segment is shown for the first time
                 if (!seg_stats.contains(t.seg_no)) {
                     pst.file_size = get_filesize(t.filename);
-                    seg_stats.insert({t.seg_no, pst});
+                    seg_stats.insert({ t.seg_no, pst });
                 } else {
                     seg_stats[t.seg_no].end = timer.toc();
                     seg_stats[t.seg_no].finished_layers++;
                     seg_stats[t.seg_no].file_size += get_filesize(t.filename);
 
                     if (seg_stats[t.seg_no].finished_layers == 4) {
-                        PlayableSegment ps{};
+                        PlayableSegment ps {};
                         ps.nb_frames = 48;
                         ps.eos = 0;
                         ps.seg_no = t.seg_no;
@@ -74,20 +75,22 @@ void path_downloader(int path_index) {
     }
 }
 
-void multipath_round_robin_download_queue() {
+void multipath_round_robin_download_queue()
+{
     std::thread t1(path_downloader, 0);
     std::thread t2(path_downloader, 1);
 
     t1.join();
     t2.join();
 
-    PlayableSegment ps{};
+    PlayableSegment ps {};
     ps.eos = 1;
     player_buffer.push(ps);
 }
 
 // we need a queue to store the tasks
-void multipath_round_robin_download() {
+void multipath_round_robin_download()
+{
     int nb_segments = (int)urls[0].size();
     int layers = (int)urls.size();
 
@@ -119,20 +122,20 @@ void multipath_round_robin_download() {
     thread_player.join();
 
     printf("\nper layer download metrics, nb_layers downloaded: %zu\n", stats.size());
-    for (auto & stat : stats) {
+    for (auto& stat : stats) {
         printf("seg_no: %d, filename: %s, filesize: %d, time: %f, speed: %f, actual_speed: %f, path_index: %d\n", stat.seg_no, stat.filename.c_str(), stat.filesize, stat.time, stat.speed, stat.actual_speed, stat.path_index);
     }
 
     printf("\nper segment download metrics\n");
-    for (auto& [key, value] : seg_stats)
-    {
+    for (auto& [key, value] : seg_stats) {
         value.download_time = double(std::chrono::duration_cast<std::chrono::microseconds>(value.end - value.start).count()) / 1e6;
         value.download_speed = value.file_size / value.download_time / 1000000.0 * 8.0;
 
-        std::cout << key << " = " << "used: " << \
-        value.download_time \
-        << " seconds, " << "ends at " << epoch_to_relative_seconds(playback_start, value.end) \
-        << " speed: " << value.download_speed << " Mbps" \
-        << " total filesize " << value.file_size << " bytes" << endl;
+        std::cout << key << " = "
+                  << "used: " << value.download_time
+                  << " seconds, "
+                  << "ends at " << epoch_to_relative_seconds(playback_start, value.end)
+                  << " speed: " << value.download_speed << " Mbps"
+                  << " total filesize " << value.file_size << " bytes" << endl;
     }
 }

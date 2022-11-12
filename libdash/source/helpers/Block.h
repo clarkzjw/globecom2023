@@ -14,47 +14,43 @@
 
 #include "config.h"
 
-namespace dash
-{
-    namespace helpers
+namespace dash {
+namespace helpers {
+    struct block_t {
+        uint8_t* data;
+        size_t len;
+        float millisec;
+        size_t offset;
+    };
+
+    static inline block_t* AllocBlock(size_t len)
     {
-        struct block_t
-        {
-            uint8_t *data;
-            size_t  len;
-            float   millisec;
-            size_t  offset;
-        };
+        block_t* block = (block_t*)malloc(sizeof(block_t));
+        block->data = new uint8_t[len];
+        block->len = len;
+        block->millisec = 0;
+        block->offset = 0;
 
-        static inline block_t*  AllocBlock      (size_t len)
-        {
-            block_t *block  = (block_t *)malloc(sizeof(block_t));
-            block->data     = new uint8_t[len];
-            block->len      = len;
-            block->millisec = 0;
-            block->offset   = 0;
-      
-            return block;
-        }
-        static inline void      DeleteBlock     (block_t *block)
-        {
-            if(block)
-            {
-                delete [] block->data;
-                free(block);
-                block = NULL;
-            }
-        }
-        static inline block_t*  DuplicateBlock  (block_t *block)
-        {
-            block_t *ret = AllocBlock(block->len);
-            ret->offset  = block->offset;
-
-            memcpy(ret->data, block->data, ret->len);
-
-            return block;
+        return block;
+    }
+    static inline void DeleteBlock(block_t* block)
+    {
+        if (block) {
+            delete[] block->data;
+            free(block);
+            block = NULL;
         }
     }
+    static inline block_t* DuplicateBlock(block_t* block)
+    {
+        block_t* ret = AllocBlock(block->len);
+        ret->offset = block->offset;
+
+        memcpy(ret->data, block->data, ret->len);
+
+        return block;
+    }
+}
 }
 
 #endif

@@ -14,39 +14,36 @@
 
 #include "config.h"
 
-#include "IProgramInformation.h"
 #include "AbstractMPDElement.h"
+#include "IProgramInformation.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class ProgramInformation : public IProgramInformation, public AbstractMPDElement
-        {
-            public:
-                ProgramInformation          ();
-                virtual ~ProgramInformation ();
+namespace dash {
+namespace mpd {
+    class ProgramInformation : public IProgramInformation, public AbstractMPDElement {
+    public:
+        ProgramInformation();
+        virtual ~ProgramInformation();
 
-                const std::string&  GetTitle                ()  const;
-                const std::string&  GetSource               ()  const;
-                const std::string&  GetCopyright            ()  const;
-                const std::string&  GetLang                 ()  const;
-                const std::string&  GetMoreInformationURL   ()  const;
+        const std::string& GetTitle() const;
+        const std::string& GetSource() const;
+        const std::string& GetCopyright() const;
+        const std::string& GetLang() const;
+        const std::string& GetMoreInformationURL() const;
 
-                void    SetTitle                (const std::string& title);
-                void    SetSource               (const std::string& source);
-                void    SetCopyright            (const std::string& copyright);
-                void    SetLang                 (const std::string& lang);
-                void    SetMoreInformationURL   (const std::string& moreInformationURL);
+        void SetTitle(const std::string& title);
+        void SetSource(const std::string& source);
+        void SetCopyright(const std::string& copyright);
+        void SetLang(const std::string& lang);
+        void SetMoreInformationURL(const std::string& moreInformationURL);
 
-            private:
-                std::string title;
-                std::string source;
-                std::string copyright;
-                std::string lang;
-                std::string moreInformationURL;
-        };
-    }
+    private:
+        std::string title;
+        std::string source;
+        std::string copyright;
+        std::string lang;
+        std::string moreInformationURL;
+    };
+}
 }
 
 #endif /* PROGRAMINFORMATION_H_ */

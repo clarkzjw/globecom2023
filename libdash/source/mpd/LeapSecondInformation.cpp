@@ -13,36 +13,36 @@
 
 using namespace dash::mpd;
 
-LeapSecondInformation::LeapSecondInformation    ()  :
-    availabilityStartLeapOffset(0)
-    
+LeapSecondInformation::LeapSecondInformation()
+    : availabilityStartLeapOffset(0)
+
 {
 }
-LeapSecondInformation::~LeapSecondInformation   ()
+LeapSecondInformation::~LeapSecondInformation()
 {
 }
 
-int32_t              LeapSecondInformation::GetAvailabilityStartLeapOffset        ()  const
+int32_t LeapSecondInformation::GetAvailabilityStartLeapOffset() const
 {
     return this->availabilityStartLeapOffset;
 }
-void                 LeapSecondInformation::SetAvailabilityStartLeapOffset        (int32_t availabilityStartLeapOffset) 
+void LeapSecondInformation::SetAvailabilityStartLeapOffset(int32_t availabilityStartLeapOffset)
 {
     this->availabilityStartLeapOffset = availabilityStartLeapOffset;
 }
-int32_t              LeapSecondInformation::GetNextAvailabilityStartLeapOffset    ()  const
+int32_t LeapSecondInformation::GetNextAvailabilityStartLeapOffset() const
 {
     return this->nextAvailabilityStartLeapOffset;
 }
-void                 LeapSecondInformation::SetNextAvailabilityStartLeapOffset    (int32_t nextAvailabilityStartLeapOffset) 
+void LeapSecondInformation::SetNextAvailabilityStartLeapOffset(int32_t nextAvailabilityStartLeapOffset)
 {
     this->nextAvailabilityStartLeapOffset = nextAvailabilityStartLeapOffset;
 }
-const std::string&   LeapSecondInformation::GetNextLeapChangeTime                 ()  const
+const std::string& LeapSecondInformation::GetNextLeapChangeTime() const
 {
     return this->nextLeapChangeTime;
 }
-void                 LeapSecondInformation::SetNextLeapChangeTime                 (const std::string& nextLeapChangeTime) 
+void LeapSecondInformation::SetNextLeapChangeTime(const std::string& nextLeapChangeTime)
 {
     this->nextLeapChangeTime = nextLeapChangeTime;
 }

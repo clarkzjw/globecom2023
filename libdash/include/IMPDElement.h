@@ -1,7 +1,7 @@
 /**
  *  @class      dash::mpd::IMPDElement
  *  @brief      This interface is needed for accessing additional nested <em>XML Elements</em> and <em>XML Attributes</em> of some MPD Classes.
- *  @details    Due to the fact that some MPD classes may contain additional <em>XML Elements</em>, which are not specified in <em>ISO/IEC 23009-1, Part 1, 2012</em> 
+ *  @details    Due to the fact that some MPD classes may contain additional <em>XML Elements</em>, which are not specified in <em>ISO/IEC 23009-1, Part 1, 2012</em>
  *              but are attached to them, this interface is needed for retrieving these <em>XML Elements</em>. \n\n
  *              See example below for clarification (inspired by the example from section G.7 of <em>ISO/IEC 23009-1, Part 1, 2012</em>).\n
  *              \code{.xml}
@@ -22,10 +22,10 @@
  *                      <xs:anyAttribute namespace="##other" processContents="lax"/>
  *                  </xs:complexType>
  *              \endcode
- *              So <tt><b>ContentProtection</b></tt> can contain additional <em>XML Elements</em> - here <tt><b>License</b></tt> and <tt><b>Content</b></tt> - 
+ *              So <tt><b>ContentProtection</b></tt> can contain additional <em>XML Elements</em> - here <tt><b>License</b></tt> and <tt><b>Content</b></tt> -
  *              which are of type dash::xml::INode and can be retrieved by calling GetAdditionalSubNodes(). \n
- *              Similarly additional <em>XML Attributes</em> that are not specified in <em>ISO/IEC 23009-1, Part 1, 2012</em> 
- *              can be retrieved by calling GetRawAttributes(), but please mind that all attributes 
+ *              Similarly additional <em>XML Attributes</em> that are not specified in <em>ISO/IEC 23009-1, Part 1, 2012</em>
+ *              can be retrieved by calling GetRawAttributes(), but please mind that all attributes
  *              of the Element are returned, not just the additional ones. So in the example above both
  *              attributes \c schemeIDUri (which is specified) and \c additionalAttribute (which is not) are returned.
  *  @see        dash::xml::INode
@@ -46,32 +46,29 @@
 
 #include "INode.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class IMPDElement
-        {
-            public:
-                virtual ~IMPDElement (){}
-                
-                /**
-                 *  This method returns a vector of pointers to dash::xml::INode objects which correspond to additional <em>XML Elements</em> of certain
-                 *  MPD elements. These <em>XML Elements</em> are not specified in <em>ISO/IEC 23009-1, Part 1, 2012</em>. \n
-                 *  See the example in the class description for details.
-                 *  @return     a vector of pointers to dash::xml::INode objects
-                 */
-                virtual const std::vector<xml::INode *>             GetAdditionalSubNodes   ()  const = 0;
-                
-                /**
-                 *  This method returns a map with key values and mapped values of type std::string of all <em>XML Attributes</em> of certain MPD elements. \n
-                 *  Some of these <em>XML Attributes</em> are not specified in <em>ISO/IEC 23009-1, Part 1, 2012</em>. \n
-                 *  See the example in the class description for details.
-                 *  @return     a map with key values and mapped values, both of type std::string
-                 */
-                virtual const std::map<std::string, std::string>    GetRawAttributes        ()  const = 0;
-        };
-    }
+namespace dash {
+namespace mpd {
+    class IMPDElement {
+    public:
+        virtual ~IMPDElement() { }
+
+        /**
+         *  This method returns a vector of pointers to dash::xml::INode objects which correspond to additional <em>XML Elements</em> of certain
+         *  MPD elements. These <em>XML Elements</em> are not specified in <em>ISO/IEC 23009-1, Part 1, 2012</em>. \n
+         *  See the example in the class description for details.
+         *  @return     a vector of pointers to dash::xml::INode objects
+         */
+        virtual const std::vector<xml::INode*> GetAdditionalSubNodes() const = 0;
+
+        /**
+         *  This method returns a map with key values and mapped values of type std::string of all <em>XML Attributes</em> of certain MPD elements. \n
+         *  Some of these <em>XML Attributes</em> are not specified in <em>ISO/IEC 23009-1, Part 1, 2012</em>. \n
+         *  See the example in the class description for details.
+         *  @return     a map with key values and mapped values, both of type std::string
+         */
+        virtual const std::map<std::string, std::string> GetRawAttributes() const = 0;
+    };
+}
 }
 
 #endif /* IMPDELEMENT_H_ */

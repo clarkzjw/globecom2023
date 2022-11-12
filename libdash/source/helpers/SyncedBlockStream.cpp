@@ -13,19 +13,19 @@
 
 using namespace dash::helpers;
 
-SyncedBlockStream::SyncedBlockStream    () :
-                   eos                  (false)
+SyncedBlockStream::SyncedBlockStream()
+    : eos(false)
 {
-    InitializeConditionVariable (&this->full);
-    InitializeCriticalSection   (&this->monitorMutex);
+    InitializeConditionVariable(&this->full);
+    InitializeCriticalSection(&this->monitorMutex);
 }
-SyncedBlockStream::~SyncedBlockStream   ()
+SyncedBlockStream::~SyncedBlockStream()
 {
     DeleteConditionVariable(&this->full);
     DeleteCriticalSection(&this->monitorMutex);
 }
 
-void            SyncedBlockStream::PopAndDeleteFront  ()
+void SyncedBlockStream::PopAndDeleteFront()
 {
     EnterCriticalSection(&this->monitorMutex);
 
@@ -33,7 +33,7 @@ void            SyncedBlockStream::PopAndDeleteFront  ()
 
     LeaveCriticalSection(&this->monitorMutex);
 }
-void            SyncedBlockStream::PushBack           (block_t *block)
+void SyncedBlockStream::PushBack(block_t* block)
 {
     EnterCriticalSection(&this->monitorMutex);
 
@@ -42,7 +42,7 @@ void            SyncedBlockStream::PushBack           (block_t *block)
     WakeAllConditionVariable(&this->full);
     LeaveCriticalSection(&this->monitorMutex);
 }
-void            SyncedBlockStream::PushFront          (block_t *block)
+void SyncedBlockStream::PushFront(block_t* block)
 {
     EnterCriticalSection(&this->monitorMutex);
 
@@ -51,15 +51,14 @@ void            SyncedBlockStream::PushFront          (block_t *block)
     WakeAllConditionVariable(&this->full);
     LeaveCriticalSection(&this->monitorMutex);
 }
-const block_t*  SyncedBlockStream::GetBytes           (uint32_t len)
+const block_t* SyncedBlockStream::GetBytes(uint32_t len)
 {
     EnterCriticalSection(&this->monitorMutex);
 
-    while(this->length == 0 && !this->eos)
+    while (this->length == 0 && !this->eos)
         SleepConditionVariableCS(&this->full, &this->monitorMutex, INFINITE);
 
-    if(this->length == 0)
-    {
+    if (this->length == 0) {
         LeaveCriticalSection(&this->monitorMutex);
         return NULL;
     }
@@ -69,15 +68,14 @@ const block_t*  SyncedBlockStream::GetBytes           (uint32_t len)
 
     return block;
 }
-size_t          SyncedBlockStream::GetBytes           (uint8_t *data, size_t len)
+size_t SyncedBlockStream::GetBytes(uint8_t* data, size_t len)
 {
     EnterCriticalSection(&this->monitorMutex);
 
-    while(this->length == 0 && !this->eos)
+    while (this->length == 0 && !this->eos)
         SleepConditionVariableCS(&this->full, &this->monitorMutex, INFINITE);
 
-    if(this->length == 0)
-    {
+    if (this->length == 0) {
         LeaveCriticalSection(&this->monitorMutex);
         return 0;
     }
@@ -87,15 +85,14 @@ size_t          SyncedBlockStream::GetBytes           (uint8_t *data, size_t len
 
     return ret;
 }
-size_t          SyncedBlockStream::PeekBytes          (uint8_t *data, size_t len)
+size_t SyncedBlockStream::PeekBytes(uint8_t* data, size_t len)
 {
     EnterCriticalSection(&this->monitorMutex);
 
-    while(this->length == 0 && !this->eos)
+    while (this->length == 0 && !this->eos)
         SleepConditionVariableCS(&this->full, &this->monitorMutex, INFINITE);
 
-    if(this->length == 0)
-    {
+    if (this->length == 0) {
         LeaveCriticalSection(&this->monitorMutex);
         return 0;
     }
@@ -105,15 +102,14 @@ size_t          SyncedBlockStream::PeekBytes          (uint8_t *data, size_t len
 
     return ret;
 }
-size_t          SyncedBlockStream::PeekBytes          (uint8_t *data, size_t len, size_t offset)
+size_t SyncedBlockStream::PeekBytes(uint8_t* data, size_t len, size_t offset)
 {
     EnterCriticalSection(&this->monitorMutex);
 
-    while((this->length == 0 || offset >= this->length) && !this->eos)
+    while ((this->length == 0 || offset >= this->length) && !this->eos)
         SleepConditionVariableCS(&this->full, &this->monitorMutex, INFINITE);
 
-    if(this->length == 0 || offset >= this->length)
-    {
+    if (this->length == 0 || offset >= this->length) {
         LeaveCriticalSection(&this->monitorMutex);
         return 0;
     }
@@ -123,7 +119,7 @@ size_t          SyncedBlockStream::PeekBytes          (uint8_t *data, size_t len
 
     return ret;
 }
-uint64_t        SyncedBlockStream::Length             () const
+uint64_t SyncedBlockStream::Length() const
 {
     EnterCriticalSection(&this->monitorMutex);
 
@@ -133,15 +129,14 @@ uint64_t        SyncedBlockStream::Length             () const
 
     return len;
 }
-const block_t*  SyncedBlockStream::GetFront           ()
+const block_t* SyncedBlockStream::GetFront()
 {
     EnterCriticalSection(&this->monitorMutex);
 
-    while(this->length == 0 && !this->eos)
+    while (this->length == 0 && !this->eos)
         SleepConditionVariableCS(&this->full, &this->monitorMutex, INFINITE);
 
-    if(this->length == 0)
-    {
+    if (this->length == 0) {
         LeaveCriticalSection(&this->monitorMutex);
         return NULL;
     }
@@ -151,15 +146,14 @@ const block_t*  SyncedBlockStream::GetFront           ()
 
     return block;
 }
-const block_t*  SyncedBlockStream::Front              () const
+const block_t* SyncedBlockStream::Front() const
 {
     EnterCriticalSection(&this->monitorMutex);
 
-    while(this->length == 0 && !this->eos)
+    while (this->length == 0 && !this->eos)
         SleepConditionVariableCS(&this->full, &this->monitorMutex, INFINITE);
 
-    if(this->length == 0)
-    {
+    if (this->length == 0) {
         LeaveCriticalSection(&this->monitorMutex);
         return NULL;
     }
@@ -169,15 +163,14 @@ const block_t*  SyncedBlockStream::Front              () const
 
     return block;
 }
-uint8_t         SyncedBlockStream::ByteAt             (uint64_t position) const
+uint8_t SyncedBlockStream::ByteAt(uint64_t position) const
 {
     EnterCriticalSection(&this->monitorMutex);
 
-    while(this->length < position && !this->eos)
+    while (this->length < position && !this->eos)
         SleepConditionVariableCS(&this->full, &this->monitorMutex, INFINITE);
 
-    if(this->length < position)
-    {
+    if (this->length < position) {
         LeaveCriticalSection(&this->monitorMutex);
         return 0;
     }
@@ -187,15 +180,14 @@ uint8_t         SyncedBlockStream::ByteAt             (uint64_t position) const
 
     return ret;
 }
-const block_t*  SyncedBlockStream::ToBlock            ()
+const block_t* SyncedBlockStream::ToBlock()
 {
     EnterCriticalSection(&this->monitorMutex);
 
-    while(this->length == 0 && !this->eos)
+    while (this->length == 0 && !this->eos)
         SleepConditionVariableCS(&this->full, &this->monitorMutex, INFINITE);
 
-    if(this->length == 0)
-    {
+    if (this->length == 0) {
         LeaveCriticalSection(&this->monitorMutex);
         return NULL;
     }
@@ -205,7 +197,7 @@ const block_t*  SyncedBlockStream::ToBlock            ()
 
     return block;
 }
-void            SyncedBlockStream::Clear              ()
+void SyncedBlockStream::Clear()
 {
     EnterCriticalSection(&this->monitorMutex);
 
@@ -213,7 +205,7 @@ void            SyncedBlockStream::Clear              ()
 
     LeaveCriticalSection(&this->monitorMutex);
 }
-void            SyncedBlockStream::EraseFront         (uint64_t len)
+void SyncedBlockStream::EraseFront(uint64_t len)
 {
     EnterCriticalSection(&this->monitorMutex);
 
@@ -221,25 +213,24 @@ void            SyncedBlockStream::EraseFront         (uint64_t len)
 
     LeaveCriticalSection(&this->monitorMutex);
 }
-BlockStream*    SyncedBlockStream::GetBlocks          (uint64_t len)
+BlockStream* SyncedBlockStream::GetBlocks(uint64_t len)
 {
     EnterCriticalSection(&this->monitorMutex);
 
-    while(this->length == 0 && !this->eos)
+    while (this->length == 0 && !this->eos)
         SleepConditionVariableCS(&this->full, &this->monitorMutex, INFINITE);
 
-    if(this->length == 0)
-    {
+    if (this->length == 0) {
         LeaveCriticalSection(&this->monitorMutex);
         return NULL;
     }
 
-    BlockStream *stream = BlockStream::GetBlocks(len);
+    BlockStream* stream = BlockStream::GetBlocks(len);
     LeaveCriticalSection(&this->monitorMutex);
 
     return stream;
 }
-void            SyncedBlockStream::SetEOS             (bool value)
+void SyncedBlockStream::SetEOS(bool value)
 {
     EnterCriticalSection(&this->monitorMutex);
 

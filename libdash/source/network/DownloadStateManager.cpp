@@ -13,19 +13,19 @@
 
 using namespace dash::network;
 
-DownloadStateManager::DownloadStateManager  () :
-                     state                  (NOT_STARTED)
+DownloadStateManager::DownloadStateManager()
+    : state(NOT_STARTED)
 {
-    InitializeConditionVariable (&this->stateChanged);
-    InitializeCriticalSection   (&this->stateLock);
+    InitializeConditionVariable(&this->stateChanged);
+    InitializeCriticalSection(&this->stateLock);
 }
-DownloadStateManager::~DownloadStateManager ()
+DownloadStateManager::~DownloadStateManager()
 {
-    DeleteConditionVariable (&this->stateChanged);
-    DeleteCriticalSection   (&this->stateLock);
+    DeleteConditionVariable(&this->stateChanged);
+    DeleteCriticalSection(&this->stateLock);
 }
 
-DownloadState   DownloadStateManager::State         () const
+DownloadState DownloadStateManager::State() const
 {
     EnterCriticalSection(&this->stateLock);
 
@@ -35,7 +35,7 @@ DownloadState   DownloadStateManager::State         () const
 
     return ret;
 }
-void            DownloadStateManager::State         (DownloadState state)
+void DownloadStateManager::State(DownloadState state)
 {
     EnterCriticalSection(&this->stateLock);
 
@@ -45,56 +45,56 @@ void            DownloadStateManager::State         (DownloadState state)
     WakeAllConditionVariable(&this->stateChanged);
     LeaveCriticalSection(&this->stateLock);
 }
-void            DownloadStateManager::WaitState     (DownloadState state) const
+void DownloadStateManager::WaitState(DownloadState state) const
 {
     EnterCriticalSection(&this->stateLock);
 
-    while(this->state != state)
+    while (this->state != state)
         SleepConditionVariableCS(&this->stateChanged, &this->stateLock, INFINITE);
 
     LeaveCriticalSection(&this->stateLock);
 }
-void            DownloadStateManager::CheckAndWait  (DownloadState check, DownloadState wait) const
+void DownloadStateManager::CheckAndWait(DownloadState check, DownloadState wait) const
 {
     EnterCriticalSection(&this->stateLock);
 
-    if(this->state == check)
-        while(this->state != wait)
+    if (this->state == check)
+        while (this->state != wait)
             SleepConditionVariableCS(&this->stateChanged, &this->stateLock, INFINITE);
 
     LeaveCriticalSection(&this->stateLock);
 }
-void            DownloadStateManager::Attach        (IDownloadObserver *observer)
+void DownloadStateManager::Attach(IDownloadObserver* observer)
 {
     EnterCriticalSection(&this->stateLock);
     this->observers.push_back(observer);
     LeaveCriticalSection(&this->stateLock);
 }
-void            DownloadStateManager::Detach        (IDownloadObserver *observer)
+void DownloadStateManager::Detach(IDownloadObserver* observer)
 {
     EnterCriticalSection(&this->stateLock);
 
     uint32_t pos = -1;
 
-    for(size_t i = 0; i < this->observers.size(); i++)
-        if(this->observers.at(i) == observer)
+    for (size_t i = 0; i < this->observers.size(); i++)
+        if (this->observers.at(i) == observer)
             pos = i;
 
-    if(pos != -1)
+    if (pos != -1)
         this->observers.erase(this->observers.begin() + pos);
 
     LeaveCriticalSection(&this->stateLock);
 }
-void            DownloadStateManager::Notify        ()
+void DownloadStateManager::Notify()
 {
-    for(size_t i = 0; i < this->observers.size(); i++)
+    for (size_t i = 0; i < this->observers.size(); i++)
         this->observers.at(i)->OnDownloadStateChanged(this->state);
 }
-void            DownloadStateManager::CheckAndSet   (DownloadState check, DownloadState set)
+void DownloadStateManager::CheckAndSet(DownloadState check, DownloadState set)
 {
     EnterCriticalSection(&this->stateLock);
 
-    if(this->state == check)
+    if (this->state == check)
         this->state = set;
 
     LeaveCriticalSection(&this->stateLock);

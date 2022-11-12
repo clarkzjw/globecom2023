@@ -14,20 +14,17 @@
 
 #include "config.h"
 
-namespace dash
-{
-    namespace helpers
-    {
-        class Path
-        {
-            public:
-                static std::string              CombinePaths        (const std::string &path1, const std::string &path2);
-                static std::string              GetDirectoryPath    (const std::string &path);
-                static std::vector<std::string> Split               (const std::string &s, char delim);
-                static bool                     GetHostPortAndPath  (const std::string &url, std::string &host, size_t &port, std::string& path);
-                static bool                     GetStartAndEndBytes (const std::string &byteRange, size_t &startByte, size_t &endByte);
-        };
-    }
+namespace dash {
+namespace helpers {
+    class Path {
+    public:
+        static std::string CombinePaths(const std::string& path1, const std::string& path2);
+        static std::string GetDirectoryPath(const std::string& path);
+        static std::vector<std::string> Split(const std::string& s, char delim);
+        static bool GetHostPortAndPath(const std::string& url, std::string& host, size_t& port, std::string& path);
+        static bool GetStartAndEndBytes(const std::string& byteRange, size_t& startByte, size_t& endByte);
+    };
+}
 }
 
 #endif /* PATH_H_ */

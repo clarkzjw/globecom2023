@@ -14,37 +14,34 @@
 
 #include "config.h"
 
-#include "IDownloadObserver.h"
 #include "../portable/MultiThreading.h"
+#include "IDownloadObserver.h"
 
-namespace dash
-{
-    namespace network
-    {
-        class DownloadStateManager
-        {
-            public:
-                DownloadStateManager            ();
-                virtual ~DownloadStateManager   ();
+namespace dash {
+namespace network {
+    class DownloadStateManager {
+    public:
+        DownloadStateManager();
+        virtual ~DownloadStateManager();
 
-                DownloadState   State           () const;
-                void            WaitState       (DownloadState state) const;
-                void            CheckAndWait    (DownloadState check, DownloadState wait) const;
-                void            CheckAndSet     (DownloadState check, DownloadState set);
-                void            State           (DownloadState state);
-                void            Attach          (IDownloadObserver *observer);
-                void            Detach          (IDownloadObserver *observer);
+        DownloadState State() const;
+        void WaitState(DownloadState state) const;
+        void CheckAndWait(DownloadState check, DownloadState wait) const;
+        void CheckAndSet(DownloadState check, DownloadState set);
+        void State(DownloadState state);
+        void Attach(IDownloadObserver* observer);
+        void Detach(IDownloadObserver* observer);
 
-            private:
-                DownloadState               state;
-                mutable CRITICAL_SECTION    stateLock;
-                mutable CONDITION_VARIABLE  stateChanged;
+    private:
+        DownloadState state;
+        mutable CRITICAL_SECTION stateLock;
+        mutable CONDITION_VARIABLE stateChanged;
 
-                std::vector<IDownloadObserver *>    observers;
+        std::vector<IDownloadObserver*> observers;
 
-                void Notify ();
-        };
-    }
+        void Notify();
+    };
+}
 }
 
 #endif /* DOWNLOADSTATEMANAGER_H_ */

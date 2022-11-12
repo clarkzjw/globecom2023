@@ -14,37 +14,33 @@
 
 #include "config.h"
 
-#include "IOperatingBandwidth.h"
 #include "AbstractMPDElement.h"
+#include "IOperatingBandwidth.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class OperatingBandwidth : public IOperatingBandwidth, public AbstractMPDElement
-        {
-            public:
-                OperatingBandwidth             ();
-                virtual ~OperatingBandwidth    ();
+namespace dash {
+namespace mpd {
+    class OperatingBandwidth : public IOperatingBandwidth, public AbstractMPDElement {
+    public:
+        OperatingBandwidth();
+        virtual ~OperatingBandwidth();
 
-                const std::string&       GetMediaType                  ()  const;
-                uint32_t                 GetMin                        ()  const;
-                uint32_t                 GetMax                        ()  const;
-                uint32_t                 GetTarget                     ()  const;
+        const std::string& GetMediaType() const;
+        uint32_t GetMin() const;
+        uint32_t GetMax() const;
+        uint32_t GetTarget() const;
 
-                void    SetMediaType     (const std::string& mediaType);
-                void    SetMin           (uint32_t min);
-                void    SetMax           (uint32_t max);
-                void    SetTarget        (uint32_t target);
+        void SetMediaType(const std::string& mediaType);
+        void SetMin(uint32_t min);
+        void SetMax(uint32_t max);
+        void SetTarget(uint32_t target);
 
-            private:
-                std::string      mediaType;
-                uint32_t         min;
-                uint32_t         max;
-                uint32_t         target;
-                
-        };
-    }
+    private:
+        std::string mediaType;
+        uint32_t min;
+        uint32_t max;
+        uint32_t target;
+    };
+}
 }
 
 #endif /* OPERATINGBANDWIDTH_H_ */

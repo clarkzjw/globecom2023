@@ -14,27 +14,24 @@
 
 #include "config.h"
 
-#include "ISegmentTimeline.h"
 #include "AbstractMPDElement.h"
+#include "ISegmentTimeline.h"
 #include "Timeline.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class SegmentTimeline : public ISegmentTimeline, public AbstractMPDElement
-        {
-            public:
-                SegmentTimeline             ();
-                virtual ~SegmentTimeline    ();
+namespace dash {
+namespace mpd {
+    class SegmentTimeline : public ISegmentTimeline, public AbstractMPDElement {
+    public:
+        SegmentTimeline();
+        virtual ~SegmentTimeline();
 
-                std::vector<ITimeline *>&   GetTimelines    ()  const;
-                void                        AddTimeline     (Timeline *timeline);
+        std::vector<ITimeline*>& GetTimelines() const;
+        void AddTimeline(Timeline* timeline);
 
-            private:
-                std::vector<ITimeline *>    timelines;
-        };
-    }
+    private:
+        std::vector<ITimeline*> timelines;
+    };
+}
 }
 
 #endif /* SEGMENTTIMELINE_H_ */

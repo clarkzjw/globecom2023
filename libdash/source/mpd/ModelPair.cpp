@@ -13,29 +13,29 @@
 
 using namespace dash::mpd;
 
-ModelPair::ModelPair    () :
-                bufferTime(""),
-                bandwidth(0)
+ModelPair::ModelPair()
+    : bufferTime("")
+    , bandwidth(0)
 {
 }
 
-ModelPair::~ModelPair   ()
+ModelPair::~ModelPair()
 {
 }
 
-const std::string&                      ModelPair::GetBufferTime                     ()  const
+const std::string& ModelPair::GetBufferTime() const
 {
     return this->bufferTime;
 }
-void                                    ModelPair::SetBufferTime                     (const std::string& bufferTime)
+void ModelPair::SetBufferTime(const std::string& bufferTime)
 {
     this->bufferTime = bufferTime;
 }
-uint64_t                                ModelPair::GetBandwidth                      ()  const
+uint64_t ModelPair::GetBandwidth() const
 {
     return this->bandwidth;
 }
-void                                    ModelPair::SetBandwidth                      (uint64_t bandwidth)
+void ModelPair::SetBandwidth(uint64_t bandwidth)
 {
     this->bandwidth = bandwidth;
 }

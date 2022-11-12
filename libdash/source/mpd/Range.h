@@ -16,27 +16,24 @@
 
 #include "IRange.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class Range : public IRange
-        {
-            public:
-                Range           ();
-                virtual ~Range  ();
+namespace dash {
+namespace mpd {
+    class Range : public IRange {
+    public:
+        Range();
+        virtual ~Range();
 
-                const std::string&  GetStarttime    ()  const;
-                const std::string&  GetDuration     ()  const;
+        const std::string& GetStarttime() const;
+        const std::string& GetDuration() const;
 
-                void    SetStarttime    (const std::string& start);
-                void    SetDuration     (const std::string& duration);
+        void SetStarttime(const std::string& start);
+        void SetDuration(const std::string& duration);
 
-            private:
-                std::string starttime;
-                std::string duration;
-        };
-    }
+    private:
+        std::string starttime;
+        std::string duration;
+    };
+}
 }
 
 #endif /* RANGE_H_ */

@@ -13,59 +13,59 @@
 
 using namespace dash::mpd;
 
-OperatingQuality::OperatingQuality    ()  :
-            mediaType("any")
+OperatingQuality::OperatingQuality()
+    : mediaType("any")
 {
 }
-OperatingQuality::~OperatingQuality   ()
+OperatingQuality::~OperatingQuality()
 {
 }
 
-const std::string&                         OperatingQuality::GetMediaType                ()  const
+const std::string& OperatingQuality::GetMediaType() const
 {
     return this->mediaType;
 }
-void                                       OperatingQuality::SetMediaType                (const std::string& mediaType)
+void OperatingQuality::SetMediaType(const std::string& mediaType)
 {
     this->mediaType = mediaType;
 }
-uint32_t                                   OperatingQuality::GetMin                      ()  const
+uint32_t OperatingQuality::GetMin() const
 {
     return this->min;
 }
-void                                       OperatingQuality::SetMin                      (uint32_t min)
+void OperatingQuality::SetMin(uint32_t min)
 {
     this->min = min;
 }
-uint32_t                                   OperatingQuality::GetMax                      ()  const
+uint32_t OperatingQuality::GetMax() const
 {
     return this->max;
 }
-void                                       OperatingQuality::SetMax                      (uint32_t max)
+void OperatingQuality::SetMax(uint32_t max)
 {
     this->max = max;
 }
-uint32_t                                   OperatingQuality::GetTarget                   ()  const
+uint32_t OperatingQuality::GetTarget() const
 {
     return this->target;
 }
-void                                       OperatingQuality::SetTarget                   (uint32_t target)
+void OperatingQuality::SetTarget(uint32_t target)
 {
     this->target = target;
 }
-const std::string&                         OperatingQuality::GetType                     ()  const
+const std::string& OperatingQuality::GetType() const
 {
     return this->type;
 }
-void                                       OperatingQuality::SetType                     (const std::string& type)
+void OperatingQuality::SetType(const std::string& type)
 {
     this->type = type;
 }
-uint32_t                                   OperatingQuality::GetMaxDifference            ()  const
+uint32_t OperatingQuality::GetMaxDifference() const
 {
     return this->maxDifference;
 }
-void                                       OperatingQuality::SetMaxDifference            (uint32_t maxDifference)
+void OperatingQuality::SetMaxDifference(uint32_t maxDifference)
 {
     this->maxDifference = maxDifference;
 }

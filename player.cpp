@@ -9,7 +9,8 @@ std::vector<BufferEvent> buffering;
 /*
  * Mock Player
  * */
-void player() {
+void player()
+{
     double FPS = 24.0;
 
     TicToc buffering_timer;
@@ -17,9 +18,9 @@ void player() {
 
     while (true) {
         if (!player_buffer.empty()) {
-            if (!buffering.empty() && buffering[buffering.size()-1].completed == 0) {
-                buffering[buffering.size()-1].end = buffering_timer.tic();
-                buffering[buffering.size()-1].completed = 1;
+            if (!buffering.empty() && buffering[buffering.size() - 1].completed == 0) {
+                buffering[buffering.size() - 1].end = buffering_timer.tic();
+                buffering[buffering.size() - 1].completed = 1;
             }
             struct PlayableSegment s = player_buffer.front();
             player_buffer.pop();
@@ -31,10 +32,10 @@ void player() {
 
             int frames = s.nb_frames;
             printf("Playing segment %d\n", s.seg_no);
-            PortableSleep( 1 / FPS * frames);
+            PortableSleep(1 / FPS * frames);
         } else {
             if (buffering.empty() || buffering[buffering.size() - 1].completed == 1) {
-                struct BufferEvent be{};
+                struct BufferEvent be { };
                 be.start = buffering_timer.tic();
 
                 buffering.push_back(be);
@@ -42,13 +43,12 @@ void player() {
             } else {
                 continue;
             }
-
         }
     }
 
     printf("\nbuffering event metrics, buffer event count: %zu\n", buffering.size());
-    for (auto &be: buffering) {
-        std::cout << "buffer event, start: " << epoch_to_relative_seconds(player_start, be.start) << ", end: " \
-        << epoch_to_relative_seconds(player_start, be.end) << endl;
+    for (auto& be : buffering) {
+        std::cout << "buffer event, start: " << epoch_to_relative_seconds(player_start, be.start) << ", end: "
+                  << epoch_to_relative_seconds(player_start, be.end) << endl;
     }
 }

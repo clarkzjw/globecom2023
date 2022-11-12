@@ -13,43 +13,43 @@
 
 using namespace dash::mpd;
 
-UIntVWithID::UIntVWithID    () :
-                    id(0),
-                    contentType("")
+UIntVWithID::UIntVWithID()
+    : id(0)
+    , contentType("")
 {
 }
-UIntVWithID::~UIntVWithID   () 
+UIntVWithID::~UIntVWithID()
 {
 }
-const std::vector<uint32_t>&    UIntVWithID::GetList               ()  const
+const std::vector<uint32_t>& UIntVWithID::GetList() const
 {
     return this->list;
 }
-void                            UIntVWithID::SetList               (const std::string& list)
+void UIntVWithID::SetList(const std::string& list)
 {
     dash::helpers::String::Split(list, ' ', this->list);
 }
-uint32_t                        UIntVWithID::GetId                 ()  const
+uint32_t UIntVWithID::GetId() const
 {
     return this->id;
 }
-void                            UIntVWithID::SetId                 (uint32_t id)
+void UIntVWithID::SetId(uint32_t id)
 {
     this->id = id;
 }
-const std::vector<std::string>& UIntVWithID::GetProfiles           ()  const
+const std::vector<std::string>& UIntVWithID::GetProfiles() const
 {
     return this->profiles;
 }
-void                            UIntVWithID::SetProfiles           (const std::string& profiles)
+void UIntVWithID::SetProfiles(const std::string& profiles)
 {
     dash::helpers::String::Split(profiles, ' ', this->profiles);
 }
-const std::string&              UIntVWithID::GetContentType        ()  const
+const std::string& UIntVWithID::GetContentType() const
 {
     return this->contentType;
 }
-void                            UIntVWithID::SetContentType        (const std::string& contentType)
+void UIntVWithID::SetContentType(const std::string& contentType)
 {
     this->contentType = contentType;
 }

@@ -6,7 +6,8 @@
 /*
  * minRTT
  * */
-void multipath_picoquic_builtin_minRTT_download() {
+void multipath_picoquic_builtin_minRTT_download()
+{
     int nb_segments = (int)urls[0].size();
     int layers = (int)urls.size();
 
@@ -16,7 +17,7 @@ void multipath_picoquic_builtin_minRTT_download() {
     std::thread thread_player(player);
 
     quic_config->multipath_option = 2;
-    quic_config->multipath_alt_config = (char *)malloc(sizeof(char) * (strlen(multipath_links) + 1));
+    quic_config->multipath_alt_config = (char*)malloc(sizeof(char) * (strlen(multipath_links) + 1));
     memset(quic_config->multipath_alt_config, 0, sizeof(char) * (strlen(multipath_links) + 1));
     memcpy(quic_config->multipath_alt_config, multipath_links, sizeof(char) * (strlen(multipath_links) + 1));
     printf("config.multipath_alt_config: %s\n", quic_config->multipath_alt_config);
@@ -41,7 +42,7 @@ void multipath_picoquic_builtin_minRTT_download() {
 
         int seg_no = i;
 
-        struct picoquic_download_stat picoquic_st{};
+        struct picoquic_download_stat picoquic_st { };
 
         int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str(), "", &picoquic_st);
         pst.end = timer.tic();
@@ -54,31 +55,30 @@ void multipath_picoquic_builtin_minRTT_download() {
                 pst.file_size += get_filesize(tmp_filename);
             }
             pst.finished_layers = 4;
-            PlayableSegment ps{};
+            PlayableSegment ps {};
             ps.nb_frames = 48;
             ps.eos = 0;
             ps.seg_no = seg_no;
             player_buffer.push(ps);
 
-            seg_stats.insert({seg_no, pst});
+            seg_stats.insert({ seg_no, pst });
         }
     }
-    PlayableSegment ps{};
+    PlayableSegment ps {};
     ps.eos = 1;
     player_buffer.push(ps);
     thread_player.join();
 
-
     printf("\nper segment download metrics\n");
-    for (auto& [key, value] : seg_stats)
-    {
+    for (auto& [key, value] : seg_stats) {
         value.download_time = double(std::chrono::duration_cast<std::chrono::microseconds>(value.end - value.start).count()) / 1e6;
         value.download_speed = value.file_size / value.download_time / 1000000.0 * 8.0;
 
-        std::cout << key << " = " << "used: " << \
-        value.download_time \
-        << " seconds, " << "ends at " << epoch_to_relative_seconds(playback_start, value.end) \
-        << " speed: " << value.download_speed << " Mbps" \
-        << " total filesize " << value.file_size << " bytes" << endl;
+        std::cout << key << " = "
+                  << "used: " << value.download_time
+                  << " seconds, "
+                  << "ends at " << epoch_to_relative_seconds(playback_start, value.end)
+                  << " speed: " << value.download_speed << " Mbps"
+                  << " total filesize " << value.file_size << " bytes" << endl;
     }
 }

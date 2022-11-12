@@ -14,18 +14,15 @@
 
 #include "config.h"
 
-namespace dash
-{
-    namespace helpers
-    {
-        class String
-        {
-            public:
-                static void Split   (const std::string &s, char delim, std::vector<std::string>& vector);
-                static void Split   (const std::string &s, char delim, std::vector<uint32_t>& vector);
-                static bool ToBool  (const std::string &s);
-        };
-    }
+namespace dash {
+namespace helpers {
+    class String {
+    public:
+        static void Split(const std::string& s, char delim, std::vector<std::string>& vector);
+        static void Split(const std::string& s, char delim, std::vector<uint32_t>& vector);
+        static bool ToBool(const std::string& s);
+    };
+}
 }
 
 #endif /* STRING_H_ */

@@ -14,43 +14,39 @@
 
 #include "config.h"
 
+#include "../helpers/Path.h"
 #include "Node.h"
 #include <libxml/xmlreader.h>
-#include "../helpers/Path.h"
 
-namespace dash
-{
-    namespace xml
-    {
-        enum NodeType
-        {
-            Start           = 1,
-            End             = 15,
-            Comment         = 8,
-            WhiteSpace      = 14,
-            Text            = 3,
-        };
+namespace dash {
+namespace xml {
+    enum NodeType {
+        Start = 1,
+        End = 15,
+        Comment = 8,
+        WhiteSpace = 14,
+        Text = 3,
+    };
 
-        class DOMParser
-        {
-            public:
-                DOMParser           (std::string url);
-                virtual ~DOMParser  ();
+    class DOMParser {
+    public:
+        DOMParser(std::string url);
+        virtual ~DOMParser();
 
-                bool    Parse       ();
-                Node*   GetRootNode () const;
-                void    Print       ();
+        bool Parse();
+        Node* GetRootNode() const;
+        void Print();
 
-            private:
-                xmlTextReaderPtr    reader;
-                Node                *root;
-                std::string         url;
+    private:
+        xmlTextReaderPtr reader;
+        Node* root;
+        std::string url;
 
-                void    Init                    ();
-                Node*   ProcessNode             ();
-                void    AddAttributesToNode     (Node *node);
-                void    Print                   (Node *node, int offset);
-        };
-    }
+        void Init();
+        Node* ProcessNode();
+        void AddAttributesToNode(Node* node);
+        void Print(Node* node, int offset);
+    };
+}
 }
 #endif /* DOMPARSER_H_ */

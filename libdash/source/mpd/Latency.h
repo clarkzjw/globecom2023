@@ -14,41 +14,37 @@
 
 #include "config.h"
 
+#include "AbstractMPDElement.h"
 #include "ILatency.h"
 #include "UIntPairsWithID.h"
-#include "AbstractMPDElement.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class Latency : public ILatency, public AbstractMPDElement
-        {
-            public:
-                Latency             ();
-                virtual ~Latency    ();
+namespace dash {
+namespace mpd {
+    class Latency : public ILatency, public AbstractMPDElement {
+    public:
+        Latency();
+        virtual ~Latency();
 
-                const std::vector<IUIntPairsWithID *>&     GetQualityLatencyType         ()  const;
-                uint32_t                                   GetReferenceId                ()  const;
-                uint32_t                                   GetTarget                     ()  const;
-                uint32_t                                   GetMax                        ()  const;
-                uint32_t                                   GetMin                        ()  const;
+        const std::vector<IUIntPairsWithID*>& GetQualityLatencyType() const;
+        uint32_t GetReferenceId() const;
+        uint32_t GetTarget() const;
+        uint32_t GetMax() const;
+        uint32_t GetMin() const;
 
-                void    AddQualityLatencyType    (UIntPairsWithID* qlt);
-                void    SetReferenceId           (uint32_t referenceId);
-                void    SetTarget                (uint32_t target);
-                void    SetMax                   (uint32_t max);
-                void    SetMin                   (uint32_t min);
+        void AddQualityLatencyType(UIntPairsWithID* qlt);
+        void SetReferenceId(uint32_t referenceId);
+        void SetTarget(uint32_t target);
+        void SetMax(uint32_t max);
+        void SetMin(uint32_t min);
 
-            private:
-                std::vector<IUIntPairsWithID *>   qltpairs;
-                uint32_t                          referenceId;
-                uint32_t                          target;
-                uint32_t                          max;
-                uint32_t                          min;
-                
-        };
-    }
+    private:
+        std::vector<IUIntPairsWithID*> qltpairs;
+        uint32_t referenceId;
+        uint32_t target;
+        uint32_t max;
+        uint32_t min;
+    };
+}
 }
 
 #endif /* LATENCY_H_ */

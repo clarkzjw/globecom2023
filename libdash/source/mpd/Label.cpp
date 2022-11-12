@@ -13,28 +13,28 @@
 
 using namespace dash::mpd;
 
-Label::Label    ()  :
-    id(0)
-    
+Label::Label()
+    : id(0)
+
 {
 }
-Label::~Label   ()
+Label::~Label()
 {
 }
 
-uint32_t            Label::GetId         ()  const
+uint32_t Label::GetId() const
 {
     return this->id;
 }
-void                Label::SetId         (uint32_t id) 
+void Label::SetId(uint32_t id)
 {
     this->id = id;
 }
-const std::string&  Label::GetLang       ()  const
+const std::string& Label::GetLang() const
 {
     return this->lang;
 }
-void                Label::SetLang       (const std::string& lang) 
+void Label::SetLang(const std::string& lang)
 {
     this->lang = lang;
 }

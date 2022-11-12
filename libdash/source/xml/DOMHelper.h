@@ -16,20 +16,17 @@
 
 #include "Node.h"
 
-namespace dash
-{
-    namespace xml
-    {
-        class DOMHelper
-        {
-            public:
-                static std::vector<Node *> GetElementByTagName      (Node *root, const std::string &name, bool selfContain);
-                static std::vector<Node *> GetChildElementByTagName (Node *root, const std::string &name);
+namespace dash {
+namespace xml {
+    class DOMHelper {
+    public:
+        static std::vector<Node*> GetElementByTagName(Node* root, const std::string& name, bool selfContain);
+        static std::vector<Node*> GetChildElementByTagName(Node* root, const std::string& name);
 
-            private:
-                static void GetElementsByTagName(Node *root, const std::string &name, std::vector<Node *> *elements, bool selfContain);
-        };
-    }
+    private:
+        static void GetElementsByTagName(Node* root, const std::string& name, std::vector<Node*>* elements, bool selfContain);
+    };
+}
 }
 
 #endif /* DOMHELPER_H_ */

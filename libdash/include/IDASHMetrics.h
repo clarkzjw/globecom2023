@@ -17,32 +17,29 @@
 #ifndef IDASHMETRICS_H_
 #define IDASHMETRICS_H_
 
-#include "config.h"
 #include "IHTTPTransaction.h"
 #include "ITCPConnection.h"
+#include "config.h"
 
-namespace dash
-{
-    namespace metrics
-    {
-        class IDASHMetrics
-        {
-            public:
-                virtual ~IDASHMetrics(){}
+namespace dash {
+namespace metrics {
+    class IDASHMetrics {
+    public:
+        virtual ~IDASHMetrics() { }
 
-                /**
-                 *  This function returns a list of DASH Metrics as defined in <em>ISO/IEC 23009-1, Part 1, 2012</em>, annex D.4.2.
-                 *  @return     a list of dash::metrics::ITCPConnection Metrics Objects
-                 */
-                virtual const std::vector<ITCPConnection *>&   GetTCPConnectionList    () const = 0;
+        /**
+         *  This function returns a list of DASH Metrics as defined in <em>ISO/IEC 23009-1, Part 1, 2012</em>, annex D.4.2.
+         *  @return     a list of dash::metrics::ITCPConnection Metrics Objects
+         */
+        virtual const std::vector<ITCPConnection*>& GetTCPConnectionList() const = 0;
 
-                /**
-                 *  This function returns a list of DASH Metrics as defined in <em>ISO/IEC 23009-1, Part 1, 2012</em>, annex D.4.3.
-                 *  @return     a list of dash::metrics::IHTTPConnection Metrics Objets
-                 */
-                virtual const std::vector<IHTTPTransaction *>& GetHTTPTransactionList  () const = 0;
-        };
-    }
+        /**
+         *  This function returns a list of DASH Metrics as defined in <em>ISO/IEC 23009-1, Part 1, 2012</em>, annex D.4.3.
+         *  @return     a list of dash::metrics::IHTTPConnection Metrics Objets
+         */
+        virtual const std::vector<IHTTPTransaction*>& GetHTTPTransactionList() const = 0;
+    };
+}
 }
 
 #endif /* IDASHMETRICS_H_ */

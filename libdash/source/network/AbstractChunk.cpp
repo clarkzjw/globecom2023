@@ -10,9 +10,9 @@
  *****************************************************************************/
 
 #include "AbstractChunk.h"
-#include <fstream>
-#include <filesystem>
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
 
 using namespace dash::network;
 using namespace dash::helpers;
@@ -20,27 +20,27 @@ using namespace dash::metrics;
 
 uint32_t AbstractChunk::BLOCKSIZE = 32768;
 
-AbstractChunk::AbstractChunk        ()  :
-               connection           (NULL),
-               dlThread             (NULL),
-               bytesDownloaded      (0)
+AbstractChunk::AbstractChunk()
+    : connection(NULL)
+    , dlThread(NULL)
+    , bytesDownloaded(0)
 {
 }
-AbstractChunk::~AbstractChunk       ()
+AbstractChunk::~AbstractChunk()
 {
     this->AbortDownload();
 
     DestroyThreadPortable(this->dlThread);
 }
 
-void    AbstractChunk::AbortDownload                ()
+void AbstractChunk::AbortDownload()
 {
     this->stateManager.CheckAndSet(IN_PROGRESS, REQUEST_ABORT);
     this->stateManager.CheckAndWait(REQUEST_ABORT, ABORTED);
 }
-bool    AbstractChunk::StartDownload                ()
+bool AbstractChunk::StartDownload()
 {
-    if(this->stateManager.State() != NOT_STARTED)
+    if (this->stateManager.State() != NOT_STARTED)
         return false;
 
     curl_global_init(CURL_GLOBAL_ALL);
@@ -48,48 +48,48 @@ bool    AbstractChunk::StartDownload                ()
     this->curl = curl_easy_init();
     curl_easy_setopt(this->curl, CURLOPT_URL, this->AbsoluteURI().c_str());
     curl_easy_setopt(this->curl, CURLOPT_WRITEFUNCTION, CurlResponseCallback);
-    curl_easy_setopt(this->curl, CURLOPT_WRITEDATA, (void *)this);
+    curl_easy_setopt(this->curl, CURLOPT_WRITEDATA, (void*)this);
     /* Debug Callback */
     curl_easy_setopt(this->curl, CURLOPT_VERBOSE, 1L);
     curl_easy_setopt(this->curl, CURLOPT_DEBUGFUNCTION, CurlDebugCallback);
-    curl_easy_setopt(this->curl, CURLOPT_DEBUGDATA, (void *)this);
+    curl_easy_setopt(this->curl, CURLOPT_DEBUGDATA, (void*)this);
     curl_easy_setopt(this->curl, CURLOPT_FAILONERROR, true);
 
-    if(this->HasByteRange())
+    if (this->HasByteRange())
         curl_easy_setopt(this->curl, CURLOPT_RANGE, this->Range().c_str());
 
-    this->dlThread = CreateThreadPortable (DownloadInternalConnection, this);
+    this->dlThread = CreateThreadPortable(DownloadInternalConnection, this);
 
-    if(this->dlThread == NULL)
+    if (this->dlThread == NULL)
         return false;
 
     this->stateManager.State(IN_PROGRESS);
 
     return true;
 }
-bool    AbstractChunk::StartQUICDownload                ()
+bool AbstractChunk::StartQUICDownload()
 {
     printf("URL: %s, Path: %s, Host: %s, Port: %d\n", this->AbsoluteURI().c_str(), this->Path().c_str(), this->Host().c_str(), this->Port());
-    if(this->stateManager.State() != NOT_STARTED)
+    if (this->stateManager.State() != NOT_STARTED)
         return false;
 
-    this->dlThread = CreateThreadPortable (DownloadInternalConnection, this);
+    this->dlThread = CreateThreadPortable(DownloadInternalConnection, this);
 
-    if(this->dlThread == NULL)
+    if (this->dlThread == NULL)
         return false;
 
     this->stateManager.State(IN_PROGRESS);
 
     return true;
 }
-bool    AbstractChunk::StartDownload                (IConnection *connection)
+bool AbstractChunk::StartDownload(IConnection* connection)
 {
-    if(this->stateManager.State() != NOT_STARTED)
+    if (this->stateManager.State() != NOT_STARTED)
         return false;
 
-    this->dlThread = CreateThreadPortable (DownloadExternalConnection, this);
+    this->dlThread = CreateThreadPortable(DownloadExternalConnection, this);
 
-    if(this->dlThread == NULL)
+    if (this->dlThread == NULL)
         return false;
 
     this->stateManager.State(IN_PROGRESS);
@@ -97,62 +97,60 @@ bool    AbstractChunk::StartDownload                (IConnection *connection)
 
     return true;
 }
-int     AbstractChunk::Read                         (uint8_t *data, size_t len)
+int AbstractChunk::Read(uint8_t* data, size_t len)
 {
     return this->blockStream.GetBytes(data, len);
 }
-int     AbstractChunk::Peek                         (uint8_t *data, size_t len)
+int AbstractChunk::Peek(uint8_t* data, size_t len)
 {
     return this->blockStream.PeekBytes(data, len);
 }
-int     AbstractChunk::Peek                         (uint8_t *data, size_t len, size_t offset)
+int AbstractChunk::Peek(uint8_t* data, size_t len, size_t offset)
 {
     return this->blockStream.PeekBytes(data, len, offset);
 }
-void    AbstractChunk::AttachDownloadObserver       (IDownloadObserver *observer)
+void AbstractChunk::AttachDownloadObserver(IDownloadObserver* observer)
 {
     this->observers.push_back(observer);
     this->stateManager.Attach(observer);
 }
-void    AbstractChunk::DetachDownloadObserver       (IDownloadObserver *observer)
+void AbstractChunk::DetachDownloadObserver(IDownloadObserver* observer)
 {
     uint32_t pos = -1;
 
-    for(size_t i = 0; i < this->observers.size(); i++)
-        if(this->observers.at(i) == observer)
+    for (size_t i = 0; i < this->observers.size(); i++)
+        if (this->observers.at(i) == observer)
             pos = i;
 
-    if(pos != -1)
+    if (pos != -1)
         this->observers.erase(this->observers.begin() + pos);
 
     this->stateManager.Detach(observer);
 }
-void*   AbstractChunk::DownloadExternalConnection   (void *abstractchunk)
+void* AbstractChunk::DownloadExternalConnection(void* abstractchunk)
 {
-    AbstractChunk   *chunk  = (AbstractChunk *) abstractchunk;
-    block_t         *block  = AllocBlock(chunk->BLOCKSIZE);
-    int             ret     = 0;
+    AbstractChunk* chunk = (AbstractChunk*)abstractchunk;
+    block_t* block = AllocBlock(chunk->BLOCKSIZE);
+    int ret = 0;
 
-    do
-    {
+    do {
         ret = chunk->connection->Read(block->data, block->len, chunk);
-        if(ret > 0)
-        {
-            block_t *streamblock = AllocBlock(ret);
+        if (ret > 0) {
+            block_t* streamblock = AllocBlock(ret);
             memcpy(streamblock->data, block->data, ret);
             chunk->blockStream.PushBack(streamblock);
             chunk->bytesDownloaded += ret;
 
             chunk->NotifyDownloadRateChanged();
         }
-        if(chunk->stateManager.State() == REQUEST_ABORT)
+        if (chunk->stateManager.State() == REQUEST_ABORT)
             ret = 0;
 
-    }while(ret);
+    } while (ret);
 
     DeleteBlock(block);
 
-    if(chunk->stateManager.State() == REQUEST_ABORT)
+    if (chunk->stateManager.State() == REQUEST_ABORT)
         chunk->stateManager.State(ABORTED);
     else
         chunk->stateManager.State(COMPLETED);
@@ -161,24 +159,24 @@ void*   AbstractChunk::DownloadExternalConnection   (void *abstractchunk)
 
     return NULL;
 }
-void*   AbstractChunk::DownloadInternalConnection   (void *abstractchunk)
+void* AbstractChunk::DownloadInternalConnection(void* abstractchunk)
 {
     return NULL;
 }
-void    AbstractChunk::NotifyDownloadRateChanged    ()
+void AbstractChunk::NotifyDownloadRateChanged()
 {
-    for(size_t i = 0; i < this->observers.size(); i++)
+    for (size_t i = 0; i < this->observers.size(); i++)
         this->observers.at(i)->OnDownloadRateChanged(this->bytesDownloaded);
 }
-size_t  AbstractChunk::CurlResponseCallback         (void *contents, size_t size, size_t nmemb, void *userp)
+size_t AbstractChunk::CurlResponseCallback(void* contents, size_t size, size_t nmemb, void* userp)
 {
     size_t realsize = size * nmemb;
-    AbstractChunk *chunk = (AbstractChunk *)userp;
+    AbstractChunk* chunk = (AbstractChunk*)userp;
 
-    if(chunk->stateManager.State() == REQUEST_ABORT)
+    if (chunk->stateManager.State() == REQUEST_ABORT)
         return 0;
 
-    block_t *block = AllocBlock(realsize);
+    block_t* block = AllocBlock(realsize);
 
     memcpy(block->data, contents, realsize);
     chunk->blockStream.PushBack(block);
@@ -188,29 +186,29 @@ size_t  AbstractChunk::CurlResponseCallback         (void *contents, size_t size
 
     return realsize;
 }
-size_t  AbstractChunk::CurlDebugCallback            (CURL *url, curl_infotype infoType, char * data, size_t length, void *userdata)
+size_t AbstractChunk::CurlDebugCallback(CURL* url, curl_infotype infoType, char* data, size_t length, void* userdata)
 {
-    AbstractChunk   *chunk      = (AbstractChunk *)userdata;
+    AbstractChunk* chunk = (AbstractChunk*)userdata;
 
     switch (infoType) {
-        case CURLINFO_TEXT:
-            break;
-        case CURLINFO_HEADER_OUT:
-            chunk->HandleHeaderOutCallback();
-            break;
-        case CURLINFO_HEADER_IN:
-            chunk->HandleHeaderInCallback(std::string(data));
-            break;
-        case CURLINFO_DATA_IN:
-            break;
-        default:
-            return 0;
+    case CURLINFO_TEXT:
+        break;
+    case CURLINFO_HEADER_OUT:
+        chunk->HandleHeaderOutCallback();
+        break;
+    case CURLINFO_HEADER_IN:
+        chunk->HandleHeaderInCallback(std::string(data));
+        break;
+    case CURLINFO_DATA_IN:
+        break;
+    default:
+        return 0;
     }
     return 0;
 }
-void    AbstractChunk::HandleHeaderOutCallback      ()
+void AbstractChunk::HandleHeaderOutCallback()
 {
-    HTTPTransaction *httpTransaction = new HTTPTransaction();
+    HTTPTransaction* httpTransaction = new HTTPTransaction();
 
     httpTransaction->SetOriginalUrl(this->AbsoluteURI());
     httpTransaction->SetRange(this->Range());
@@ -219,23 +217,22 @@ void    AbstractChunk::HandleHeaderOutCallback      ()
 
     this->httpTransactions.push_back(httpTransaction);
 }
-void    AbstractChunk::HandleHeaderInCallback       (std::string data)
+void AbstractChunk::HandleHeaderInCallback(std::string data)
 {
-    HTTPTransaction *httpTransaction = this->httpTransactions.at(this->httpTransactions.size()-1);
+    HTTPTransaction* httpTransaction = this->httpTransactions.at(this->httpTransactions.size() - 1);
 
-    if (data.substr(0,4) == "HTTP")
-    {
+    if (data.substr(0, 4) == "HTTP") {
         httpTransaction->SetResponseReceivedTime(Time::GetCurrentUTCTimeStr());
-        httpTransaction->SetResponseCode(strtoul(data.substr(9,3).c_str(), NULL, 10));
+        httpTransaction->SetResponseCode(strtoul(data.substr(9, 3).c_str(), NULL, 10));
     }
 
     httpTransaction->AddHTTPHeaderLine(data);
 }
-const std::vector<ITCPConnection *>&    AbstractChunk::GetTCPConnectionList    () const
+const std::vector<ITCPConnection*>& AbstractChunk::GetTCPConnectionList() const
 {
-    return (std::vector<ITCPConnection *> &) this->tcpConnections;
+    return (std::vector<ITCPConnection*>&)this->tcpConnections;
 }
-const std::vector<IHTTPTransaction *>&  AbstractChunk::GetHTTPTransactionList  () const
+const std::vector<IHTTPTransaction*>& AbstractChunk::GetHTTPTransactionList() const
 {
-    return (std::vector<IHTTPTransaction *> &) this->httpTransactions;
+    return (std::vector<IHTTPTransaction*>&)this->httpTransactions;
 }

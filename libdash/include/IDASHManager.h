@@ -18,28 +18,26 @@
 
 #include "config.h"
 
-#include "IMPD.h"
 #include "IConnection.h"
+#include "IMPD.h"
 
-namespace dash
-{
-    class IDASHManager
-    {
-        public:
-            virtual ~IDASHManager(){}
+namespace dash {
+class IDASHManager {
+public:
+    virtual ~IDASHManager() { }
 
-            /**
-             *  Returns a pointer to dash::mpd::IMPD object representing the the information found in the MPD file specified by \em path
-             *  @param      path    A URI to a MPD file
-             *  @return     a pointer to an dash::mpd::IMPD object
-             */
-            virtual mpd::IMPD* Open (char *path) = 0;
+    /**
+     *  Returns a pointer to dash::mpd::IMPD object representing the the information found in the MPD file specified by \em path
+     *  @param      path    A URI to a MPD file
+     *  @return     a pointer to an dash::mpd::IMPD object
+     */
+    virtual mpd::IMPD* Open(char* path) = 0;
 
-            /**
-             *  Frees allocated memory and deletes the DashManager
-             */
-            virtual void        Delete  () = 0;
-    };
+    /**
+     *  Frees allocated memory and deletes the DashManager
+     */
+    virtual void Delete() = 0;
+};
 }
 
 #endif /* IDASHMANAGER_H_ */

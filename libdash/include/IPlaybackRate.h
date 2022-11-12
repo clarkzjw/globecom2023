@@ -11,7 +11,7 @@
  *  @version    2.1
  *  @date       2021
  */
- 
+
 #ifndef IPLAYBACKRATE_H_
 #define IPLAYBACKRATE_H_
 
@@ -19,32 +19,29 @@
 
 #include "IMPDElement.h"
 
-namespace dash
-{
-    namespace mpd
-    {
-        class IPlaybackRate : public virtual IMPDElement
-        {
-            public:
-                virtual ~IPlaybackRate(){}
-                
-                /**
-                 *  Returns a double that specifies the maximum playback rate that the content provider indicates is appropriate for the purposes of automatically adjusting 
-                 *  playback latency and buffer occupancy during normal playback, where 1.0 is normal playback speed.            
-                 *  
-                 *  @return     a double
-                 */
-                virtual double                             GetMax                    ()  const = 0;
-                
-                /**
-                 *  Returns a double that specifies the minimum playback rate that the content provider indicates is appropriate for the purposes of automatically adjusting 
-                 *  playback latency and buffer occupancy during normal playback, where 1.0 is normal playback speed.    
-                 *  
-                 *  @return     a double
-                 */
-                virtual double                             GetMin                    ()  const = 0;
-        };
-    }
+namespace dash {
+namespace mpd {
+    class IPlaybackRate : public virtual IMPDElement {
+    public:
+        virtual ~IPlaybackRate() { }
+
+        /**
+         *  Returns a double that specifies the maximum playback rate that the content provider indicates is appropriate for the purposes of automatically adjusting
+         *  playback latency and buffer occupancy during normal playback, where 1.0 is normal playback speed.
+         *
+         *  @return     a double
+         */
+        virtual double GetMax() const = 0;
+
+        /**
+         *  Returns a double that specifies the minimum playback rate that the content provider indicates is appropriate for the purposes of automatically adjusting
+         *  playback latency and buffer occupancy during normal playback, where 1.0 is normal playback speed.
+         *
+         *  @return     a double
+         */
+        virtual double GetMin() const = 0;
+    };
+}
 }
 
 #endif /* IPLAYBACKRATE_H_ */
