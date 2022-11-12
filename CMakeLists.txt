@@ -45,6 +45,10 @@ file(GLOB_RECURSE tplayer_SOURCE
         libdash/*.c
         picoquic/client.h
         picoquic/client.c
+        mab.cpp
+        minRTT.cpp
+        rr.cpp
+        player.cpp
         tplayer.cpp
         util/mpd.cpp
         util/exec.cpp)
