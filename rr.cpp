@@ -126,12 +126,17 @@ void multipath_round_robin()
         printf("seg_no: %d, filename: %s, filesize: %d, time: %f, speed: %f, actual_speed: %f, path_index: %d\n", stat.seg_no, stat.filename.c_str(), stat.filesize, stat.time, stat.speed, stat.actual_speed, stat.path_index);
     }
 
+    std::string datafile = "rr.dat";
+    ChStreamOutAsciiFile mdatafile(datafile.c_str());
+
     printf("\nper segment download metrics\n");
-    for (auto& [key, value] : seg_stats) {
+    for (auto& [seg_no, value] : seg_stats) {
         value.download_time = double(std::chrono::duration_cast<std::chrono::microseconds>(value.end - value.start).count()) / 1e6;
         value.download_speed = value.file_size / value.download_time / 1000000.0 * 8.0;
 
-        std::cout << key << " = "
+        mdatafile << seg_no << ", " << value.download_speed << "\n";
+
+        std::cout << seg_no << " = "
                   << "used: " << value.download_time
                   << " seconds, "
                   << "ends at " << epoch_to_relative_seconds(playback_start, value.end)

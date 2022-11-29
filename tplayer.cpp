@@ -61,6 +61,7 @@ int get_filesize(const string& req_filename)
  * */
 void sequential_download()
 {
+    printf("sequential download\n");
     for (int i = 1; i < 10; i++) {
         string filename = string("/1080/").append(urls[0][i]);
         printf("%s\n", filename.c_str());
@@ -90,10 +91,10 @@ int main(int argc, char* argv[])
     picoquic_config_init(quic_config);
     quic_config->out_dir = "./tmp";
 
-    //    sequential_download();
-//        multipath_picoquic_minRTT();
-        multipath_round_robin();
-//    multipath_mab();
+//    sequential_download();
+//    multipath_picoquic_minRTT();
+//    multipath_round_robin();
+    multipath_mab();
 
     return 0;
 }

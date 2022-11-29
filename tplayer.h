@@ -6,7 +6,6 @@
 #define TPLAYER_TPLAYER_H
 
 #include "libdash.h"
-#include "tictoc.h"
 
 #include "client.h"
 #include "picoquic_config.h"
@@ -17,7 +16,20 @@
 #include <queue>
 #include <thread>
 
+#include "chrono/core/ChLog.h"
+#include "chrono/core/ChGlobal.h"
+#include "chrono/motion_functions/ChFunction_Recorder.h"
+#include "chrono/motion_functions/ChFunction_Sine.h"
+
+#include "chrono_postprocess/ChGnuPlot.h"
+
+#include "chrono_thirdparty/filesystem/path.h"
+
 using namespace std;
+using namespace ::chrono;
+using namespace ::chrono::postprocess;
+
+#include "tictoc.h"
 
 typedef std::chrono::system_clock tic_clock;
 #define PortableSleep(seconds) usleep((seconds)*1000000)
@@ -45,6 +57,8 @@ struct PerSegmentStats {
     int file_size {};
     double download_time {};
     double download_speed {};
+    int path_id;
+    double reward;
 };
 
 struct PlayableSegment {

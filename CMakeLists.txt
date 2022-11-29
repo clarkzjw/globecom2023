@@ -38,6 +38,14 @@ message(STATUS "LibXml2_INCLUDE_DIR: ${LIBXML2_INCLUDE_DIR}")
 
 find_package(ZLIB REQUIRED)
 find_package(CURL REQUIRED)
+find_package(Eigen3 REQUIRED)
+message(STATUS "Eigen3 INCLUDE_DIR: ${EIGEN3_INCLUDE_DIR}")
+
+message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
+LIST(APPEND CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}/../Chrono/lib")
+find_package(Chrono
+        COMPONENTS Postprocess
+        CONFIG)
 
 file(GLOB_RECURSE tplayer_SOURCE
         ${CMAKE_CURRENT_SOURCE_DIR}
@@ -46,6 +54,10 @@ file(GLOB_RECURSE tplayer_SOURCE
         picoquic/client.h
         picoquic/client.c
         mab.cpp
+        mab/arm/*.hpp
+        mab/bandit/*.hpp
+        mab/bandit/*.cpp
+        mab/policy/*.hpp
         minRTT.cpp
         rr.cpp
         player.cpp
@@ -63,6 +75,9 @@ include_directories(
         ./picoquic
         ./util
         ./config
+        ./mab
+        ${CHRONO_INCLUDE_DIRS}
+        ${EIGEN3_INCLUDE_DIR}
         ${LIBXML2_INCLUDE_DIR}
         ${Picoquic_INCLUDE_DIRS}
         ${PTLS_INCLUDE_DIRS}
@@ -77,8 +92,12 @@ add_executable(tplayer
 add_executable(tserver
         ${server_SOURCE})
 
+target_compile_options(tplayer PUBLIC ${CHRONO_CXX_FLAGS})
+target_link_options(tplayer PUBLIC ${CHRONO_LINKER_FLAGS})
+
 # For the linker
 target_link_libraries(tplayer
+        ${CHRONO_LIBRARIES}
         ${CURL_LIBRARIES}
         ${ZLIB_LIBRARIES}
         ${LIBXML2_LIBRARIES}
@@ -88,6 +107,7 @@ target_link_libraries(tplayer
         -lpthread)
 
 target_link_libraries(tserver
+        ${CHRONO_LIBRARIES}
         ${CURL_LIBRARIES}
         ${ZLIB_LIBRARIES}
         ${LIBXML2_LIBRARIES}
