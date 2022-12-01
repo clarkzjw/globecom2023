@@ -7,6 +7,7 @@
 /*
  * Round Robin
  * */
+extern int nb_segments;
 
 // create a downloader for each path
 // each path poll available tasks at the same time
@@ -57,7 +58,8 @@ void path_downloader(int path_index)
                         ps.nb_frames = 48;
                         ps.eos = 0;
                         ps.seg_no = t.seg_no;
-                        player_buffer.push(ps);
+//                        player_buffer.push(ps);
+                        player_buffer_map[ps.seg_no] = ps;
                     }
                 }
 
@@ -85,13 +87,12 @@ void multipath_round_robin_download_queue()
 
     PlayableSegment ps {};
     ps.eos = 1;
-    player_buffer.push(ps);
+    player_buffer_map[nb_segments] = ps;
 }
 
 // we need a queue to store the tasks
 void multipath_round_robin()
 {
-    int nb_segments = (int)urls[0].size();
     int layers = (int)urls.size();
 
     TicToc global_timer;
@@ -100,7 +101,7 @@ void multipath_round_robin()
     std::thread thread_download(multipath_round_robin_download_queue);
     std::thread thread_player(mock_player);
 
-    for (int i = 1; i < 100; i++) {
+    for (int i = 1; i < nb_segments; i++) {
         for (int j = 0; j < layers; j++) {
             string filename = string("/1080/").append(urls[j][i]);
 

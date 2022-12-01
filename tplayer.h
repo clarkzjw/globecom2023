@@ -79,6 +79,7 @@ extern tic_clock::time_point playback_start;
 extern picoquic_quic_config_t* quic_config;
 extern char const* multipath_links;
 extern std::queue<PlayableSegment> player_buffer;
+extern std::map<int, PlayableSegment> player_buffer_map;
 extern std::map<int, PerSegmentStats> seg_stats;
 extern int PLAYER_BUFFER_MAX_SEGMENTS;
 
@@ -96,6 +97,7 @@ vector<vector<string>> get_segment_urls(dash::mpd::IMPD* mpd_file);
 int exec_cmd(string cmd, string args);
 
 void mock_player();
+void mock_player_hash_map();
 
 void multipath_mab();
 void multipath_picoquic_minRTT();

@@ -24,16 +24,87 @@
 using namespace std;
 using namespace bandit;
 
+extern int nb_segments;
+
+vector<queue<DownloadTask>> path_tasks(2);
+
+void mab_path_downloader(int path_index)
+{
+    int layers = (int)urls.size();
+
+    while (true) {
+        if (!path_tasks[path_index].empty()) {
+            while (player_buffer.size() > PLAYER_BUFFER_MAX_SEGMENTS) {
+                PortableSleep(0.1);
+            }
+            struct DownloadTask t = path_tasks[path_index].front();
+            path_tasks[path_index].pop();
+
+            if (t.eos == 1) {
+                printf("path %d ends\n", path_index);
+                break;
+            } else {
+                int ret = 0;
+                char* if_name = path_name[path_index];
+                printf("\n\ndownloading %s on path %s\n", t.filename.c_str(), if_name);
+
+                struct picoquic_download_stat picoquic_st { };
+
+                PerSegmentStats pst;
+                TicToc timer;
+
+                pst.start = timer.tic();
+                ret = quic_client(host.c_str(), port, quic_config, 0, 0, t.filename.c_str(), if_name, &picoquic_st);
+                pst.end = timer.tic();
+
+                cout << "download ret = " << ret << endl;
+                if (!seg_stats.contains(t.seg_no)) {
+                    for (int j = 0; j < layers; j++) {
+                        string tmp_filename = string("/1080/").append(urls[j][t.seg_no]);
+                        pst.file_size += get_filesize(tmp_filename);
+                    }
+                    pst.finished_layers = 4;
+                    pst.path_id = path_index;
+                    pst.reward = picoquic_st.throughput;
+
+                    PlayableSegment ps {};
+                    ps.nb_frames = 48;
+                    ps.eos = 0;
+                    ps.seg_no = t.seg_no;
+                    player_buffer_map[t.seg_no] = ps;
+
+                    seg_stats.insert({ t.seg_no, pst });
+                }
+            }
+        }
+    }
+}
+
+void multipath_mab_download_queue()
+{
+    std::thread t1(mab_path_downloader, 0);
+    std::thread t2(mab_path_downloader, 1);
+
+    t1.join();
+    t2.join();
+
+    PlayableSegment ps {};
+    ps.eos = 1;
+    player_buffer_map[nb_segments] = ps;
+}
+
+
 void multipath_mab_path_scheduler()
 {
-    int nb_segments = 100;
-    double epsilon = 0.5;
+    double epsilon = 0.1;
 
     //arms.size();
     const uint K = 2;
 
     //policies.size()
     const uint P = 1;
+
+    std::thread thread_path_download(multipath_mab_download_queue);
 
     RoundwiseLog log(K, P, nb_segments);
     vector<ArmPtr> arms;
@@ -45,9 +116,9 @@ void multipath_mab_path_scheduler()
     assert(arms.size() == K);
 
     policies.clear();
-//    policies.push_back(PolicyPtr(new EGreedyPolicy(K, epsilon)));
+    policies.push_back(PolicyPtr(new EGreedyPolicy(K, epsilon)));
 //    policies.push_back(PolicyPtr(new ThompsonBinaryPolicy(K)));
-    policies.push_back(PolicyPtr(new UCBPolicy(K)));
+//    policies.push_back(PolicyPtr(new UCBPolicy(K)));
     assert(policies.size() == P);
 
     Simulator<RoundwiseLog> sim(arms, policies);
@@ -65,51 +136,20 @@ void multipath_mab_path_scheduler()
         // per segment path decision
         int path_id = sim.select_next_path(0);
 
-        char* if_name = path_name[path_id];
-        struct picoquic_download_stat picoquic_st { };
+        struct DownloadTask t;
+        t.filename = filename;
+        t.seg_no = i;
+        t.eos = 0;
 
-        struct DownloadStats st;
-        st.filename = filename;
-        st.seg_no = i;
-
-        PerSegmentStats pst;
-        TicToc timer;
-
-        pst.start = timer.tic();
-
-        int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str(), if_name, &picoquic_st);
-        pst.end = timer.tic();
-
-        printf("download ret = %d\n", ret);
-
-        double reward = picoquic_st.throughput;
-
-        sim.set_reward(reward, 0, path_id);
-
-        printf("selected path: %d, reward: %f\n", path_id, reward);
-
-        if (!seg_stats.contains(i)) {
-            for (int j = 0; j < layers; j++) {
-                string tmp_filename = string("/1080/").append(urls[j][i]);
-                pst.file_size += get_filesize(tmp_filename);
-            }
-            pst.finished_layers = 4;
-            pst.reward = reward;
-            pst.path_id = path_id;
-
-            PlayableSegment ps {};
-            ps.nb_frames = 48;
-            ps.eos = 0;
-            ps.seg_no = i;
-            player_buffer.push(ps);
-
-            seg_stats.insert({ i, pst });
-        }
+        path_tasks[path_id].push(t);
     }
 
-    PlayableSegment ps {};
-    ps.eos = 1;
-    player_buffer.push(ps);
+    struct DownloadTask finish;
+    finish.eos = 1;
+    path_tasks[0].push(finish);
+    path_tasks[1].push(finish);
+    thread_path_download.join();
+
 }
 
 void multipath_mab()
@@ -118,12 +158,12 @@ void multipath_mab()
     playback_start = global_timer.tic();
 
     std::thread thread_download(multipath_mab_path_scheduler);
-    std::thread thread_playback(mock_player);
+    std::thread thread_playback(mock_player_hash_map);
 
     thread_download.join();
     thread_playback.join();
 
-    std::string datafile = "mab_ucb.dat";
+    std::string datafile = "mab_egreedy-0.1-new.dat";
 
     ChStreamOutAsciiFile mdatafile(datafile.c_str());
 

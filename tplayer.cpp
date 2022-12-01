@@ -20,6 +20,7 @@ int port;
 std::vector<DownloadStats> stats;
 std::map<int, PerSegmentStats> seg_stats;
 std::queue<PlayableSegment> player_buffer;
+std::map<int, PlayableSegment> player_buffer_map;
 std::queue<DownloadTask> tasks;
 tic_clock::time_point playback_start;
 picoquic_quic_config_t* quic_config = nullptr;
@@ -70,6 +71,8 @@ void sequential_download()
         printf("download ret = %d\n", ret);
     }
 }
+
+int nb_segments = 100;
 
 int main(int argc, char* argv[])
 {

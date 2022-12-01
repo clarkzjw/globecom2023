@@ -5,7 +5,7 @@
 namespace bandit {
 
 class EGreedyPolicy : public Policy {
-    const uint K;
+    const int K;
     std::vector<int> Ni;
     std::vector<double> Gi;
     const double epsilonCoef; // epsilon (random play prob) - epsilon_base/(current)t
@@ -44,8 +44,8 @@ public:
     }
     virtual void updateState(int k, double r)
     {
-        Ni[k] += 1;
-        Gi[k] += r;
+        Ni[k] += 1; // rounds?
+        Gi[k] += r; // reward
     }
     virtual std::string toString()
     {
