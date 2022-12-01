@@ -49,6 +49,10 @@ public:
         str += dtos(alpha);
         return str;
     }
+    virtual std::string name()
+    {
+        return "ucb";
+    }
 };
 
 } // namespace

@@ -80,6 +80,10 @@ public:
         std::string str = "KL-UCB Policy with c=0";
         return str;
     }
+    virtual std::string name()
+    {
+        return "kl-ucb";
+    }
 };
 
 } // namespace

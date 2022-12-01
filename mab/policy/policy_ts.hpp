@@ -39,6 +39,10 @@ public:
         std::string str = "Thompson sampling";
         return str;
     }
+    virtual std::string name()
+    {
+        return "ts";
+    }
 };
 
 } // namespace

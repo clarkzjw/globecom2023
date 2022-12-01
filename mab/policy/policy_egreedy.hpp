@@ -53,6 +53,10 @@ public:
         str += dtos(epsilonCoef);
         return str;
     }
+    virtual std::string name()
+    {
+        return "egreedy";
+    }
 };
 
 } // namespace

@@ -24,6 +24,10 @@ public:
         std::string str = "Random";
         return str;
     }
+    virtual std::string name()
+    {
+        return "random";
+    }
 };
 
 } // namespace

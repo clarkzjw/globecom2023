@@ -78,6 +78,10 @@ public:
         std::string str = "DMED (binary)";
         return str;
     }
+    virtual std::string name()
+    {
+        return "dmed";
+    }
 };
 
 } // namespace

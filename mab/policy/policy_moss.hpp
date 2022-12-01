@@ -44,6 +44,10 @@ public:
         std::string str = "MOSS";
         return str;
     }
+    virtual std::string name()
+    {
+        return "moss";
+    }
 };
 
 } // namespace

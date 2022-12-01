@@ -65,6 +65,10 @@ public:
         str += dtos(zeta);
         return str;
     }
+    virtual std::string name()
+    {
+        return "ucbv";
+    }
 };
 
 } // namespace

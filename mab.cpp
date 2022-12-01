@@ -19,6 +19,7 @@
 #include "policy/policy_ucbv.hpp"
 
 #include <cassert>
+#include <vector>
 
 using namespace std;
 using namespace bandit;
@@ -44,7 +45,9 @@ void multipath_mab_path_scheduler()
     assert(arms.size() == K);
 
     policies.clear();
-    policies.push_back(PolicyPtr(new EGreedyPolicy(K, epsilon)));
+//    policies.push_back(PolicyPtr(new EGreedyPolicy(K, epsilon)));
+//    policies.push_back(PolicyPtr(new ThompsonBinaryPolicy(K)));
+    policies.push_back(PolicyPtr(new UCBPolicy(K)));
     assert(policies.size() == P);
 
     Simulator<RoundwiseLog> sim(arms, policies);
@@ -120,7 +123,7 @@ void multipath_mab()
     thread_download.join();
     thread_playback.join();
 
-    std::string datafile = "mab_EGreedyPolicy_0.5.dat";
+    std::string datafile = "mab_ucb.dat";
 
     ChStreamOutAsciiFile mdatafile(datafile.c_str());
 
