@@ -72,7 +72,7 @@ void sequential_download()
     }
 }
 
-int nb_segments = 10;
+int nb_segments = 30;
 
 int main(int argc, char* argv[])
 {

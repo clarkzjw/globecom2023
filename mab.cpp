@@ -21,7 +21,7 @@
 #include <cassert>
 #include <vector>
 #include <future>
-
+#include <mutex>
 
 using namespace std;
 using namespace bandit;
@@ -29,6 +29,8 @@ using namespace bandit;
 extern int nb_segments;
 
 vector<queue<DownloadTask>> path_tasks(2);
+vector<mutex> path_mutex(2);
+
 
 void mab_path_downloader(int path_index)
 {
@@ -89,53 +91,96 @@ void mab_path_downloader(int path_index)
     }
 }
 
-void multipath_mab_download_queue()
+
+void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<RoundwiseLog> sim)
 {
-    std::thread t1(mab_path_downloader, 0);
-    std::thread t2(mab_path_downloader, 1);
+    int ret = 0;
+    int layers = (int)urls.size();
 
-    t1.join();
-    t2.join();
+//    while (player_buffer.size() > PLAYER_BUFFER_MAX_SEGMENTS) {
+//        PortableSleep(0.1);
+//    }
+//    struct DownloadTask t = path_tasks[path_index].front();
+//    path_tasks[path_index].pop();
 
-    PlayableSegment ps {};
-    ps.eos = 1;
-    player_buffer_map[nb_segments] = ps;
+    char* if_name = path_name[path_id];
+    printf("\n\ndownloading %s on path %s\n", t.filename.c_str(), if_name);
+
+    struct picoquic_download_stat picoquic_st { };
+    PerSegmentStats pst;
+    TicToc timer;
+
+    pst.start = timer.tic();
+    ret = quic_client(host.c_str(), port, quic_config, 0, 0, t.filename.c_str(), if_name, &picoquic_st);
+    pst.end = timer.tic();
+
+    cout << "download ret = " << ret << endl;
+    if (!seg_stats.contains(t.seg_no)) {
+        for (int j = 0; j < layers; j++) {
+            string tmp_filename = string("/1080/").append(urls[j][t.seg_no]);
+            pst.file_size += get_filesize(tmp_filename);
+        }
+        pst.finished_layers = 4;
+        pst.path_id = path_id;
+        pst.reward = picoquic_st.throughput;
+        pst.one_way_delay_avg = picoquic_st.one_way_delay_avg;
+        pst.bandwidth_estimate = picoquic_st.bandwidth_estimate;
+        pst.rtt = picoquic_st.rtt;
+        pst.total_received = picoquic_st.total_received;
+        pst.total_bytes_lost = picoquic_st.total_bytes_lost;
+        pst.data_received = picoquic_st.data_received;
+
+        PlayableSegment ps {};
+        ps.nb_frames = 48;
+        ps.eos = 0;
+        ps.seg_no = t.seg_no;
+        player_buffer_map[t.seg_no] = ps;
+        player_buffer.push(ps);
+
+        seg_stats.insert({ t.seg_no, pst });
+    }
+    sim.set_reward(pst.reward, 0, path_id);
 }
 
 
 void multipath_mab_path_scheduler()
 {
     double epsilon = 0.1;
-
     //arms.size();
     const uint K = 2;
-
     //policies.size()
     const uint P = 1;
 
-    std::thread thread_path_download(multipath_mab_download_queue);
+    int nb_paths = 2;
 
     RoundwiseLog log(K, P, nb_segments);
     vector<ArmPtr> arms;
     vector<PolicyPtr> policies;
 
-    arms.clear();
     arms.push_back(ArmPtr(new BernoulliArm(0.05)));
     arms.push_back(ArmPtr(new BernoulliArm(0.1)));
     assert(arms.size() == K);
 
-    policies.clear();
     policies.push_back(PolicyPtr(new EGreedyPolicy(K, epsilon)));
-//    policies.push_back(PolicyPtr(new ThompsonBinaryPolicy(K)));
-//    policies.push_back(PolicyPtr(new UCBPolicy(K)));
     assert(policies.size() == P);
 
     Simulator<RoundwiseLog> sim(arms, policies);
     int layers = (int)urls.size();
 
-    for (int i = 1; i < nb_segments; i++) {
-        string filename;
+    BS::thread_pool download_thread_pool(nb_paths);
 
+    int i = 1;
+    while (true) {
+        if (i >= nb_segments) {
+            break;
+        }
+
+        if (player_buffer.size() >= PLAYER_BUFFER_MAX_SEGMENTS || download_thread_pool.get_tasks_total() >= PLAYER_BUFFER_MAX_SEGMENTS) {
+            PortableSleep(0.01);
+            continue;
+        }
+
+        string filename;
         for (int j = 0; j < layers; j++) {
             filename += string("/1080/").append(urls[j][i]);
             filename += ";";
@@ -148,22 +193,15 @@ void multipath_mab_path_scheduler()
         struct DownloadTask t;
         t.filename = filename;
         t.seg_no = i;
-        t.eos = 0;
 
-        path_tasks[path_id].push(t);
-
-
-        // TODO
-//        sim.set_reward();
-
+        download_thread_pool.push_task(mab_path_downloader_new, path_id, t, sim);
+        i++;
     }
 
-    struct DownloadTask finish;
-    finish.eos = 1;
-    path_tasks[0].push(finish);
-    path_tasks[1].push(finish);
-    thread_path_download.join();
-
+    struct PlayableSegment ps;
+    ps.eos = 1;
+    player_buffer.push(ps);
+    player_buffer_map[nb_segments] = ps;
 }
 
 void multipath_mab()

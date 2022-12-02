@@ -49,6 +49,7 @@ find_package(Chrono
 
 file(GLOB_RECURSE tplayer_SOURCE
         ${CMAKE_CURRENT_SOURCE_DIR}
+        BS_thread_pool.hpp
         libdash/*.cpp
         libdash/*.c
         picoquic/client.h

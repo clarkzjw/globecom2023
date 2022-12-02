@@ -20,10 +20,10 @@
 #include "chrono/core/ChGlobal.h"
 #include "chrono/motion_functions/ChFunction_Recorder.h"
 #include "chrono/motion_functions/ChFunction_Sine.h"
-
 #include "chrono_postprocess/ChGnuPlot.h"
-
 #include "chrono_thirdparty/filesystem/path.h"
+
+#include "BS_thread_pool.hpp"
 
 using namespace std;
 using namespace ::chrono;
