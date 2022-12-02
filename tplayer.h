@@ -58,6 +58,12 @@ struct PerSegmentStats {
     double download_time {};
     double download_speed {};
     int path_id;
+    uint64_t one_way_delay_avg;
+    uint64_t bandwidth_estimate;
+    uint64_t rtt;
+    uint64_t total_bytes_lost;
+    uint64_t total_received;
+    uint64_t data_received;
     double reward;
 };
 

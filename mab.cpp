@@ -20,6 +20,8 @@
 
 #include <cassert>
 #include <vector>
+#include <future>
+
 
 using namespace std;
 using namespace bandit;
@@ -66,6 +68,13 @@ void mab_path_downloader(int path_index)
                     pst.finished_layers = 4;
                     pst.path_id = path_index;
                     pst.reward = picoquic_st.throughput;
+                    pst.one_way_delay_avg = picoquic_st.one_way_delay_avg;
+                    pst.bandwidth_estimate = picoquic_st.bandwidth_estimate;
+                    pst.rtt = picoquic_st.rtt;
+                    pst.total_received = picoquic_st.total_received;
+                    pst.total_bytes_lost = picoquic_st.total_bytes_lost;
+                    pst.data_received = picoquic_st.data_received;
+
 
                     PlayableSegment ps {};
                     ps.nb_frames = 48;
@@ -142,6 +151,11 @@ void multipath_mab_path_scheduler()
         t.eos = 0;
 
         path_tasks[path_id].push(t);
+
+
+        // TODO
+//        sim.set_reward();
+
     }
 
     struct DownloadTask finish;
@@ -174,13 +188,18 @@ void multipath_mab()
 
         mdatafile << seg_no << ", " << value.download_speed << "\n";
         std::cout << seg_no << " = "
-                  << "used: " << value.download_time
-                  << " seconds, "
+                  << "used: " << value.download_time << " seconds, "
                   << "ends at " << epoch_to_relative_seconds(playback_start, value.end)
                   << " speed: " << value.download_speed << " Mbps"
                   << " total filesize " << value.file_size << " bytes"
                   << " path_id: " << value.path_id
                   << " reward: " << value.reward
+                  << " rtt: " << value.rtt
+                  << " bw: " << value.bandwidth_estimate
+                  << " one way delay avg " << value.one_way_delay_avg
+                  << " total bytes lost " << value.total_bytes_lost
+                  << " total received " << value.total_received
+                  << " data received " << value.data_received
                   << endl;
     }
 
