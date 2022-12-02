@@ -122,8 +122,13 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
         }
         pst.finished_layers = 4;
         pst.path_id = path_id;
+
         pst.reward = picoquic_st.throughput;
+
         pst.one_way_delay_avg = picoquic_st.one_way_delay_avg;
+        pst.rtt_delay_estimate = ((double)picoquic_st.one_way_delay_avg) / 1000.0 * 2;
+        pst.download_speed = picoquic_st.throughput;
+
         pst.bandwidth_estimate = picoquic_st.bandwidth_estimate;
         pst.rtt = picoquic_st.rtt;
         pst.total_received = picoquic_st.total_received;
@@ -222,19 +227,19 @@ void multipath_mab()
     printf("\nper segment download metrics\n");
     for (auto& [seg_no, value] : seg_stats) {
         value.download_time = double(std::chrono::duration_cast<std::chrono::microseconds>(value.end - value.start).count()) / 1e6;
-        value.download_speed = value.file_size / value.download_time / 1000000.0 * 8.0;
+//        value.download_speed = value.file_size / value.download_time / 1000000.0 * 8.0;
 
         mdatafile << seg_no << ", " << value.download_speed << "\n";
-        std::cout << seg_no << " = "
-                  << "used: " << value.download_time << " seconds, "
-                  << "ends at " << epoch_to_relative_seconds(playback_start, value.end)
+        std::cout << seg_no << "="
+                  << " used: " << value.download_time << " seconds,"
+                  << " ends at " << epoch_to_relative_seconds(playback_start, value.end)
                   << " speed: " << value.download_speed << " Mbps"
                   << " total filesize " << value.file_size << " bytes"
                   << " path_id: " << value.path_id
                   << " reward: " << value.reward
-                  << " rtt: " << value.rtt
-                  << " bw: " << value.bandwidth_estimate
-                  << " one way delay avg " << value.one_way_delay_avg
+                  << " rtt: " << value.rtt_delay_estimate
+//                  << " bw: " << value.bandwidth_estimate
+//                  << " one way delay avg " << value.one_way_delay_avg
                   << " total bytes lost " << value.total_bytes_lost
                   << " total received " << value.total_received
                   << " data received " << value.data_received

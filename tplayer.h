@@ -64,6 +64,8 @@ struct PerSegmentStats {
     uint64_t total_bytes_lost;
     uint64_t total_received;
     uint64_t data_received;
+
+    double rtt_delay_estimate;
     double reward;
 };
 
