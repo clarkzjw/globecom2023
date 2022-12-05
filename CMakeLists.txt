@@ -128,3 +128,7 @@ add_custom_target(
         -i
         ${CLANG_FORMAT_SOURCE_FILES}
 )
+
+add_custom_target(
+        c
+        COMMAND rm -rf qlog/*.qlog qlog/*.log tmp/*.svc)
