@@ -1,4 +1,5 @@
 import time
+
 import numpy as np
 import subprocess
 import argparse
@@ -6,18 +7,17 @@ import argparse
 bw_range_low = 0
 bw_range_high = 0
 
-# Set the IP address of the server
-server_ip = ""
-
-# Set the port number of the server
-server_port = "5201"
-
 # mean background traffic (Mbps)
-mean = 0
 count = 10
 
 
-def generate_background_traffic():
+def start_iperf3(port):
+    options = ["-s", "-p", str(port)]
+    cmd = ["iperf3"] + options
+    subprocess.run(cmd)
+
+
+def generate_background_traffic(server_ip, server_port, mean, interface):
     while True:
         # random_number = random.uniform(bw_range_low, bw_range_high)
         # print(int(random_number))
@@ -29,14 +29,13 @@ def generate_background_traffic():
             bw = random_number * 1000000
 
             # Set the options for the iperf3 command
-            options = ["-c", server_ip, "-p", server_port, "-t", "1", "-b", str(bw)]
+            options = ["-c", server_ip, "-p", server_port, "-t", "1", "-b", str(bw), "--bind-dev", interface, "-R"]
             cmd = ["iperf3"] + options
 
             print(cmd)
             # Call iperf3 and save the output
             _ = subprocess.run(cmd, capture_output=True)
-
-            time.sleep(1)
+            time.sleep(5)
 
 
 if __name__ == "__main__":
@@ -44,13 +43,10 @@ if __name__ == "__main__":
 
     # Add the command line arguments
     parser.add_argument("-c", "--server", required=True, help="server ip")
-    parser.add_argument("-b", "--mean", required=True, help="mean background traffic (Mbps)")
-    parser.add_argument("-u", "--upper", required=True, help="upper bound of link bandwidth")
+    parser.add_argument("-p", "--port", required=True, help="server port")
+    parser.add_argument("-m", "--mean", required=True, help="mean background traffic (Mbps)")
+    parser.add_argument("-i", "--interface", required=True, help="bind to interface")
 
     args = parser.parse_args()
 
-    server_ip = args.server
-    mean = int(args.mean)
-    bw_range_high = int(args.upper)
-
-    generate_background_traffic()
+    generate_background_traffic(args.server, args.port, int(args.mean), args.interface)
