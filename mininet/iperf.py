@@ -35,7 +35,6 @@ def generate_background_traffic(server_ip, server_port, mean, interface):
             print(cmd)
             # Call iperf3 and save the output
             _ = subprocess.run(cmd, capture_output=True)
-            time.sleep(5)
 
 
 if __name__ == "__main__":
