@@ -1,4 +1,7 @@
 plot.sh
+__pycache__/
+*.dat
+*.png
 old/
 __tmp_gnuplot.gpl
 get-qlog.sh
