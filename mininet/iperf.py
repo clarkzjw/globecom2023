@@ -8,7 +8,7 @@ bw_range_low = 0
 bw_range_high = 0
 
 # mean background traffic (Mbps)
-count = 10
+count = 100
 
 
 def start_iperf3(port):
@@ -35,6 +35,38 @@ def generate_background_traffic(server_ip, server_port, mean, interface):
             print(cmd)
             # Call iperf3 and save the output
             _ = subprocess.run(cmd, capture_output=True)
+
+
+def set_static_latency(interface, latency):
+    # sudo tc qdisc replace dev h2-eth1 root netem delay 50ms
+    # 100ms 20ms distribution normal, https://www.cs.unm.edu/~crandall/netsfall13/TCtutorial.pdf
+    options = ["qdisc", "replace", "dev", interface, "root", "netem", "delay", latency]
+    cmd = ["tc"] + options
+
+    print(cmd)
+    _ = subprocess.run(cmd, capture_output=True)
+
+
+def set_latency_distribution(interface, latency, r, dist):
+    # sudo tc qdisc replace dev h2-eth1 root netem delay 100ms 20ms distribution normal
+    # https://www.cs.unm.edu/~crandall/netsfall13/TCtutorial.pdf
+    if dist not in ["normal"]:
+        print("distribution {} not supported".format(dist))
+    options = ["qdisc", "replace", "dev", interface, "root", "netem", "delay", latency, r, "distribution", dist]
+    cmd = ["tc"] + options
+
+    print(cmd)
+    _ = subprocess.run(cmd, capture_output=True)
+
+
+def set_latency_by_traces(interface, traces):
+    for latency in traces:
+        options = ["qdisc", "replace", "dev", interface, "root", "netem", "delay", "{}ms".format(latency)]
+        cmd = ["tc"] + options
+
+        print("setting latency on {} to {}".format(interface, latency))
+        _ = subprocess.run(cmd, capture_output=True)
+        time.sleep(1)
 
 
 if __name__ == "__main__":

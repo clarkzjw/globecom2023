@@ -150,7 +150,7 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
 
 void multipath_mab_path_scheduler()
 {
-    double epsilon = 0.1;
+    double epsilon = 0.5;
     //arms.size();
     const uint K = 2;
     //policies.size()
@@ -220,7 +220,7 @@ void multipath_mab()
     thread_download.join();
     thread_playback.join();
 
-    std::string datafile = "mab_egreedy-0.1-new.dat";
+    std::string datafile = "mab_egreedy-0.5-new.dat";
 
     ChStreamOutAsciiFile mdatafile(datafile.c_str());
 
