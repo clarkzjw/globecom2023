@@ -16,36 +16,33 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH} ./cmake)
 set(CMAKE_CXX_FLAGS "-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS")  # Second macro definition is required to fix the error: ‘UINT32_MAX’ was not declared in this scope
 
-# Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
+LIST(APPEND CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}/../Chrono/lib")
+
 find_package(Picoquic REQUIRED)
-message(STATUS "Picoquic/include: ${Picoquic_INCLUDE_DIRS}" )
-message(STATUS "Picoquic library: ${Picoquic_LIBRARIES}" )
+message(STATUS "Picoquic_INCLUDE_DIRS: ${Picoquic_INCLUDE_DIRS}" )
+message(STATUS "Picoquic_LIBRARIES: ${Picoquic_LIBRARIES}" )
 
 find_package(PTLS REQUIRED)
-message(STATUS "picotls/include: ${PTLS_INCLUDE_DIRS}" )
-message(STATUS "picotls libraries: ${PTLS_LIBRARIES}" )
+message(STATUS "PTLS_INCLUDE_DIRS: ${PTLS_INCLUDE_DIRS}" )
+message(STATUS "PTLS_LIBRARIES: ${PTLS_LIBRARIES}" )
 
 find_package(OpenSSL REQUIRED)
-message(STATUS "root: ${OPENSSL_ROOT_DIR}")
-message(STATUS "OpenSSL_VERSION: ${OPENSSL_VERSION}")
-message(STATUS "OpenSSL_INCLUDE_DIR: ${OPENSSL_INCLUDE_DIR}")
-message(STATUS "OpenSSL_LIBRARIES: ${OPENSSL_LIBRARIES}")
+message(STATUS "OPENSSL_VERSION: ${OPENSSL_VERSION}")
+message(STATUS "OPENSSL_INCLUDE_DIR: ${OPENSSL_INCLUDE_DIR}")
+message(STATUS "OPENSSL_LIBRARIES: ${OPENSSL_LIBRARIES}")
 
 find_package(LibXml2 REQUIRED)
-message(STATUS "LibXml2_INCLUDE_DIR: ${LIBXML2_INCLUDE_DIR}")
+message(STATUS "LIBXML2_INCLUDE_DIR: ${LIBXML2_INCLUDE_DIR}")
 
 find_package(ZLIB REQUIRED)
 find_package(CURL REQUIRED)
 find_package(Eigen3 REQUIRED)
-message(STATUS "Eigen3 INCLUDE_DIR: ${EIGEN3_INCLUDE_DIR}")
+message(STATUS "EIGEN3_INCLUDE_DIR: ${EIGEN3_INCLUDE_DIR}")
 
-message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
-LIST(APPEND CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}/../Chrono/lib")
-find_package(Chrono
-        COMPONENTS Postprocess
-        CONFIG)
+find_package(Chrono COMPONENTS Postprocess CONFIG)
 
 file(GLOB_RECURSE tplayer_SOURCE
         ${CMAKE_CURRENT_SOURCE_DIR}

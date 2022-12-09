@@ -123,8 +123,6 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
         pst.finished_layers = 4;
         pst.path_id = path_id;
 
-        pst.reward = picoquic_st.throughput;
-
         pst.one_way_delay_avg = picoquic_st.one_way_delay_avg;
         pst.rtt_delay_estimate = ((double)picoquic_st.one_way_delay_avg) / 1000.0 * 2;
         pst.download_speed = picoquic_st.throughput;
@@ -134,6 +132,16 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
         pst.total_received = picoquic_st.total_received;
         pst.total_bytes_lost = picoquic_st.total_bytes_lost;
         pst.data_received = picoquic_st.data_received;
+
+        // reward function
+        double alpha = 1;
+        double beta = 1;
+//        double gamma = 1;
+
+        double reward = alpha * picoquic_st.throughput + beta / pst.rtt_delay_estimate;
+
+        pst.reward = reward;
+//        pst.reward = picoquic_st.throughput;
 
         PlayableSegment ps {};
         ps.nb_frames = 48;
@@ -166,7 +174,8 @@ void multipath_mab_path_scheduler()
     arms.push_back(ArmPtr(new BernoulliArm(0.1)));
     assert(arms.size() == K);
 
-    policies.push_back(PolicyPtr(new EGreedyPolicy(K, epsilon)));
+//    policies.push_back(PolicyPtr(new EGreedyPolicy(K, epsilon)));
+    policies.push_back(PolicyPtr(new ThompsonBinaryPolicy(K)));
     assert(policies.size() == P);
 
     Simulator<RoundwiseLog> sim(arms, policies);
@@ -220,7 +229,7 @@ void multipath_mab()
     thread_download.join();
     thread_playback.join();
 
-    std::string datafile = "mab_egreedy-0.5-new.dat";
+    std::string datafile = "mab_ts.dat";
 
     ChStreamOutAsciiFile mdatafile(datafile.c_str());
 
@@ -229,7 +238,7 @@ void multipath_mab()
         value.download_time = double(std::chrono::duration_cast<std::chrono::microseconds>(value.end - value.start).count()) / 1e6;
 //        value.download_speed = value.file_size / value.download_time / 1000000.0 * 8.0;
 
-        mdatafile << seg_no << ", " << value.download_speed << "\n";
+        mdatafile << seg_no << ", " << value.download_speed << ", " << value.reward << "\n";
         std::cout << seg_no << "="
                   << " used: " << value.download_time << " seconds,"
                   << " ends at " << epoch_to_relative_seconds(playback_start, value.end)
@@ -246,12 +255,21 @@ void multipath_mab()
                   << endl;
     }
 
-    ChGnuPlot mplot;
-    string plot_png = datafile + ".png";
-    mplot.SetGrid();
-    mplot.SetLabelX("segments");
-    mplot.SetLabelY("throughput Mbps");
-    mplot.OutputPNG(plot_png);
+//    ChGnuPlot mplot_throughput;
+//    string plot_png = datafile + ".png";
+//    mplot_throughput.SetGrid();
+//    mplot_throughput.SetLabelX("segments");
+//    mplot_throughput.SetLabelY("throughput/Mbps");
+//    mplot_throughput.OutputPNG(plot_png);
+//    mplot_throughput.Plot(datafile, 1, 2, "throughput", " with linespoints");
+//    printf("plot saved to %s\n", plot_png.c_str());
 
-    mplot.Plot(datafile, 1, 2, "throughput", " with linespoints");
+    ChGnuPlot mplot_reward;
+    string plot_reward_png = datafile + "-reward.png";
+    mplot_reward.SetGrid();
+    mplot_reward.SetLabelX("segments");
+    mplot_reward.SetLabelY("rewards");
+    mplot_reward.OutputPNG(plot_reward_png);
+    mplot_reward.Plot(datafile, 1, 3, "rewards", " with linespoints");
+    printf("plot saved to %s\n", plot_reward_png.c_str());
 }
