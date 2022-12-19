@@ -22,6 +22,9 @@
 #include <vector>
 #include <future>
 #include <mutex>
+#include <string>
+#include <regex>
+
 
 using namespace std;
 using namespace bandit;
@@ -63,10 +66,10 @@ void mab_path_downloader(int path_index)
 
                 cout << "download ret = " << ret << endl;
                 if (!seg_stats.contains(t.seg_no)) {
-                    for (int j = 0; j < layers; j++) {
-                        string tmp_filename = string("/1080/").append(urls[j][t.seg_no]);
-                        pst.file_size += get_filesize(tmp_filename);
-                    }
+//                    for (int j = 0; j < layers; j++) {
+//                        string tmp_filename = string("/1080/").append(urls[j][t.seg_no]);
+//                        pst.file_size += get_filesize(tmp_filename);
+//                    }
                     pst.finished_layers = 4;
                     pst.path_id = path_index;
                     pst.reward = picoquic_st.throughput;
@@ -91,11 +94,19 @@ void mab_path_downloader(int path_index)
     }
 }
 
+extern int initial_bitrate;
+extern int initial_resolution;
+
+int cur_bitrate;
+int cur_resolution;
+int cur_layers;
 
 void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<RoundwiseLog> sim)
 {
     int ret = 0;
     int layers = (int)urls.size();
+
+    int highest_bitrate = global_get_highest_bitrate();
 
 //    while (player_buffer.size() > PLAYER_BUFFER_MAX_SEGMENTS) {
 //        PortableSleep(0.1);
@@ -110,17 +121,23 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
     PerSegmentStats pst;
     TicToc timer;
 
+//    t.filename = std::regex_replace(t.filename, std::regex("1080"), to_string(cur_resolution));
+
     pst.start = timer.tic();
     ret = quic_client(host.c_str(), port, quic_config, 0, 0, t.filename.c_str(), if_name, &picoquic_st);
     pst.end = timer.tic();
 
     cout << "download ret = " << ret << endl;
     if (!seg_stats.contains(t.seg_no)) {
-        for (int j = 0; j < layers; j++) {
-            string tmp_filename = string("/1080/").append(urls[j][t.seg_no]);
-            pst.file_size += get_filesize(tmp_filename);
-        }
-        pst.finished_layers = 4;
+//        for (int j = 0; j < cur_layers; j++) {
+//            string tmp = urls[j][t.seg_no];
+//            tmp = std::regex_replace(tmp, std::regex("1080"), to_string(cur_resolution));
+//
+//            string tmp_filename = string("/").append(to_string(cur_resolution)).append("/").append(tmp);
+////            string tmp_filename = string("/1080/").append(urls[j][t.seg_no]);
+//            pst.file_size += get_filesize(tmp_filename);
+//        }
+        pst.finished_layers = t.layers;
         pst.path_id = path_id;
 
         pst.one_way_delay_avg = picoquic_st.one_way_delay_avg;
@@ -136,10 +153,9 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
         // reward function
         double alpha = 1;
         double beta = 1;
-//        double gamma = 1;
+        double gamma = 1;
 
-        double reward = alpha * picoquic_st.throughput + beta / pst.rtt_delay_estimate;
-
+        double reward = alpha * picoquic_st.throughput + beta / pst.rtt_delay_estimate + gamma * ((double)cur_bitrate / (double)highest_bitrate);
         pst.reward = reward;
 //        pst.reward = picoquic_st.throughput;
 
@@ -174,16 +190,21 @@ void multipath_mab_path_scheduler()
     arms.push_back(ArmPtr(new BernoulliArm(0.1)));
     assert(arms.size() == K);
 
-//    policies.push_back(PolicyPtr(new EGreedyPolicy(K, epsilon)));
-    policies.push_back(PolicyPtr(new ThompsonBinaryPolicy(K)));
+    policies.push_back(PolicyPtr(new EGreedyPolicy(K, epsilon)));
+//    policies.push_back(PolicyPtr(new ThompsonBinaryPolicy(K)));
     assert(policies.size() == P);
 
     Simulator<RoundwiseLog> sim(arms, policies);
-    int layers = (int)urls.size();
+//    int layers = (int)urls.size();
 
     BS::thread_pool download_thread_pool(nb_paths);
 
     int i = 1;
+
+    cur_bitrate = initial_bitrate;
+    cur_resolution = initial_resolution;
+    cur_layers = get_required_layer_by_bitrate(cur_bitrate);
+
     while (true) {
         if (i >= nb_segments) {
             break;
@@ -195,8 +216,12 @@ void multipath_mab_path_scheduler()
         }
 
         string filename;
-        for (int j = 0; j < layers; j++) {
-            filename += string("/1080/").append(urls[j][i]);
+        for (int j = 0; j < cur_layers; j++) {
+            string tmp = urls[j][i];
+            tmp = std::regex_replace(tmp, std::regex("1080"), to_string(cur_resolution));
+
+
+            filename += string("/").append(to_string(cur_resolution)).append("/").append(tmp);
             filename += ";";
         }
         printf("%s\n", filename.c_str());
@@ -207,6 +232,7 @@ void multipath_mab_path_scheduler()
         struct DownloadTask t;
         t.filename = filename;
         t.seg_no = i;
+        t.layers = cur_layers;
 
         download_thread_pool.push_task(mab_path_downloader_new, path_id, t, sim);
         i++;
@@ -243,7 +269,7 @@ void multipath_mab()
                   << " used: " << value.download_time << " seconds,"
                   << " ends at " << epoch_to_relative_seconds(playback_start, value.end)
                   << " speed: " << value.download_speed << " Mbps"
-                  << " total filesize " << value.file_size << " bytes"
+//                  << " total filesize " << value.file_size << " bytes"
                   << " path_id: " << value.path_id
                   << " reward: " << value.reward
                   << " rtt: " << value.rtt_delay_estimate

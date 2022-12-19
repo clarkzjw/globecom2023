@@ -49,6 +49,7 @@ file(GLOB_RECURSE tplayer_SOURCE
         BS_thread_pool.hpp
         libdash/*.cpp
         libdash/*.c
+        bitrate.cpp
         picoquic/client.h
         picoquic/client.c
         mab.cpp

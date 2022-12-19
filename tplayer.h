@@ -36,6 +36,7 @@ typedef std::chrono::system_clock tic_clock;
 
 struct DownloadTask {
     string filename;
+    int layers;
     int seg_no {};
     int eos {};
 };
@@ -110,5 +111,10 @@ void mock_player_hash_map();
 void multipath_mab();
 void multipath_picoquic_minRTT();
 void multipath_round_robin();
+
+
+int get_resolution_by_bitrate(int bitrate);
+int global_get_highest_bitrate();
+int get_required_layer_by_bitrate(int bitrate);
 
 #endif // TPLAYER_TPLAYER_H

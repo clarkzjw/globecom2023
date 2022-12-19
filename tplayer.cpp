@@ -11,6 +11,8 @@
 #include <queue>
 #include <tplayer.h>
 #include <vector>
+#include <string>
+#include <regex>
 
 using namespace std;
 
@@ -76,6 +78,8 @@ int nb_segments = 30;
 
 int main(int argc, char* argv[])
 {
+
+#if 1
     // parse host and port
     if (argc < 3) {
         printf("%s host port\n", argv[0]);
@@ -99,5 +103,6 @@ int main(int argc, char* argv[])
 //    multipath_round_robin();
     multipath_mab();
 
+#endif
     return 0;
 }
