@@ -66,8 +66,12 @@ struct PerSegmentStats {
     uint64_t total_received;
     uint64_t data_received;
 
+    int resolution;
+    int bitrate;
+
     double rtt_delay_estimate;
     double reward;
+    double average_reward_so_far;
 };
 
 struct PlayableSegment {
@@ -112,9 +116,16 @@ void multipath_mab();
 void multipath_picoquic_minRTT();
 void multipath_round_robin();
 
+#define nb_paths 2
+
+int get_next_bitrate_from_mapping(int b);
+int decide_next_bitrate(int cur_reward);
+double get_previous_average_reward();
 
 int get_resolution_by_bitrate(int bitrate);
 int global_get_highest_bitrate();
 int get_required_layer_by_bitrate(int bitrate);
+double get_latest_total_throughput();
+double get_latest_average_rtt();
 
 #endif // TPLAYER_TPLAYER_H

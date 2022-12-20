@@ -78,7 +78,6 @@ int nb_segments = 30;
 
 int main(int argc, char* argv[])
 {
-
 #if 1
     // parse host and port
     if (argc < 3) {

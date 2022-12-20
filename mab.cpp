@@ -30,6 +30,9 @@ using namespace std;
 using namespace bandit;
 
 extern int nb_segments;
+extern vector<double> path_rtt[nb_paths];
+extern vector<double> path_throughput[nb_paths];
+extern vector<double> history_rewards;
 
 vector<queue<DownloadTask>> path_tasks(2);
 vector<mutex> path_mutex(2);
@@ -149,13 +152,27 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
         pst.total_received = picoquic_st.total_received;
         pst.total_bytes_lost = picoquic_st.total_bytes_lost;
         pst.data_received = picoquic_st.data_received;
+        pst.resolution = cur_resolution;
+        pst.bitrate = cur_bitrate;
+        pst.average_reward_so_far = get_previous_average_reward();
+
+        path_rtt[path_id].push_back(pst.rtt_delay_estimate);
+        path_throughput[path_id].push_back(pst.download_speed);
 
         // reward function
         double alpha = 1;
         double beta = 1;
         double gamma = 1;
 
-        double reward = alpha * picoquic_st.throughput + beta / pst.rtt_delay_estimate + gamma * ((double)cur_bitrate / (double)highest_bitrate);
+        double reward = alpha * (picoquic_st.throughput / get_latest_total_throughput())
+                + beta * (pst.rtt_delay_estimate / get_latest_average_rtt())
+                + gamma * ((double)cur_bitrate / (double)highest_bitrate);
+
+        cur_bitrate = decide_next_bitrate(reward);
+        cur_resolution = get_resolution_by_bitrate(cur_bitrate);
+
+        history_rewards.push_back(reward);
+
         pst.reward = reward;
 //        pst.reward = picoquic_st.throughput;
 
@@ -174,13 +191,13 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
 
 void multipath_mab_path_scheduler()
 {
-    double epsilon = 0.5;
+    double epsilon = 0.1;
     //arms.size();
     const uint K = 2;
     //policies.size()
     const uint P = 1;
 
-    int nb_paths = 2;
+//    int nb_paths = 2;
 
     RoundwiseLog log(K, P, nb_segments);
     vector<ArmPtr> arms;
@@ -203,7 +220,6 @@ void multipath_mab_path_scheduler()
 
     cur_bitrate = initial_bitrate;
     cur_resolution = initial_resolution;
-    cur_layers = get_required_layer_by_bitrate(cur_bitrate);
 
     while (true) {
         if (i >= nb_segments) {
@@ -215,6 +231,7 @@ void multipath_mab_path_scheduler()
             continue;
         }
 
+        cur_layers = get_required_layer_by_bitrate(cur_bitrate);
         string filename;
         for (int j = 0; j < cur_layers; j++) {
             string tmp = urls[j][i];
@@ -267,17 +284,21 @@ void multipath_mab()
         mdatafile << seg_no << ", " << value.download_speed << ", " << value.reward << "\n";
         std::cout << seg_no << "="
                   << " used: " << value.download_time << " seconds,"
+                  << " starts at " << epoch_to_relative_seconds(playback_start, value.start)
                   << " ends at " << epoch_to_relative_seconds(playback_start, value.end)
                   << " speed: " << value.download_speed << " Mbps"
+                  << " bitrate: " << value.bitrate
+                  << " resolution: " << value.resolution
 //                  << " total filesize " << value.file_size << " bytes"
                   << " path_id: " << value.path_id
+                  << " previous avg reward: " << value.average_reward_so_far
                   << " reward: " << value.reward
                   << " rtt: " << value.rtt_delay_estimate
 //                  << " bw: " << value.bandwidth_estimate
 //                  << " one way delay avg " << value.one_way_delay_avg
-                  << " total bytes lost " << value.total_bytes_lost
-                  << " total received " << value.total_received
-                  << " data received " << value.data_received
+//                  << " total bytes lost " << value.total_bytes_lost
+//                  << " total received " << value.total_received
+//                  << " data received " << value.data_received
                   << endl;
     }
 
