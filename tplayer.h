@@ -120,12 +120,19 @@ void multipath_round_robin();
 
 int get_next_bitrate_from_mapping(int b);
 int decide_next_bitrate(int cur_reward);
+int decide_next_bitrate_path_i(int cur_reward, int path_id);
 double get_previous_average_reward();
+double get_previous_average_reward_on_path_i(int path_id);
 
 int get_resolution_by_bitrate(int bitrate);
 int global_get_highest_bitrate();
 int get_required_layer_by_bitrate(int bitrate);
 double get_latest_total_throughput();
 double get_latest_average_rtt();
+
+struct reward_item {
+    double reward;
+    int path_id;
+};
 
 #endif // TPLAYER_TPLAYER_H

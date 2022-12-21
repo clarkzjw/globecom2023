@@ -7,7 +7,7 @@
 vector<double> path_rtt[nb_paths];
 vector<double> path_throughput[nb_paths];
 
-vector<double> history_rewards;
+vector<struct reward_item> history_rewards;
 
 double get_latest_total_throughput() {
     double throughput = 0;

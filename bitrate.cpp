@@ -92,7 +92,7 @@ int get_required_layer_by_bitrate(int bitrate) {
 int initial_bitrate = 1500;
 int initial_resolution = get_resolution_by_bitrate(initial_bitrate);
 
-extern vector<double> history_rewards;
+extern vector<struct reward_item> history_rewards;
 
 
 double get_previous_average_reward() {
@@ -100,12 +100,27 @@ double get_previous_average_reward() {
     if (history_rewards.empty()) {
         return average;
     }
-    for (double history_reward : history_rewards) {
-        average += history_reward;
+    for (auto history_reward : history_rewards) {
+        average += history_reward.reward;
     }
     return average / history_rewards.size();
 }
 
+
+double get_previous_average_reward_on_path_i(int path_id) {
+    double average = 0;
+    int count = 0;
+    for (auto history_reward : history_rewards) {
+        if (history_reward.path_id == path_id) {
+            average += history_reward.reward;
+            count ++;
+        }
+    }
+    if (history_rewards.empty() || count == 0) {
+        return average;
+    }
+    return average / count;
+}
 
 int decide_next_bitrate(int cur_reward) {
     int next_bitrate = cur_bitrate;
@@ -124,3 +139,19 @@ int decide_next_bitrate(int cur_reward) {
     return next_bitrate;
 }
 
+int decide_next_bitrate_path_i(int cur_reward, int path_id) {
+    int next_bitrate = cur_bitrate;
+    if (history_rewards.empty()) {
+        return next_bitrate;
+    }
+    double previous_average_reward = get_previous_average_reward_on_path_i(path_id);
+    if (cur_reward > previous_average_reward) {
+        next_bitrate = get_next_bitrate_from_mapping(cur_bitrate);
+    } else {
+        next_bitrate = cur_bitrate;
+    }
+    if (next_bitrate > global_get_highest_bitrate()) {
+        next_bitrate = global_get_highest_bitrate();
+    }
+    return next_bitrate;
+}

@@ -32,7 +32,7 @@ using namespace bandit;
 extern int nb_segments;
 extern vector<double> path_rtt[nb_paths];
 extern vector<double> path_throughput[nb_paths];
-extern vector<double> history_rewards;
+extern vector<struct reward_item> history_rewards;
 
 vector<queue<DownloadTask>> path_tasks(2);
 vector<mutex> path_mutex(2);
@@ -154,24 +154,28 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
         pst.data_received = picoquic_st.data_received;
         pst.resolution = cur_resolution;
         pst.bitrate = cur_bitrate;
-        pst.average_reward_so_far = get_previous_average_reward();
+        pst.average_reward_so_far = get_previous_average_reward_on_path_i(path_id);
 
         path_rtt[path_id].push_back(pst.rtt_delay_estimate);
         path_throughput[path_id].push_back(pst.download_speed);
 
         // reward function
-        double alpha = 1;
+        double alpha = 5;
         double beta = 1;
-        double gamma = 1;
+        double gamma = 10;
 
         double reward = alpha * (picoquic_st.throughput / get_latest_total_throughput())
                 + beta * (pst.rtt_delay_estimate / get_latest_average_rtt())
                 + gamma * ((double)cur_bitrate / (double)highest_bitrate);
 
-        cur_bitrate = decide_next_bitrate(reward);
+        cur_bitrate = decide_next_bitrate_path_i(reward, path_id);
         cur_resolution = get_resolution_by_bitrate(cur_bitrate);
 
-        history_rewards.push_back(reward);
+        struct reward_item r;
+        r.reward = reward;
+        r.path_id = path_id;
+
+        history_rewards.push_back(r);
 
         pst.reward = reward;
 //        pst.reward = picoquic_st.throughput;
@@ -281,7 +285,7 @@ void multipath_mab()
         value.download_time = double(std::chrono::duration_cast<std::chrono::microseconds>(value.end - value.start).count()) / 1e6;
 //        value.download_speed = value.file_size / value.download_time / 1000000.0 * 8.0;
 
-        mdatafile << seg_no << ", " << value.download_speed << ", " << value.reward << "\n";
+        mdatafile << seg_no << ", " << value.download_speed << ", " << value.reward << ", " << value.bitrate << "\n";
         std::cout << seg_no << "="
                   << " used: " << value.download_time << " seconds,"
                   << " starts at " << epoch_to_relative_seconds(playback_start, value.start)
@@ -293,9 +297,9 @@ void multipath_mab()
                   << " path_id: " << value.path_id
                   << " previous avg reward: " << value.average_reward_so_far
                   << " reward: " << value.reward
-                  << " rtt: " << value.rtt_delay_estimate
+//                  << " rtt: " << value.rtt / 1000.0
 //                  << " bw: " << value.bandwidth_estimate
-//                  << " one way delay avg " << value.one_way_delay_avg
+                  << " delay avg " << value.one_way_delay_avg * 2 / 1000.0
 //                  << " total bytes lost " << value.total_bytes_lost
 //                  << " total received " << value.total_received
 //                  << " data received " << value.data_received
