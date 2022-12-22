@@ -119,10 +119,11 @@ void multipath_round_robin();
 #define nb_paths 2
 
 int get_next_bitrate_from_mapping(int b);
-int decide_next_bitrate(int cur_reward);
-int decide_next_bitrate_path_i(int cur_reward, int path_id);
+int decide_next_bitrate(double cur_reward);
+int decide_next_bitrate_path_i(double cur_reward, double avg, int path_id);
 double get_previous_average_reward();
 double get_previous_average_reward_on_path_i(int path_id);
+double get_previous_most_recent_average_reward_on_path_i(int path_id);
 
 int get_resolution_by_bitrate(int bitrate);
 int global_get_highest_bitrate();

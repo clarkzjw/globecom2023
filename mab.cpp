@@ -154,7 +154,7 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
         pst.data_received = picoquic_st.data_received;
         pst.resolution = cur_resolution;
         pst.bitrate = cur_bitrate;
-        pst.average_reward_so_far = get_previous_average_reward_on_path_i(path_id);
+        pst.average_reward_so_far = get_previous_most_recent_average_reward_on_path_i(path_id);
 
         path_rtt[path_id].push_back(pst.rtt_delay_estimate);
         path_throughput[path_id].push_back(pst.download_speed);
@@ -168,7 +168,7 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
                 + beta * (pst.rtt_delay_estimate / get_latest_average_rtt())
                 + gamma * ((double)cur_bitrate / (double)highest_bitrate);
 
-        cur_bitrate = decide_next_bitrate_path_i(reward, path_id);
+        cur_bitrate = decide_next_bitrate_path_i(reward, pst.average_reward_so_far, path_id);
         cur_resolution = get_resolution_by_bitrate(cur_bitrate);
 
         struct reward_item r;
