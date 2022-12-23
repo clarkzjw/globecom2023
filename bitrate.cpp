@@ -222,3 +222,31 @@ int decide_next_bitrate_path_i(double cur_reward, double avg, int path_id) {
     }
     return next_bitrate;
 }
+
+int get_nearest_bitrate(double reward) {
+    int nearest_bitrate = 0;
+    double min_diff = 100000000;
+    for (auto &[resolution, bitrates]: map_bitrate) {
+        for (auto &b: bitrates) {
+            double diff = abs(reward - b);
+            if (diff < min_diff) {
+                min_diff = diff;
+                nearest_bitrate = b;
+            }
+        }
+    }
+    return nearest_bitrate;
+}
+
+int get_next_bitrate(double b, double reward, double previous_reward) {
+    double next_bitrate = b;
+    if (reward - previous_reward >= 0) {
+        next_bitrate = get_next_bitrate_from_mapping(b);
+    } else {
+        next_bitrate = get_previous_bitrate_from_mapping(b);
+    }
+    if (next_bitrate > global_get_highest_bitrate()) {
+        next_bitrate = global_get_highest_bitrate();
+    }
+    return next_bitrate;
+}
