@@ -13,25 +13,24 @@ def client():
     iface2 = "h2-eth1"
 
     # bandwidth threads
-    th_link1 = threading.Thread(target=generate_background_traffic, args=(server, "5201", mean1, iface1))
-    th_link2 = threading.Thread(target=generate_background_traffic, args=(server, "5202", mean2, iface2))
+    th_link_starlink = threading.Thread(target=generate_background_traffic, args=(server, "5201", mean1, iface1))
+    th_link_lte = threading.Thread(target=generate_background_traffic, args=(server, "5202", mean2, iface2))
 
     # latency thread
-    # th_latency_link1 = threading.Thread(target=set_latency_distribution, args=(iface1, "15ms", "5ms", "normal"))
-
     # set latency by starlink traces
     with open("starlink/latency.txt", "r") as f:
         latency_traces = f.read().split("\n")
 
-    th_latency_link1 = threading.Thread(target=set_latency_by_traces, args=(iface1, latency_traces[:-1]))
-    th_latency_link2 = threading.Thread(target=set_latency_distribution, args=(iface2, "50ms", "20ms", "normal"))
+    th_latency_link_starlink = threading.Thread(target=set_latency_by_traces, args=(iface1, latency_traces[:-1]))
+    # this is rtt delay
+    th_latency_link_lte = threading.Thread(target=set_latency_distribution, args=(iface2, "100ms", "20ms", "normal"))
 
     # Start the thread
-    th_latency_link1.start()
-    th_latency_link2.start()
+    th_latency_link_starlink.start()
+    th_latency_link_lte.start()
 
-    th_link1.start()
-    th_link2.start()
+    th_link_starlink.start()
+    th_link_lte.start()
 
 
 def server():

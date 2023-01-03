@@ -1,3 +1,5 @@
+mininet/starlink/exporter/*_metrics.csv
+mininet/starlink/exporter/dec2022.csv
 result*
 plot.sh
 __pycache__/
