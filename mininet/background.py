@@ -14,7 +14,7 @@ def client():
 
     # bandwidth threads
     th_bg_traffic_starlink = threading.Thread(target=generate_background_traffic, args=(server, "5201", mean1, iface1))
-    # th_bg_traffic_lte = threading.Thread(target=generate_background_traffic, args=(server, "5202", mean2, iface2))
+    th_bg_traffic_lte = threading.Thread(target=generate_background_traffic, args=(server, "5202", mean2, iface2))
 
     # latency thread
     # set latency by starlink traces
@@ -30,7 +30,7 @@ def client():
     th_latency_link_lte.start()
 
     th_bg_traffic_starlink.start()
-    # th_bg_traffic_lte.start()
+    th_bg_traffic_lte.start()
 
 
 def server():

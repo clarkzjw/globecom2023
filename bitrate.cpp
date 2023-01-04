@@ -161,16 +161,17 @@ double get_previous_average_reward_on_path_i(int path_id) {
     return average / count;
 }
 
-
 double get_previous_most_recent_average_reward_on_path_i(int path_id) {
     double average = 0;
     int count = 0;
+    int previous_number = 1;
+
     for (int i = history_rewards.size() - 1; i >= 0; i--) {
         if (history_rewards[i].path_id == path_id) {
             average += history_rewards[i].reward;
             count++;
         }
-        if (count == 5) {
+        if (count == previous_number) {
             break;
         }
     }
@@ -243,6 +244,7 @@ int get_next_bitrate(double b, double reward, double previous_reward) {
     if (reward - previous_reward >= 0) {
         next_bitrate = get_next_bitrate_from_mapping(b);
     } else {
+//        next_bitrate = b;
         next_bitrate = get_previous_bitrate_from_mapping(b);
     }
     if (next_bitrate > global_get_highest_bitrate()) {

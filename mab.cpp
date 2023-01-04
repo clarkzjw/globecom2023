@@ -126,9 +126,16 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
 
 //    t.filename = std::regex_replace(t.filename, std::regex("1080"), to_string(cur_resolution));
 
+    picoquic_quic_config_t *config = (picoquic_quic_config_t*)malloc(sizeof(picoquic_quic_config_t));
+
+    picoquic_config_init(config);
+    config->out_dir = "./tmp";
+
     pst.start = timer.tic();
-    ret = quic_client(host.c_str(), port, quic_config, 0, 0, t.filename.c_str(), if_name, &picoquic_st);
+    ret = quic_client(host.c_str(), port, config, 0, 0, t.filename.c_str(), if_name, &picoquic_st);
     pst.end = timer.tic();
+
+    free(config);
 
     cout << "download ret = " << ret << endl;
     if (!seg_stats.contains(t.seg_no)) {
@@ -159,10 +166,9 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
         path_rtt[path_id].push_back(pst.rtt_delay_estimate);
         path_throughput[path_id].push_back(pst.download_speed);
 
-        // reward function
-        double alpha = 1;
+
+        double alpha = 10;
         double beta = 1;
-//        double gamma = 10;
 
         double gamma = 0;
         pst.gamma_throughput = picoquic_st.throughput;
@@ -177,26 +183,28 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
         pst.gamma_rtt = pst.rtt_delay_estimate;
         pst.gamma_avg_rtt = get_previous_average_rtt(path_id);
 
+        // reward function 1
+        // logseq://graph/Logseq?block-id=63a4dd9f-ad93-4015-af96-5f2b9d853862
+//        if (get_previous_average_rtt(path_id) == 0) {
+//            gamma = gamma / beta * pst.rtt_delay_estimate;
+//        } else {
+//            gamma = gamma / (beta * pst.rtt_delay_estimate / pst.gamma_avg_rtt);
+//        }
+
+        // reward function 2
         if (get_previous_average_rtt(path_id) == 0) {
-            gamma = gamma / beta * pst.rtt_delay_estimate;
+            gamma = gamma + beta * pst.rtt_delay_estimate;
         } else {
-            gamma = gamma / (beta * pst.rtt_delay_estimate / pst.gamma_avg_rtt);
+            gamma = gamma + (beta * pst.rtt_delay_estimate / pst.gamma_avg_rtt);
         }
 
         gamma = gamma == 0 ? 1 : gamma;
 
         double reward = gamma * cur_bitrate;
-
         pst.gamma = gamma;
-//        double reward = alpha * (picoquic_st.throughput / get_latest_total_throughput())
-//                + beta * (pst.rtt_delay_estimate / get_latest_average_rtt())
-//                + gamma * ((double)cur_bitrate / (double)highest_bitrate);
-//        cur_bitrate = decide_next_bitrate_path_i(reward, pst.average_reward_so_far, path_id);
 
-//        cur_bitrate = get_nearest_bitrate(reward);
         cur_bitrate = get_next_bitrate(cur_bitrate, reward, pst.average_reward_so_far);
         cur_resolution = get_resolution_by_bitrate(cur_bitrate);
-
 
         struct reward_item r;
         r.reward = reward;

@@ -24,7 +24,7 @@ if '__main__' == __name__:
 
     linkopt1 = {'bw': 1000}
     # delay is one way delay
-    linkopt_fast = {'bw': bw_fast, 'delay': '25ms', 'loss': 3.5}
+    linkopt_fast = {'bw': bw_fast, 'delay': '25ms', 'loss': 10}
     linkopt_slow = {'bw': bw_slow, 'delay': '50ms', 'loss': 0}
 
     net.addLink(r1, h1, cls=TCLink, **linkopt1)

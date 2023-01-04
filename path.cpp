@@ -9,6 +9,9 @@ vector<double> path_throughput[nb_paths];
 
 vector<struct reward_item> history_rewards;
 
+
+int previous_number = 5;
+
 double get_latest_total_throughput() {
     double throughput = 0;
     for (auto & path : path_throughput) {
