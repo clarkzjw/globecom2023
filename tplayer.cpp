@@ -11,6 +11,8 @@
 #include <queue>
 #include <tplayer.h>
 #include <vector>
+#include <string>
+#include <regex>
 
 using namespace std;
 
@@ -20,6 +22,7 @@ int port;
 std::vector<DownloadStats> stats;
 std::map<int, PerSegmentStats> seg_stats;
 std::queue<PlayableSegment> player_buffer;
+std::map<int, PlayableSegment> player_buffer_map;
 std::queue<DownloadTask> tasks;
 tic_clock::time_point playback_start;
 picoquic_quic_config_t* quic_config = nullptr;
@@ -61,6 +64,7 @@ int get_filesize(const string& req_filename)
  * */
 void sequential_download()
 {
+    printf("sequential download\n");
     for (int i = 1; i < 10; i++) {
         string filename = string("/1080/").append(urls[0][i]);
         printf("%s\n", filename.c_str());
@@ -70,8 +74,11 @@ void sequential_download()
     }
 }
 
+int nb_segments = 50;
+
 int main(int argc, char* argv[])
 {
+#if 1
     // parse host and port
     if (argc < 3) {
         printf("%s host port\n", argv[0]);
@@ -90,10 +97,11 @@ int main(int argc, char* argv[])
     picoquic_config_init(quic_config);
     quic_config->out_dir = "./tmp";
 
-    //    sequential_download();
-//        multipath_picoquic_minRTT();
-        multipath_round_robin();
-//    multipath_mab();
+//    sequential_download();
+//    multipath_picoquic_minRTT();
+//    multipath_round_robin();
+    multipath_mab();
 
+#endif
     return 0;
 }

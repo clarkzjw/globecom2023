@@ -710,6 +710,12 @@ int quic_client(const char* ip_address_text, int server_port,
                 if (stat != NULL) {
                     stat->time = duration_usec / 1000000.0;
                     stat->throughput = receive_rate_mbps;
+                    stat->rtt = picoquic_get_rtt(cnx_client);
+                    stat->one_way_delay_avg = picoquic_get_one_way_delay_avg(cnx_client);
+                    stat->bandwidth_estimate = picoquic_get_bandwidth_estimate(cnx_client);
+                    stat->total_bytes_lost = picoquic_get_total_bytes_lost(cnx_client);
+                    stat->total_received = picoquic_get_total_received(cnx_client);
+                    stat->data_received = picoquic_get_data_received(cnx_client);
                 }
 #if 0
                 /* Print those for debugging the effects of ack frequency and flow control */

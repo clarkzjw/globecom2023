@@ -14,6 +14,12 @@ extern "C" {
 struct picoquic_download_stat {
     double time;
     double throughput;
+    uint64_t rtt;
+    uint64_t one_way_delay_avg;
+    uint64_t bandwidth_estimate;
+    uint64_t total_bytes_lost;
+    uint64_t total_received;
+    uint64_t data_received;
 };
 
 int quic_client(const char* ip_address_text, int server_port,

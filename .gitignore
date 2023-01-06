@@ -1,3 +1,13 @@
+videos/
+mininet/starlink/exporter/*_metrics.csv
+mininet/starlink/exporter/dec2022.csv
+result*
+plot.sh
+__pycache__/
+*.dat
+*.png
+old/
+__tmp_gnuplot.gpl
 get-qlog.sh
 x264/
 *.264
@@ -49,3 +59,6 @@ demo_token_store.bin
 *.exe
 *.out
 *.app
+picoquic_delay_estimate
+starlink_loss
+*.zip
