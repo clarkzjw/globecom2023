@@ -26,8 +26,8 @@ void path_downloader(int path_index)
                 break;
             } else {
                 int ret = 0;
-                char* if_name = path_name[path_index];
-                printf("\n\ndownloading %s on path %s\n", t.filename.c_str(), if_name);
+                string if_name = path_ifname_vec[path_index];
+                printf("\n\ndownloading %s on path %s\n", t.filename.c_str(), if_name.c_str());
 
                 struct DownloadStats st;
                 st.filename = t.filename;
@@ -40,7 +40,7 @@ void path_downloader(int path_index)
 
                 pst.start = timer.tic();
 
-                ret = quic_client(host.c_str(), port, quic_config, 0, 0, t.filename.c_str(), if_name, &picoquic_st);
+                ret = quic_client(host.c_str(), port, quic_config, 0, 0, t.filename.c_str(), if_name.c_str(), &picoquic_st);
 
                 pst.finished_layers = 1;
 
@@ -103,7 +103,7 @@ void multipath_round_robin()
 
     for (int i = 1; i < nb_segments; i++) {
         for (int j = 0; j < layers; j++) {
-            string filename = string("/1080/").append(urls[j][i]);
+            string filename = string("/1080/").append(urls[j][i].url);
 
             struct DownloadTask t;
             t.filename = filename;

@@ -28,9 +28,11 @@ std::queue<DownloadTask> tasks;
 tic_clock::time_point playback_start;
 picoquic_quic_config_t* quic_config = nullptr;
 dash::mpd::IMPD* mpd_file;
-vector<vector<string>> urls;
+vector<vector<struct SegmentInfo>> urls;
 
-char* path_name[2] = { "h2-eth0", "h2-eth1" };
+//char* path_name[2] = { "h2-eth0", "h2-eth1" };
+vector<string> path_ifname_vec = { "h2-eth0", "h2-eth1" };
+
 
 string local_mpd_url = "./big.mpd";
 //string local_mpd_url = "./BBB-I-1080p.mpd";
@@ -55,7 +57,7 @@ void sequential_download()
     int count = 0;
     for (int j = 0; j < nb_rounds; j++) {
         for (int i = 1; i < nb_segments; i++) {
-            string filename = string("/1080/").append(urls[0][i]);
+            string filename = string("/1080/").append(urls[0][i].url);
             printf("%s\n", filename.c_str());
 
             quic_config = (picoquic_quic_config_t*)malloc(sizeof(picoquic_quic_config_t));
@@ -63,9 +65,9 @@ void sequential_download()
             quic_config->out_dir = "./tmp";
 
             struct picoquic_download_stat picoquic_st { };
-            char* if_name = path_name[path_id];
+            string if_name = path_ifname_vec[path_id];
 
-            int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str(), if_name, &picoquic_st);
+            int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str(), if_name.c_str(), &picoquic_st);
             printf("download ret = %d\n", ret);
 
             // this is rtt
@@ -111,7 +113,7 @@ void sequential_download()
 
 int main(int argc, char* argv[])
 {
-    mpd_file = parse_mpd(local_mpd_url, quic_config);
+    mpd_file = parse_mpd(local_mpd_url);
     urls = get_segment_urls(mpd_file);
 
     sequential_download();

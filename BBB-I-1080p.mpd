@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:mpeg:DASH:schema:MPD:2011" xsi:schemaLocation="urn:mpeg:DASH:schema:MPD:2011" profiles="urn:mpeg:dash:profile:isoff-main:2011" type="static" mediaPresentationDuration="PT596.458S" minBufferTime="PT2.0S"><div xmlns=""/>
-              <BaseURL>quic://server:4433/1080/</BaseURL>
-              <Period start="PT0S">
-    
+  <BaseURL>quic://server:4433/1080/</BaseURL>
+  <Period start="PT0S">
      <AdaptationSet bitstreamSwitching="true" mimeType="video/264" startWithSAP="1" maxWidth="1920" maxHeight="1080" maxFrameRate="24" par="16:9">
-                    <SegmentBase>
-                        <Initialization sourceURL="BBB-I-1080p.init.svc"/>
-                    </SegmentBase>
-    
+        <SegmentBase>
+            <Initialization sourceURL="BBB-I-1080p.init.svc"/>
+        </SegmentBase>
+
      <Representation id="0" codecs="AVC" mimeType="video/264" width="1920" height="1080" frameRate="24" sar="1:1" bandwidth="4019195">
                        <SegmentList duration="48" timescale="24">
                      <SegmentURL media="BBB-I-1080p.seg0-L0.svc"/>
@@ -309,10 +308,10 @@
                          <SegmentURL media="BBB-I-1080p.seg296-L0.svc"/>
                          <SegmentURL media="BBB-I-1080p.seg297-L0.svc"/>
                          <SegmentURL media="BBB-I-1080p.seg298-L0.svc"/>
-    
+
                        </SegmentList>
                     </Representation>
-    
+
      <Representation id="1" dependencyId="0" codecs="SVC" mimeType="video/264" width="1920" height="1080" frameRate="24" sar="1:1" bandwidth="5600258">
                        <SegmentList duration="48" timescale="24">
                          <SegmentURL media="BBB-I-1080p.seg0-L1.svc"/>
@@ -614,10 +613,10 @@
                          <SegmentURL media="BBB-I-1080p.seg296-L1.svc"/>
                          <SegmentURL media="BBB-I-1080p.seg297-L1.svc"/>
                          <SegmentURL media="BBB-I-1080p.seg298-L1.svc"/>
-    
+
                        </SegmentList>
                     </Representation>
-    
+
      <Representation id="2" dependencyId="0 1" codecs="SVC" mimeType="video/264" width="1920" height="1080" frameRate="24" sar="1:1" bandwidth="7152373">
                        <SegmentList duration="48" timescale="24">
                          <SegmentURL media="BBB-I-1080p.seg0-L2.svc"/>
@@ -919,10 +918,10 @@
                          <SegmentURL media="BBB-I-1080p.seg296-L2.svc"/>
                          <SegmentURL media="BBB-I-1080p.seg297-L2.svc"/>
                          <SegmentURL media="BBB-I-1080p.seg298-L2.svc"/>
-    
+
                        </SegmentList>
                     </Representation>
-    
+
      <Representation id="3" dependencyId="0 1 2" codecs="SVC" mimeType="video/264" width="1920" height="1080" frameRate="24" sar="1:1" bandwidth="11015718">
                        <SegmentList duration="48" timescale="24">
                          <SegmentURL media="BBB-I-1080p.seg0-L3.svc"/>
@@ -1224,10 +1223,10 @@
                          <SegmentURL media="BBB-I-1080p.seg296-L3.svc"/>
                          <SegmentURL media="BBB-I-1080p.seg297-L3.svc"/>
                          <SegmentURL media="BBB-I-1080p.seg298-L3.svc"/>
-    
+
                        </SegmentList>
                     </Representation>
-    
+
      </AdaptationSet>
         </Period>
     </MPD>
