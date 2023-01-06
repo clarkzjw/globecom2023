@@ -175,18 +175,29 @@ double get_previous_most_recent_average_reward_on_path_i(int path_id) {
             break;
         }
     }
-//    for (auto history_reward: history_rewards) {
-//        if (history_reward.path_id == path_id) {
-//            average += history_reward.reward;
-//            count++;
-//        }
-//    }
     if (history_rewards.empty() || count == 0) {
         return average;
     }
     return average / count;
 }
 
+
+double get_previous_most_recent_average_reward(int nb_previous) {
+    double average = 0;
+    int count = 0;
+
+    for (int i = history_rewards.size() - 1; i >= 0; i--) {
+        average += history_rewards[i].reward;
+        count++;
+        if (count == nb_previous) {
+            break;
+        }
+    }
+    if (history_rewards.empty() || count == 0) {
+        return average;
+    }
+    return average / count;
+}
 
 int decide_next_bitrate(double cur_reward) {
     int next_bitrate = cur_bitrate;
@@ -245,7 +256,11 @@ int get_next_bitrate(double b, double reward, double previous_reward) {
         next_bitrate = get_next_bitrate_from_mapping(b);
     } else {
 //        next_bitrate = b;
-        next_bitrate = get_previous_bitrate_from_mapping(b);
+        if (reward / previous_reward > 0.8) {
+            next_bitrate = b;
+        } else {
+            next_bitrate = get_previous_bitrate_from_mapping(b);
+        }
     }
     if (next_bitrate > global_get_highest_bitrate()) {
         next_bitrate = global_get_highest_bitrate();

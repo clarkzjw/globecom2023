@@ -133,6 +133,7 @@ int get_next_bitrate(double b, double reward, double previous_reward);
 double get_previous_average_reward();
 double get_previous_average_reward_on_path_i(int path_id);
 double get_previous_most_recent_average_reward_on_path_i(int path_id);
+double get_previous_most_recent_average_reward(int nb_previous);
 
 int get_resolution_by_bitrate(int bitrate);
 int global_get_highest_bitrate();

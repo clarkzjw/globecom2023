@@ -12,7 +12,6 @@ from mininet.cli import CLI
 from mininet.link import TCLink
 from mininet.log import setLogLevel
 from mininet.net import Mininet
-from config import bw_fast, bw_slow
 
 if '__main__' == __name__:
     setLogLevel('info')
@@ -24,8 +23,8 @@ if '__main__' == __name__:
 
     linkopt1 = {'bw': 1000}
     # delay is one way delay
-    linkopt_fast = {'bw': bw_fast, 'delay': '25ms', 'loss': 0}
-    linkopt_slow = {'bw': bw_slow, 'delay': '50ms', 'loss': 0}
+    linkopt_fast = {'bw': 100, 'delay': '25ms', 'loss': 0}
+    linkopt_slow = {'bw': 50, 'delay': '50ms', 'loss': 0}
 
     net.addLink(r1, h1, cls=TCLink, **linkopt1)
     net.addLink(r1, h2, cls=TCLink, **linkopt_fast)

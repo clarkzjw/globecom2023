@@ -161,13 +161,13 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
         pst.data_received = picoquic_st.data_received;
         pst.resolution = cur_resolution;
         pst.bitrate = cur_bitrate;
-        pst.average_reward_so_far = get_previous_most_recent_average_reward_on_path_i(path_id);
+        pst.average_reward_so_far = get_previous_most_recent_average_reward(5);
 
         path_rtt[path_id].push_back(pst.rtt_delay_estimate);
         path_throughput[path_id].push_back(pst.download_speed);
 
 
-        double alpha = 10;
+        double alpha = 0;
         double beta = 1;
 
         double gamma = 0;
@@ -192,11 +192,12 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
 //        }
 
         // reward function 2
-        if (get_previous_average_rtt(path_id) == 0) {
-            gamma = gamma + beta * pst.rtt_delay_estimate;
-        } else {
-            gamma = gamma + (beta * pst.rtt_delay_estimate / pst.gamma_avg_rtt);
-        }
+//        if (get_previous_average_rtt(path_id) == 0) {
+//            gamma = gamma + beta * pst.rtt_delay_estimate;
+//        } else {
+//            gamma = gamma + (beta * pst.gamma_avg_rtt / pst.rtt_delay_estimate);
+//        }
+        gamma = gamma + (beta * pst.gamma_avg_rtt / pst.rtt_delay_estimate);
 
         gamma = gamma == 0 ? 1 : gamma;
 

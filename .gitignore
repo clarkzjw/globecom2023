@@ -1,3 +1,4 @@
+videos/
 mininet/starlink/exporter/*_metrics.csv
 mininet/starlink/exporter/dec2022.csv
 result*
@@ -58,3 +59,6 @@ demo_token_store.bin
 *.exe
 *.out
 *.app
+picoquic_delay_estimate
+starlink_loss
+*.zip

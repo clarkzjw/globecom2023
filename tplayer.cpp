@@ -74,7 +74,7 @@ void sequential_download()
     }
 }
 
-int nb_segments = 100;
+int nb_segments = 50;
 
 int main(int argc, char* argv[])
 {

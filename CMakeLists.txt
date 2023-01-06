@@ -70,6 +70,22 @@ file(GLOB_RECURSE server_SOURCE
         picoquic/server.c
         picoquic/*.h)
 
+file(GLOB_RECURSE analysis_SOURCE
+        picoquic/client.h
+        picoquic/client.c
+        util/mpd.cpp
+        libdash/*.cpp
+        libdash/*.c
+        analysis/1-picoquic-delay-estimate/main.cpp)
+
+file(GLOB_RECURSE starlink_loss_SOURCE
+        picoquic/client.h
+        picoquic/client.c
+        util/mpd.cpp
+        libdash/*.cpp
+        libdash/*.c
+        analysis/2-starlink-lossrate/main.cpp)
+
 include_directories(
         ./libdash/include
         ./picoquic
@@ -85,6 +101,33 @@ include_directories(
 )
 
 # Tell CMake to create the executable
+add_executable(picoquic_delay_estimate
+        ${analysis_SOURCE})
+
+
+add_executable(starlink_loss
+        ${starlink_loss_SOURCE})
+
+target_link_libraries(picoquic_delay_estimate
+        ${CHRONO_LIBRARIES}
+        ${CURL_LIBRARIES}
+        ${ZLIB_LIBRARIES}
+        ${LIBXML2_LIBRARIES}
+        ${Picoquic_LIBRARIES}
+        ${PTLS_LIBRARIES}
+        ${OPENSSL_LIBRARIES}
+        -lpthread)
+
+target_link_libraries(starlink_loss
+        ${CHRONO_LIBRARIES}
+        ${CURL_LIBRARIES}
+        ${ZLIB_LIBRARIES}
+        ${LIBXML2_LIBRARIES}
+        ${Picoquic_LIBRARIES}
+        ${PTLS_LIBRARIES}
+        ${OPENSSL_LIBRARIES}
+        -lpthread)
+
 add_executable(tplayer
         ${tplayer_SOURCE}
         ${libcurl_SOURCE})
