@@ -19,11 +19,11 @@ vector<vector<string>> get_segment_urls(dash::mpd::IMPD* mpd_file)
 {
     auto periods = mpd_file->GetPeriods();
     auto adaption_sets = periods[0]->GetAdaptationSets();
-    string init_segment_url = adaption_sets[0]->GetSegmentBase()->GetInitialization()->GetSourceURL();
 
     vector<vector<string>> urls;
     for (auto rep : adaption_sets[0]->GetRepresentation()) {
         vector<string> segment_urls;
+        auto init_segment_url = rep->GetSegmentList()->GetInitialization()->GetSourceURL();
         segment_urls.push_back(init_segment_url);
 
         for (auto url : rep->GetSegmentList()->GetSegmentURLs()) {

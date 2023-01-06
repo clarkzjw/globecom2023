@@ -37,7 +37,7 @@ char const* multipath_links = "10.0.2.2/2,10.0.3.2/3";
 char const* multipath_fast_link = "10.0.2.2/2";
 char const* multipath_slow_link = "10.0.3.2/3";
 
-string local_mpd_url = "./BBB-I-1080p.mpd";
+string local_mpd_url = "./videos/BigBuckBunny/mpd/1080p/stream.mpd";
 
 auto level = 3; // 0, 1, 2, 3
 
@@ -78,7 +78,6 @@ int nb_segments = 50;
 
 int main(int argc, char* argv[])
 {
-#if 1
     // parse host and port
     if (argc < 3) {
         printf("%s host port\n", argv[0]);
@@ -97,11 +96,10 @@ int main(int argc, char* argv[])
     picoquic_config_init(quic_config);
     quic_config->out_dir = "./tmp";
 
-//    sequential_download();
+    sequential_download();
 //    multipath_picoquic_minRTT();
 //    multipath_round_robin();
-    multipath_mab();
+//    multipath_mab();
 
-#endif
     return 0;
 }
