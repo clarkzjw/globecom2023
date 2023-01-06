@@ -54,6 +54,7 @@ void mock_player()
     }
 }
 
+vector<SegmentPlaybackInfo> playback_info_vec;
 
 void main_player_mock()
 {
@@ -70,25 +71,30 @@ void main_player_mock()
         // if the next segment is in the buffer, play it
         if (player_buffer_map.find(nb_played_segments) != player_buffer_map.end())
         {
-            // if buffer_events_vec is not empty and the previous last buffer event is not completed
+            // if buffer_events_vec is not empty and the previous last buffer event is not completed yet,
             // complete it now
             if (!buffer_events_vec.empty() && buffer_events_vec[buffer_events_vec.size() - 1].completed == 0) {
                 buffer_events_vec[buffer_events_vec.size() - 1].end = buffering_timer.tic();
                 buffer_events_vec[buffer_events_vec.size() - 1].completed = 1;
             }
             struct PlayableSegment s = player_buffer_map[nb_played_segments];
-//            player_buffer.pop();
 
             // this is the last segment
             if (s.eos == 1) {
                 break;
             }
 
-            int frames = s.nb_frames;
-            printf("Playing segment %d\n", s.seg_no);
-            PortableSleep(1 / FPS * frames);
-            nb_played_segments ++;
+            struct SegmentPlaybackInfo spi{};
+            spi.seg_no = s.seg_no;
+            spi.playback_duration = s.duration_seconds;
+            spi.playback_start_second = epoch_to_relative_seconds(player_start, buffering_timer.tic());
 
+            printf("Playing segment %d for %f seconds\n", s.seg_no, s.duration_seconds);
+            PortableSleep(s.duration_seconds);
+            spi.playback_end_second = epoch_to_relative_seconds(player_start, buffering_timer.tic());
+
+            playback_info_vec.push_back(spi);
+            nb_played_segments ++;
         } else {
             // if the next segment is not in the playback buffer, add a new buffer event
             if (buffer_events_vec.empty() || buffer_events_vec[buffer_events_vec.size() - 1].completed == 1) {

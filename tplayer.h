@@ -37,6 +37,7 @@ typedef std::chrono::system_clock tic_clock;
 struct DownloadTask {
     string filename;
     int layers;
+    int bitrate_level;
     int seg_no {};
     int eos {};
 };
@@ -84,6 +85,14 @@ struct PlayableSegment {
     int eos {};
     int nb_frames {};
     int seg_no {};
+    double duration_seconds;
+};
+
+struct SegmentPlaybackInfo {
+    int seg_no;
+    double playback_start_second;
+    double playback_end_second;
+    double playback_duration;
 };
 
 struct BufferEvent {
@@ -129,7 +138,7 @@ void multipath_mab();
 void multipath_picoquic_minRTT();
 void multipath_round_robin();
 
-#define nb_paths 2
+#define nb_paths 1
 
 int get_next_bitrate_from_mapping(int b);
 int decide_next_bitrate(double cur_reward);

@@ -54,6 +54,8 @@ vector<vector<struct SegmentInfo>> get_segment_urls(dash::mpd::IMPD* mpd_file)
 
                         for (int i = 0; i < repeat + 1; i++) {
                             struct SegmentInfo segment_info;
+
+                            // https://www.brendanlong.com/the-structure-of-an-mpeg-dash-mpd.html
                             segment_info.duration_seconds = (double)duration / (double)timescale;
 
                             segment_info.duration = duration;

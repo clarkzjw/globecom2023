@@ -19,6 +19,10 @@ using namespace std;
 extern int initial_bitrate;
 extern int initial_resolution;
 extern int nb_segments;
+
+extern vector<SegmentPlaybackInfo> playback_info_vec;
+int first_segment_downloaded = 0;
+
 /*
  * Sequential Download
  * */
@@ -56,6 +60,10 @@ void sequential_download(int path_id, struct DownloadTask t)
 
     free(config);
 
+    if (t.seg_no == 1) {
+        first_segment_downloaded = 1;
+    }
+
     if (!seg_stats.contains(t.seg_no)) {
         pst.path_id = path_id;
 
@@ -82,12 +90,16 @@ void sequential_download(int path_id, struct DownloadTask t)
         ps.nb_frames = 48;
         ps.eos = 0;
         ps.seg_no = t.seg_no;
+        ps.duration_seconds = urls[t.bitrate_level][t.seg_no].duration_seconds;
         player_buffer_map[t.seg_no] = ps;
         player_buffer.push(ps);
 
         seg_stats.insert({ t.seg_no, pst });
     }
 }
+
+int bitrate_level = 1;
+
 
 void main_downloader() {
     BS::thread_pool download_thread_pool(nb_paths);
@@ -96,7 +108,23 @@ void main_downloader() {
 
     int cur_bitrate = initial_bitrate;
     int cur_resolution = initial_resolution;
-    int bitrate_level = 1;
+
+    struct DownloadTask first_seg;
+    first_seg.filename = urls[bitrate_level][1].url;
+    first_seg.seg_no = 1;
+    first_seg.bitrate_level = bitrate_level;
+    int path_id = 0;
+
+    download_thread_pool.push_task(sequential_download, path_id, first_seg);
+
+    while (true) {
+        if (first_segment_downloaded == 1) {
+            break;
+        }
+        PortableSleep(0.01);
+    }
+
+    i++;
 
     while (true) {
         if (i >= nb_segments) {
@@ -108,15 +136,13 @@ void main_downloader() {
             continue;
         }
 
-        string filename;
-        string tmp = urls[bitrate_level][i].url;
+        string filename = urls[bitrate_level][i].url;
         printf("%s\n", filename.c_str());
-
 
         struct DownloadTask t;
         t.filename = filename;
         t.seg_no = i;
-        int path_id = 0;
+        t.bitrate_level = bitrate_level;
 
         download_thread_pool.push_task(sequential_download, path_id, t);
         i++;
@@ -129,7 +155,7 @@ void main_downloader() {
 }
 
 
-void print_segment_stats() {
+void print_segment_download_stats() {
     printf("\nper segment download metrics\n");
     for (auto& [seg_no, value] : seg_stats) {
         value.download_time = double(std::chrono::duration_cast<std::chrono::microseconds>(value.end - value.start).count()) / 1e6;
@@ -153,14 +179,27 @@ void print_segment_stats() {
     }
 }
 
+void print_playback_info() {
+    printf("\nplayback_info_vec event metrics, playback event count: %zu\n", playback_info_vec.size());
+    for (auto& spi : playback_info_vec) {
+        std::cout << "playback event, seg_no: " << spi.seg_no << ", start: " << spi.playback_start_second << ", end: "
+                  << spi.playback_end_second << ", duration: " << spi.playback_duration << endl;
+    }
+}
+
 void start()
 {
+    TicToc global_timer;
+    playback_start = global_timer.tic();
+
     std::thread thread_download(main_downloader);
     std::thread thread_playback(main_player_mock);
 
     thread_download.join();
     thread_playback.join();
 
-    print_segment_stats();
+    print_segment_download_stats();
+
+    print_playback_info();
 }
 

@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
     urls = get_segment_urls(mpd_file);
 
     // start download and playback
-//    start();
+    start();
 
     return 0;
 }
