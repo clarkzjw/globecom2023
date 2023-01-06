@@ -87,13 +87,19 @@ struct PlayableSegment {
 };
 
 struct BufferEvent {
-    // relative seconds during the playback of a buffering event
+    // relative seconds during the playback of a buffer_events_vec event
     tic_clock::time_point start;
     tic_clock::time_point end;
     int completed;
 };
 
-extern vector<vector<string>> urls;
+struct SegmentInfo {
+    string url;
+    int duration;
+    double duration_seconds;
+};
+
+extern vector<vector<struct SegmentInfo>> urls;
 extern tic_clock::time_point playback_start;
 extern picoquic_quic_config_t* quic_config;
 extern char const* multipath_links;
@@ -112,12 +118,12 @@ extern std::vector<DownloadStats> stats;
 int get_filesize(const string& req_filename);
 double epoch_to_relative_seconds(tic_clock::time_point start, tic_clock::time_point end);
 
-dash::mpd::IMPD* parse_mpd(string& url, picoquic_quic_config_t* config);
-vector<vector<string>> get_segment_urls(dash::mpd::IMPD* mpd_file);
+dash::mpd::IMPD* parse_mpd(string& url);
+vector<vector<struct SegmentInfo>> get_segment_urls(dash::mpd::IMPD* mpd_file);
 int exec_cmd(string cmd, string args);
 
 void mock_player();
-void mock_player_hash_map();
+void main_player_mock();
 
 void multipath_mab();
 void multipath_picoquic_minRTT();
@@ -150,5 +156,13 @@ struct reward_item {
     double reward;
     int path_id;
 };
+
+
+
+// max number of segments = 139
+
+void start();
+
+#define TPLAYER_DEBUG 1
 
 #endif // TPLAYER_TPLAYER_H

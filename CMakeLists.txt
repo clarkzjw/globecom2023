@@ -50,7 +50,9 @@ file(GLOB_RECURSE tplayer_SOURCE
         libdash/*.cpp
         libdash/*.c
         bitrate.cpp
+        framework.cpp
         path.cpp
+        util.cpp
         picoquic/client.h
         picoquic/client.c
         mab.cpp

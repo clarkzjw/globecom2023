@@ -274,7 +274,7 @@ void multipath_mab_path_scheduler()
         cur_layers = get_required_layer_by_bitrate(cur_bitrate);
         string filename;
         for (int j = 0; j < cur_layers; j++) {
-            string tmp = urls[j][i];
+            string tmp = urls[j][i].url;
             tmp = std::regex_replace(tmp, std::regex("1080"), to_string(cur_resolution));
 
 
@@ -307,7 +307,7 @@ void multipath_mab()
     playback_start = global_timer.tic();
 
     std::thread thread_download(multipath_mab_path_scheduler);
-    std::thread thread_playback(mock_player_hash_map);
+    std::thread thread_playback(main_player_mock);
 
     thread_download.join();
     thread_playback.join();

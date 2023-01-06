@@ -31,7 +31,7 @@ void multipath_picoquic_minRTT()
         PerSegmentStats pst;
 
         for (int j = 0; j < layers; j++) {
-            filename += string("/1080/").append(urls[j][i]);
+            filename += string("/1080/").append(urls[j][i].url);
             filename += ";";
         }
         printf("%s\n", filename.c_str());
@@ -51,7 +51,7 @@ void multipath_picoquic_minRTT()
 
         if (!seg_stats.contains(seg_no)) {
             for (int j = 0; j < layers; j++) {
-                string tmp_filename = string("/1080/").append(urls[j][i]);
+                string tmp_filename = string("/1080/").append(urls[j][i].url);
                 pst.file_size += get_filesize(tmp_filename);
             }
             pst.finished_layers = 4;

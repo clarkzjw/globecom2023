@@ -103,7 +103,7 @@ void multipath_round_robin()
 
     for (int i = 1; i < nb_segments; i++) {
         for (int j = 0; j < layers; j++) {
-            string filename = string("/1080/").append(urls[j][i]);
+            string filename = string("/1080/").append(urls[j][i].url);
 
             struct DownloadTask t;
             t.filename = filename;

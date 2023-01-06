@@ -28,7 +28,7 @@ std::queue<DownloadTask> tasks;
 tic_clock::time_point playback_start;
 picoquic_quic_config_t* quic_config = nullptr;
 dash::mpd::IMPD* mpd_file;
-vector<vector<string>> urls;
+vector<vector<struct SegmentInfo>> urls;
 
 //char* path_name[2] = { "h2-eth0", "wlan0" };
 vector<string> path_ifname_vec = { "h2-eth0", "wlan0" };
