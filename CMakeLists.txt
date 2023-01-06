@@ -42,17 +42,23 @@ find_package(CURL REQUIRED)
 find_package(Eigen3 REQUIRED)
 message(STATUS "EIGEN3_INCLUDE_DIR: ${EIGEN3_INCLUDE_DIR}")
 
+message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+LIST(APPEND CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}/lib")
 find_package(Chrono COMPONENTS Postprocess CONFIG)
+if (NOT Chrono_FOUND)
+    message("Could not find Chrono or one of its required modules")
+    return()
+endif()
 
 file(GLOB_RECURSE tplayer_SOURCE
         ${CMAKE_CURRENT_SOURCE_DIR}
-        BS_thread_pool.hpp
+        util/BS_thread_pool.hpp
         libdash/*.cpp
         libdash/*.c
         bitrate.cpp
         framework.cpp
         path.cpp
-        util.cpp
+        util/util.cpp
         picoquic/client.h
         picoquic/client.c
         mab.cpp
