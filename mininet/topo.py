@@ -6,13 +6,21 @@ h1-eth0: 10.0.1.2
 
 h2-eth0: 10.0.2.2
 h2-eth1: 10.0.3.2
+
+- Scenario:
+    - path 1 (eth0): high bandwidth, high latency -> starlink
+    - path 2 (eth1): low bandwidth, low latency -> broadband Internet in rural areas
+    - for minRTT
+        - it tends to choose path 2, but will cause more buffer
+    - for RR
+        - for bandwidth estimation, tends to choose path 1, but higher delay
 """
 
 from mininet.cli import CLI
 from mininet.link import TCLink
 from mininet.log import setLogLevel
 from mininet.net import Mininet
-from config import bw_fast, bw_slow
+from config import bw_high, bw_low, latency_high, latency_low
 
 if '__main__' == __name__:
     setLogLevel('info')
@@ -22,14 +30,14 @@ if '__main__' == __name__:
     h2 = net.addHost('h2')
     r1 = net.addHost('r1')
 
-    linkopt1 = {'bw': 1000}
+    linkopt_server = {'bw': 1000}
     # delay is one way delay
-    linkopt_fast = {'bw': bw_fast, 'delay': '25ms', 'loss': 0}
-    linkopt_slow = {'bw': bw_slow, 'delay': '50ms', 'loss': 0}
+    linkopt_starlink = {'bw': bw_high, 'delay': latency_high, 'loss': 0}
+    linkopt_broadband = {'bw': bw_low, 'delay': latency_low, 'loss': 0}
 
-    net.addLink(r1, h1, cls=TCLink, **linkopt1)
-    net.addLink(r1, h2, cls=TCLink, **linkopt_fast)
-    net.addLink(r1, h2, cls=TCLink, **linkopt_slow)
+    net.addLink(r1, h1, cls=TCLink, **linkopt_server)
+    net.addLink(r1, h2, cls=TCLink, **linkopt_starlink)
+    net.addLink(r1, h2, cls=TCLink, **linkopt_broadband)
     net.build()
 
     r1.cmd("ifconfig r1-eth0 0")
