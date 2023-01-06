@@ -35,10 +35,11 @@ int PLAYER_BUFFER_MAX_SEGMENTS = 5;
 
 char const* multipath_links = "10.0.2.2/2,10.0.3.2/3";
 
-string local_mpd_url = "./videos/BigBuckBunny/mpd/stream.mpd";
+string local_mpd_url = "../dataset/BigBuckBunny/mpd/stream.mpd";
 
 auto level = 3; // 0, 1, 2, 3
 
+// max available segments: 299
 int nb_segments = 10;
 
 extern int initial_bitrate;
