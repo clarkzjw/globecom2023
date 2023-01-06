@@ -30,6 +30,8 @@ int get_resolution_by_bitrate(int bitrate) {
             }
         }
     }
+    // shouldn't reach here
+    return -1;
 }
 
 
@@ -65,6 +67,8 @@ int get_next_bitrate_from_mapping(int b) {
             }
         }
     }
+    // shouldn't reach here
+    return -1;
 }
 
 
@@ -126,6 +130,8 @@ int get_required_layer_by_bitrate(int bitrate) {
         }
         layer++;
     }
+    // shouldn't reach here
+    return -1;
 }
 
 int initial_bitrate = 1500;

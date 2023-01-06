@@ -372,7 +372,7 @@ int client_loop_cb(picoquic_quic_t* quic, picoquic_packet_loop_cb_enum cb_mode,
 int quic_client(const char* ip_address_text, int server_port,
     picoquic_quic_config_t* config, int force_migration,
     int nb_packets_before_key_update, char const* client_scenario_text,
-    char* if_name, struct picoquic_download_stat* stat)
+    const char* if_name, struct picoquic_download_stat* stat)
 {
     /* Start: start the QUIC process with cert and key files */
     int ret = 0;
@@ -530,9 +530,9 @@ int quic_client(const char* ip_address_text, int server_port,
                 cnx_client->test_large_chello = 1;
             }
 
-            if (config->esni_rr_file != NULL) {
-                ret = picoquic_esni_client_from_file(cnx_client, config->esni_rr_file);
-            }
+//            if (config->esni_rr_file != NULL) {
+//                ret = picoquic_esni_client_from_file(cnx_client, config->esni_rr_file);
+//            }
 
             if (config->desired_version != 0) {
                 picoquic_set_desired_version(cnx_client, config->desired_version);

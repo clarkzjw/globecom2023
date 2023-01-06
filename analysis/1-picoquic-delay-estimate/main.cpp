@@ -30,7 +30,9 @@ picoquic_quic_config_t* quic_config = nullptr;
 dash::mpd::IMPD* mpd_file;
 vector<vector<string>> urls;
 
-char* path_name[2] = { "h2-eth0", "h2-eth1" };
+//char* path_name[2] = { "h2-eth0", "h2-eth1" };
+vector<string> path_ifname_vec = { "h2-eth0", "h2-eth1" };
+
 
 string local_mpd_url = "./big.mpd";
 //string local_mpd_url = "./BBB-I-1080p.mpd";
@@ -63,9 +65,9 @@ void sequential_download()
             quic_config->out_dir = "./tmp";
 
             struct picoquic_download_stat picoquic_st { };
-            char* if_name = path_name[path_id];
+            string if_name = path_ifname_vec[path_id];
 
-            int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str(), if_name, &picoquic_st);
+            int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str(), if_name.c_str(), &picoquic_st);
             printf("download ret = %d\n", ret);
 
             // this is rtt

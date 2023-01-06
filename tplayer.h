@@ -106,6 +106,7 @@ extern string host;
 extern int port;
 extern std::queue<DownloadTask> tasks;
 extern char* path_name[2];
+extern vector<string> path_ifname_vec;
 extern std::vector<DownloadStats> stats;
 
 int get_filesize(const string& req_filename);

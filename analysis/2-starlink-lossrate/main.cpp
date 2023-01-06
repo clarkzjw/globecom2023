@@ -30,7 +30,8 @@ picoquic_quic_config_t* quic_config = nullptr;
 dash::mpd::IMPD* mpd_file;
 vector<vector<string>> urls;
 
-char* path_name[2] = { "h2-eth0", "wlan0" };
+//char* path_name[2] = { "h2-eth0", "wlan0" };
+vector<string> path_ifname_vec = { "h2-eth0", "wlan0" };
 
 /*
  * Sequential Download
@@ -56,9 +57,9 @@ void sequential_download()
     quic_config->sni = "test";
 
     struct picoquic_download_stat picoquic_st { };
-    char* if_name = path_name[path_id];
+    string if_name = path_ifname_vec[path_id];
 
-    int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str(), if_name, &picoquic_st);
+    int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str(), if_name.c_str(), &picoquic_st);
     printf("download ret = %d\n", ret);
 
     // this is rtt

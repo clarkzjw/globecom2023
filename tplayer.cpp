@@ -29,7 +29,8 @@ picoquic_quic_config_t* quic_config = nullptr;
 dash::mpd::IMPD* mpd_file;
 vector<vector<string>> urls;
 
-char* path_name[2] = { "h2-eth0", "h2-eth1" };
+vector<string> path_ifname_vec{"h2-eth0", "h2-eth1"};
+
 int PLAYER_BUFFER_MAX_SEGMENTS = 5;
 
 int enable_multipath = 1;
@@ -62,18 +63,27 @@ int get_filesize(const string& req_filename)
 /*
  * Sequential Download
  * */
-void sequential_download()
+void sequential_download(int path_id)
 {
-    printf("sequential download\n");
-    for (int i = 1; i < 10; i++) {
-        string filename = string("/1080/").append(urls[0][i]);
-        printf("%s\n", filename.c_str());
-
-        int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str(), "", NULL);
-        printf("download ret = %d\n", ret);
+    string if_name;
+    if (path_id == 0) {
+        if_name = path_ifname_vec[0];
+    } else if (path_id == 1) {
+        if_name = path_ifname_vec[1];
+    } else {
+        if_name = "";
     }
+    printf("sequential download, interface = %s\n", if_name.c_str());
+//    for (int i = 1; i < 10; i++) {
+//        string filename = string("/1080/").append(urls[0][i]);
+//        printf("%s\n", filename.c_str());
+//
+//        int ret = quic_client(host.c_str(), port, quic_config, 0, 0, filename.c_str(), "", NULL);
+//        printf("download ret = %d\n", ret);
+//    }
 }
 
+// max number of segments = 139
 int nb_segments = 50;
 
 int main(int argc, char* argv[])
@@ -96,7 +106,7 @@ int main(int argc, char* argv[])
     picoquic_config_init(quic_config);
     quic_config->out_dir = "./tmp";
 
-    sequential_download();
+    sequential_download(0);
 //    multipath_picoquic_minRTT();
 //    multipath_round_robin();
 //    multipath_mab();

@@ -55,8 +55,8 @@ void mab_path_downloader(int path_index)
                 break;
             } else {
                 int ret = 0;
-                char* if_name = path_name[path_index];
-                printf("\n\ndownloading %s on path %s\n", t.filename.c_str(), if_name);
+                string if_name = path_ifname_vec[path_index];
+                printf("\n\ndownloading %s on path %s\n", t.filename.c_str(), if_name.c_str());
 
                 struct picoquic_download_stat picoquic_st { };
 
@@ -64,7 +64,7 @@ void mab_path_downloader(int path_index)
                 TicToc timer;
 
                 pst.start = timer.tic();
-                ret = quic_client(host.c_str(), port, quic_config, 0, 0, t.filename.c_str(), if_name, &picoquic_st);
+                ret = quic_client(host.c_str(), port, quic_config, 0, 0, t.filename.c_str(), if_name.c_str(), &picoquic_st);
                 pst.end = timer.tic();
 
                 cout << "download ret = " << ret << endl;
@@ -117,8 +117,8 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
 //    struct DownloadTask t = path_tasks[path_index].front();
 //    path_tasks[path_index].pop();
 
-    char* if_name = path_name[path_id];
-    printf("\n\ndownloading %s on path %s\n", t.filename.c_str(), if_name);
+    string if_name = path_ifname_vec[path_id];
+    printf("\n\ndownloading %s on path %s\n", t.filename.c_str(), if_name.c_str());
 
     struct picoquic_download_stat picoquic_st { };
     PerSegmentStats pst;
@@ -132,7 +132,7 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
     config->out_dir = "./tmp";
 
     pst.start = timer.tic();
-    ret = quic_client(host.c_str(), port, config, 0, 0, t.filename.c_str(), if_name, &picoquic_st);
+    ret = quic_client(host.c_str(), port, config, 0, 0, t.filename.c_str(), if_name.c_str(), &picoquic_st);
     pst.end = timer.tic();
 
     free(config);
