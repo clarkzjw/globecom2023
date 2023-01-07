@@ -20,7 +20,7 @@ extern double initial_bitrate;
 //extern int initial_resolution;
 extern int nb_segments;
 
-#define INIT_BITRATE_LEVEL 1
+#define INIT_BITRATE_LEVEL 13
 
 extern vector<SegmentPlaybackInfo> playback_info_vec;
 int first_segment_downloaded = 0;
@@ -58,6 +58,14 @@ int adjust_bitrate(int seg_no, int path_id, double rtt, double bitrate) {
 extern map<int, map<int, double>> bitrate_mapping;
 extern vector<double> path_rtt[nb_paths];
 extern vector<struct reward_item> history_rewards;
+
+/*
+ * Round Robin Download
+ * */
+void roundrobin_download(const struct DownloadTask& t)
+{
+
+}
 
 /*
  * Sequential Download
@@ -144,6 +152,9 @@ void main_downloader() {
 
     double bitrate = get_bitrate_from_bitrate_level(bitrate_level);
     cur_resolution = get_resolution_by_bitrate(bitrate);
+
+    // TODO
+    // download init.mp4
 
     struct DownloadTask first_seg;
     first_seg.filename = urls[bitrate_level-1][1].url;
