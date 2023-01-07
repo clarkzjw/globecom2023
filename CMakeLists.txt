@@ -74,6 +74,7 @@ file(GLOB_RECURSE tplayer_SOURCE
         rr.cpp
         player.cpp
         tplayer.cpp
+        util/*.h
         util/mpd.cpp
         util/exec.cpp)
 
