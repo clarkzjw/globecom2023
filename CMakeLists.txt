@@ -16,6 +16,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH} ./cmake)
 set(CMAKE_CXX_FLAGS "-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS")  # Second macro definition is required to fix the error: ‘UINT32_MAX’ was not declared in this scope
 
+#add_compile_options(-Wall -Wextra)
+add_compile_options(-Wpedantic -Werror)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")

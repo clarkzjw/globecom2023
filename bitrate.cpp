@@ -353,20 +353,30 @@ int get_nearest_bitrate(double reward) {
     return nearest_bitrate;
 }
 
-int get_next_bitrate(double b, double reward, double previous_reward) {
+//int get_next_bitrate(double b, double reward, double previous_reward) {
+//    double next_bitrate = b;
+//    if (reward - previous_reward >= 0) {
+//        next_bitrate = get_next_bitrate_from_mapping(b);
+//    } else {
+////        next_bitrate = b;
+//        if (reward / previous_reward > 0.8) {
+//            next_bitrate = b;
+//        } else {
+//            next_bitrate = get_previous_bitrate_from_mapping(b);
+//        }
+//    }
+//    if (next_bitrate > global_get_highest_bitrate()) {
+//        next_bitrate = global_get_highest_bitrate();
+//    }
+//    return next_bitrate;
+//}
+
+double get_next_bitrate(double b, double reward, double previous_avg_reward) {
     double next_bitrate = b;
-    if (reward - previous_reward >= 0) {
+    if (reward - previous_avg_reward >= 0) {
         next_bitrate = get_next_bitrate_from_mapping(b);
     } else {
-//        next_bitrate = b;
-        if (reward / previous_reward > 0.8) {
-            next_bitrate = b;
-        } else {
-            next_bitrate = get_previous_bitrate_from_mapping(b);
-        }
-    }
-    if (next_bitrate > global_get_highest_bitrate()) {
-        next_bitrate = global_get_highest_bitrate();
+        next_bitrate = b;
     }
     return next_bitrate;
 }

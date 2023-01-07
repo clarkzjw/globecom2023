@@ -150,7 +150,7 @@ int get_next_bitrate_from_mapping(int b);
 int decide_next_bitrate(double cur_reward);
 int decide_next_bitrate_path_i(double cur_reward, double avg, int path_id);
 int get_nearest_bitrate(double reward);
-int get_next_bitrate(double b, double reward, double previous_reward);
+double get_next_bitrate(double b, double reward, double previous_reward);
 
 double get_previous_average_reward();
 double get_previous_average_reward_on_path_i(int path_id);
@@ -176,6 +176,7 @@ void start();
 
 double get_bitrate_from_bitrate_level(int level);
 double previous_buffering_time_on_path(int path_id);
+double previous_total_buffering_time();
 
 #define TPLAYER_DEBUG 1
 

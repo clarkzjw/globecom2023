@@ -114,7 +114,7 @@ void sequential_download(int path_id, const struct DownloadTask& t)
     pst.cur_rtt = seg_stats[t.seg_no].cur_rtt;
 
     // adjust bitrate
-    double buffering_ratio = previous_buffering_time_on_path(path_id) / epoch_to_relative_seconds(player_start, Tic());
+    double buffering_ratio = previous_buffering_time_on_path(path_id) / previous_total_buffering_time();
     double previous_avg_rtt = get_previous_average_rtt(path_id, 2);
 
     int alpha = 1;

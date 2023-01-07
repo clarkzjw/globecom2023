@@ -17,3 +17,15 @@ double previous_buffering_time_on_path(int path_id) {
     }
     return previous_buffering_time;
 }
+
+double previous_total_buffering_time() {
+    double previous_buffering_time = 0.0;
+    for (auto& be : buffer_events_vec) {
+        if (be.completed == 1) {
+            previous_buffering_time += epoch_to_relative_seconds(be.start, be.end);
+        } else if (be.completed == 0) {
+            previous_buffering_time += epoch_to_relative_seconds(be.start, Tic());
+        }
+    }
+    return previous_buffering_time;
+}
