@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <regex>
+#include <cxxopts.h>
 
 using namespace std;
 
@@ -45,16 +46,50 @@ int nb_segments = 10;
 extern double initial_bitrate;
 //extern int initial_resolution;
 
+string alg;
+
 int main(int argc, char* argv[])
 {
-    // parse host and port
-    if (argc < 3) {
-        printf("%s host port\n", argv[0]);
+    cxxopts::Options options("tplayer", "MPQUIC Player");
+
+    options.add_options()
+            ("p,port", "server port", cxxopts::value<int>())
+            ("h,host", "server host", cxxopts::value<string>())
+            ("a,algorithm", "test algorithm", cxxopts::value<string>())
+            ("m,mpd", "mpd file path", cxxopts::value<string>())
+            ("help", "print usage")
+            ;
+
+    auto result = options.parse(argc, argv);
+
+    if (result.count("help"))
+    {
+        std::cout << options.help() << std::endl;
         exit(0);
     }
-    host = argv[1];
-    port = (int)strtol(argv[2], nullptr, 10);
-    printf("host: %s, port: %d\n", host.c_str(), port);
+
+    if (result.count("host")) {
+        host = result["host"].as<string>();
+    } else {
+        host = "127.0.0.1";
+    }
+
+    if (result.count("port")) {
+        port = result["port"].as<int>();
+    } else {
+        port = 4433;
+    }
+
+    if (result.count("algorithm")) {
+        alg = result["algorithm"].as<string>();
+    } else {
+        alg = "mab";
+    }
+
+    if (result.count("mpd")) {
+        local_mpd_url = result["mpd"].as<string>();
+    }
+    cout << "host: " << host << ", port: " << port << ", algorithm: " << alg << ", mpd: " << local_mpd_url << endl;
 
     // read mpd file
     mpd_file = parse_mpd(local_mpd_url);
