@@ -59,6 +59,7 @@ file(GLOB_RECURSE tplayer_SOURCE
         framework.cpp
         path.cpp
         util/util.cpp
+        buffering.cpp
         picoquic/client.h
         picoquic/client.c
         mab.cpp
@@ -77,6 +78,15 @@ file(GLOB_RECURSE server_SOURCE
         ${CMAKE_CURRENT_SOURCE_DIR}
         picoquic/server.c
         picoquic/*.h)
+
+file(GLOB_RECURSE tplayer_test_SOURCE
+        picoquic/client.h
+        picoquic/client.c
+        util/*.cpp
+        util/*.h
+        libdash/*.cpp
+        libdash/*.c
+        tests/*.cpp)
 
 file(GLOB_RECURSE analysis_SOURCE
         picoquic/client.h
@@ -112,9 +122,21 @@ include_directories(
 add_executable(picoquic_delay_estimate
         ${analysis_SOURCE})
 
+add_executable(tplayer_test
+        ${tplayer_test_SOURCE})
 
 add_executable(starlink_loss
         ${starlink_loss_SOURCE})
+
+target_link_libraries(tplayer_test
+        ${CHRONO_LIBRARIES}
+        ${CURL_LIBRARIES}
+        ${ZLIB_LIBRARIES}
+        ${LIBXML2_LIBRARIES}
+        ${Picoquic_LIBRARIES}
+        ${PTLS_LIBRARIES}
+        ${OPENSSL_LIBRARIES}
+        -lpthread)
 
 target_link_libraries(picoquic_delay_estimate
         ${CHRONO_LIBRARIES}

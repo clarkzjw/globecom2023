@@ -24,7 +24,7 @@ std::map<int, PerSegmentStats> seg_stats;
 std::queue<PlayableSegment> player_buffer;
 std::map<int, PlayableSegment> player_buffer_map;
 std::queue<DownloadTask> tasks;
-tic_clock::time_point playback_start;
+std::chrono::system_clock::time_point playback_start;
 picoquic_quic_config_t* quic_config = nullptr;
 dash::mpd::IMPD* mpd_file;
 vector<vector<struct SegmentInfo>> urls;
@@ -42,8 +42,8 @@ auto level = 3; // 0, 1, 2, 3
 // max available segments: 299
 int nb_segments = 10;
 
-extern int initial_bitrate;
-extern int initial_resolution;
+extern double initial_bitrate;
+//extern int initial_resolution;
 
 int main(int argc, char* argv[])
 {

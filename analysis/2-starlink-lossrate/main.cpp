@@ -25,7 +25,7 @@ std::map<int, PerSegmentStats> seg_stats;
 std::queue<PlayableSegment> player_buffer;
 std::map<int, PlayableSegment> player_buffer_map;
 std::queue<DownloadTask> tasks;
-tic_clock::time_point playback_start;
+std::chrono::system_clock::time_point playback_start;
 picoquic_quic_config_t* quic_config = nullptr;
 dash::mpd::IMPD* mpd_file;
 vector<vector<struct SegmentInfo>> urls;

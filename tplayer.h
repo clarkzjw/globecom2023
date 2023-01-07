@@ -24,20 +24,21 @@
 #include "chrono_thirdparty/filesystem/path.h"
 
 #include "BS_thread_pool.hpp"
+#include "tictoc.h"
 
 using namespace std;
 using namespace ::chrono;
 using namespace ::chrono::postprocess;
 
-#include "tictoc.h"
 
-typedef std::chrono::system_clock tic_clock;
+//typedef std::chrono::system_clock tic_clock;
 #define PortableSleep(seconds) usleep((seconds)*1000000)
 
 struct DownloadTask {
     string filename;
     int layers;
     int bitrate_level;
+    int resolution;
     int seg_no {};
     int eos {};
 };
@@ -53,8 +54,8 @@ struct DownloadStats {
 };
 
 struct PerSegmentStats {
-    tic_clock::time_point start;
-    tic_clock::time_point end;
+    std::chrono::system_clock::time_point start;
+    std::chrono::system_clock::time_point end;
     int finished_layers {};
     int file_size {};
     double download_time {};
@@ -79,13 +80,16 @@ struct PerSegmentStats {
     double gamma_avg_throughput;
     double gamma_rtt;
     double gamma_avg_rtt;
+
+
+    double cur_rtt;
 };
 
 struct PlayableSegment {
     int eos {};
     int nb_frames {};
     int seg_no {};
-    double duration_seconds;
+    double duration_seconds{};
 };
 
 struct SegmentPlaybackInfo {
@@ -97,9 +101,11 @@ struct SegmentPlaybackInfo {
 
 struct BufferEvent {
     // relative seconds during the playback of a buffer_events_vec event
-    tic_clock::time_point start;
-    tic_clock::time_point end;
-    int completed;
+    std::chrono::system_clock::time_point start;
+    std::chrono::system_clock::time_point end;
+    int completed{};
+    int path_id{};
+    int next_seg_no{};
 };
 
 struct SegmentInfo {
@@ -109,7 +115,7 @@ struct SegmentInfo {
 };
 
 extern vector<vector<struct SegmentInfo>> urls;
-extern tic_clock::time_point playback_start;
+extern std::chrono::system_clock::time_point playback_start;
 extern picoquic_quic_config_t* quic_config;
 extern char const* multipath_links;
 extern std::queue<PlayableSegment> player_buffer;
@@ -125,7 +131,7 @@ extern vector<string> path_ifname_vec;
 extern std::vector<DownloadStats> stats;
 
 int get_filesize(const string& req_filename);
-double epoch_to_relative_seconds(tic_clock::time_point start, tic_clock::time_point end);
+double epoch_to_relative_seconds(std::chrono::system_clock::time_point start, std::chrono::system_clock::time_point end);
 
 dash::mpd::IMPD* parse_mpd(string& url);
 vector<vector<struct SegmentInfo>> get_segment_urls(dash::mpd::IMPD* mpd_file);
@@ -138,7 +144,7 @@ void multipath_mab();
 void multipath_picoquic_minRTT();
 void multipath_round_robin();
 
-#define nb_paths 1
+#define nb_paths 2
 
 int get_next_bitrate_from_mapping(int b);
 int decide_next_bitrate(double cur_reward);
@@ -151,7 +157,7 @@ double get_previous_average_reward_on_path_i(int path_id);
 double get_previous_most_recent_average_reward_on_path_i(int path_id);
 double get_previous_most_recent_average_reward(int nb_previous);
 
-int get_resolution_by_bitrate(int bitrate);
+int get_resolution_by_bitrate(double bitrate);
 int global_get_highest_bitrate();
 int get_required_layer_by_bitrate(int bitrate);
 double get_latest_total_throughput();
@@ -159,18 +165,17 @@ double get_latest_average_rtt();
 
 
 double get_previous_average_throughput(int path_id);
-double get_previous_average_rtt(int path_id);
+double get_previous_average_rtt(int path_id, int nb_segments);
 
 struct reward_item {
     double reward;
     int path_id;
 };
 
-
-
-// max number of segments = 139
-
 void start();
+
+double get_bitrate_from_bitrate_level(int level);
+double previous_buffering_time_on_path(int path_id);
 
 #define TPLAYER_DEBUG 1
 

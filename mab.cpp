@@ -97,10 +97,10 @@ void mab_path_downloader(int path_index)
     }
 }
 
-extern int initial_bitrate;
-extern int initial_resolution;
+extern double initial_bitrate;
+//extern int initial_resolution;
 
-int cur_bitrate;
+double cur_bitrate;
 int cur_resolution;
 int cur_layers;
 
@@ -181,7 +181,7 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
         }
 
         pst.gamma_rtt = pst.rtt_delay_estimate;
-        pst.gamma_avg_rtt = get_previous_average_rtt(path_id);
+        pst.gamma_avg_rtt = get_previous_average_rtt(path_id, 5);
 
         // reward function 1
         // logseq://graph/Logseq?block-id=63a4dd9f-ad93-4015-af96-5f2b9d853862
@@ -259,7 +259,7 @@ void multipath_mab_path_scheduler()
     int i = 1;
 
     cur_bitrate = initial_bitrate;
-    cur_resolution = initial_resolution;
+    cur_resolution = get_resolution_by_bitrate(cur_bitrate);
 
     while (true) {
         if (i >= nb_segments) {

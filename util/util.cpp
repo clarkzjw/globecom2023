@@ -29,7 +29,11 @@ int get_filesize(const string& req_filename)
     return (int)realsize;
 }
 
-double epoch_to_relative_seconds(tic_clock::time_point start, tic_clock::time_point end)
+double epoch_to_relative_seconds(std::chrono::system_clock::time_point start, std::chrono::system_clock::time_point end)
 {
     return double(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()) / 1e6;
+}
+
+std::chrono::system_clock::time_point Tic() {
+    return std::chrono::system_clock::now();
 }

@@ -4,6 +4,123 @@
 
 #include "tplayer.h"
 
+// bitarte_mapping = {
+//     1080: {
+//         1: 87209.263,
+//         2: 71817.751,
+//         ...
+//     },
+//     720: {
+//         9: 35902.455,
+//         ...
+//     }
+// }
+
+map<int, map<int, double>> bitrate_mapping{
+        {1080, {
+                       {1,  87209.263},
+                       {2,  71817.751},
+                       {3,  55301.205},
+                       {4,  39808.113},
+                       {5,  27377.193},
+                       {6,  18436.293},
+                       {7,  13157.833},
+                       {8,  9907.154}
+               }
+        },
+        {
+         720,  {
+                       {9,  35902.455},
+                       {10, 29301.111},
+                       {11, 22572.278},
+                       {12, 16521.917},
+                       {13, 11818.484},
+                       {14, 8433.333},
+                       {15, 6239.562},
+                       {16, 4791.332}
+               }
+        },
+        {
+         480,  {
+                       {17, 15127.655},
+                       {18, 12446.732},
+                       {19, 9791.634},
+                       {20, 7437.2},
+                       {21, 5578.399},
+                       {22, 4198.176},
+                       {23, 3224.021},
+                       {24, 2524.693}
+               }
+        },
+        {
+         360,  {
+                       {25, 8533.59},
+                       {26, 7116.171},
+                       {27, 5719.322},
+                       {28, 4481.84},
+                       {29, 3486.456},
+                       {30, 2719.651},
+                       {31, 2149.588},
+                       {32, 1716.847}
+               }
+        },
+        {
+         240,  {
+                       {33, 3795.756},
+                       {34, 3176.14},
+                       {35, 2582.024},
+                       {36, 2055.819},
+                       {37, 1625.187},
+                       {38, 1287.185},
+                       {39, 1026.325},
+                       {40, 822.111}
+               }
+        },
+        {
+         144,  {
+                       {41, 1445.037},
+                       {42, 1219.789},
+                       {43, 1001.111},
+                       {44, 809.758},
+                       {45, 652.03},
+                       {46, 526.099},
+                       {47, 425.853},
+                       {48, 344.696}
+               }
+        }
+
+};
+
+//double initial_bitrate = 1500;
+//int initial_resolution = get_resolution_by_bitrate(initial_bitrate);
+
+double initial_bitrate;
+//int initial_resolution = 720;
+//int initial_bitrate_level = 13;
+
+double get_bitrate_from_bitrate_level(int level) {
+    for (auto const& [resolution, bitrate_map] : bitrate_mapping) {
+        for (auto const& [bitrate_level, bitrate_value] : bitrate_map) {
+            if (bitrate_level == level) {
+                return bitrate_value;
+            }
+        }
+    }
+    return -1;
+}
+
+int get_resolution_by_bitrate(double bitrate) {
+    // loop through the bitrate_mapping and find the resolution by bitrate
+    for (auto const& [resolution, bitrate_map] : bitrate_mapping) {
+        for (auto const& [bitrate_level, bitrate_value] : bitrate_map) {
+            if (bitrate_value == bitrate) {
+                return resolution;
+            }
+        }
+    }
+    return -1;
+}
+
 // http://concert.itec.aau.at/SVCDataset/
 // Variant I is used
 vector<int> bitrate_360{600, 990, 1500, 2075};
@@ -13,27 +130,8 @@ vector<int> bitrate_1080{4000, 5500, 7200, 10400};
 map<int, vector<int>> map_bitrate{{360,  bitrate_360},
                                   {720,  bitrate_720},
                                   {1080, bitrate_1080}};
-extern int cur_bitrate;
+extern double cur_bitrate;
 extern int cur_resolution;
-
-int get_resolution_by_bitrate(int bitrate) {
-    // http://concert.itec.aau.at/SVCDataset/
-    // for Variant I, there are two resolutions that have the same bitrate,
-    // in this case, we assume the higher resolution is preferred for a temporary solution
-    if (bitrate == 1500) {
-        return 720;
-    }
-    for (auto &[resolution, bitrates]: map_bitrate) {
-        for (auto &b: bitrates) {
-            if (b == bitrate) {
-                return resolution;
-            }
-        }
-    }
-    // shouldn't reach here
-    return -1;
-}
-
 
 int get_next_resolution(int b) {
     int resolution = get_resolution_by_bitrate(b);
@@ -134,8 +232,7 @@ int get_required_layer_by_bitrate(int bitrate) {
     return -1;
 }
 
-int initial_bitrate = 1500;
-int initial_resolution = get_resolution_by_bitrate(initial_bitrate);
+
 
 extern vector<struct reward_item> history_rewards;
 
