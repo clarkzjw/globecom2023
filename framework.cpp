@@ -16,17 +16,61 @@
 
 using namespace std;
 
-extern int initial_bitrate;
-extern int initial_resolution;
+extern double initial_bitrate;
+//extern int initial_resolution;
 extern int nb_segments;
+
+#define INIT_BITRATE_LEVEL 13
 
 extern vector<SegmentPlaybackInfo> playback_info_vec;
 int first_segment_downloaded = 0;
+int bitrate_level = INIT_BITRATE_LEVEL;
+extern int cur_resolution;
+extern double cur_bitrate;
+extern TicToc buffering_timer;
+extern std::chrono::system_clock::time_point player_start;
+
+
+struct RewardFactor {
+    double buffering_ratio;
+    double previous_avg_rtt;
+    double bitrate;
+    double rtt;
+    double reward;
+    int seg_no;
+};
+
+vector<RewardFactor> tmp_reward_vec;
+
+int adjust_bitrate(int seg_no, int path_id, double rtt, double bitrate) {
+    double buffering_ratio = previous_buffering_time_on_path(path_id) / epoch_to_relative_seconds(player_start, Tic());
+    double previous_avg_rtt = get_previous_average_rtt(path_id, 2);
+
+    int alpha = 1;
+    int beta = 1;
+
+    double reward = alpha * (1 - buffering_ratio) + beta * (1 - rtt / previous_avg_rtt);
+    tmp_reward_vec.push_back({buffering_ratio, previous_avg_rtt, bitrate, rtt, reward, seg_no});
+
+    return 0;
+}
+
+extern map<int, map<int, double>> bitrate_mapping;
+extern vector<double> path_rtt[nb_paths];
+extern vector<struct reward_item> history_rewards;
+
+/*
+ * Round Robin Download
+ * */
+void roundrobin_download(const struct DownloadTask& t)
+{
+
+}
 
 /*
  * Sequential Download
  * */
-void sequential_download(int path_id, struct DownloadTask t)
+void sequential_download(int path_id, const struct DownloadTask& t)
 {
     string if_name;
     if (path_id == 0) {
@@ -37,14 +81,18 @@ void sequential_download(int path_id, struct DownloadTask t)
         if_name = "";
     }
 
-    int cur_resolution = 1080;
-
     printf("sequential download, interface = %s\n", if_name.c_str());
-    string filename = urls[0][t.seg_no].url;
+    string filename = urls[bitrate_level-1][t.seg_no].url;
     printf("%s\n", filename.c_str());
 
-    struct picoquic_download_stat picoquic_st { };
     PerSegmentStats pst;
+    if (seg_stats.find(t.seg_no) != seg_stats.end()) {
+        pst.path_id = path_id;
+        pst.resolution = t.resolution;
+        seg_stats.insert({ t.seg_no, pst });
+    }
+
+    struct picoquic_download_stat picoquic_st { };
     TicToc timer;
 
     auto *config = (picoquic_quic_config_t*)malloc(sizeof(picoquic_quic_config_t));
@@ -64,55 +112,55 @@ void sequential_download(int path_id, struct DownloadTask t)
         first_segment_downloaded = 1;
     }
 
-    if (!seg_stats.contains(t.seg_no)) {
-        pst.path_id = path_id;
+    seg_stats[t.seg_no].cur_rtt = ((double)picoquic_st.one_way_delay_avg) / 1000.0 * 2;
+    seg_stats[t.seg_no].bandwidth_estimate = picoquic_st.bandwidth_estimate;
+    seg_stats[t.seg_no].start = pst.start;
+    seg_stats[t.seg_no].end = pst.end;
+    seg_stats[t.seg_no].download_speed = picoquic_st.throughput;
 
-        pst.one_way_delay_avg = picoquic_st.one_way_delay_avg;
-        pst.rtt_delay_estimate = ((double)picoquic_st.one_way_delay_avg) / 1000.0 * 2;
-        pst.download_speed = picoquic_st.throughput;
+    path_rtt[path_id].push_back(seg_stats[t.seg_no].cur_rtt);
+    pst.cur_rtt = seg_stats[t.seg_no].cur_rtt;
 
-        pst.bandwidth_estimate = picoquic_st.bandwidth_estimate;
-        pst.rtt = picoquic_st.rtt;
-        pst.total_received = picoquic_st.total_received;
-        pst.total_bytes_lost = picoquic_st.total_bytes_lost;
-        pst.data_received = picoquic_st.data_received;
-        pst.resolution = cur_resolution;
+    // adjust bitrate
+    double buffering_ratio = previous_buffering_time_on_path(path_id) / previous_total_buffering_time();
+    double previous_avg_rtt = get_previous_average_rtt(path_id, 2);
 
+    int alpha = 1;
+    int beta = 1;
 
-        pst.gamma_throughput = picoquic_st.throughput;
-        pst.gamma_avg_throughput = get_previous_average_throughput(path_id);
+    double reward = alpha * (1 - buffering_ratio) + beta * (1 - pst.cur_rtt / previous_avg_rtt);
+    tmp_reward_vec.push_back({buffering_ratio, previous_avg_rtt, bitrate_mapping[t.resolution][t.bitrate_level], pst.cur_rtt, reward, t.seg_no});
 
+    seg_stats[t.seg_no].average_reward_so_far = get_previous_most_recent_average_reward(5);
+    seg_stats[t.seg_no].reward = reward;
 
-        pst.gamma_rtt = pst.rtt_delay_estimate;
-        pst.gamma_avg_rtt = get_previous_average_rtt(path_id);
+    history_rewards.push_back({reward, path_id});
 
-        PlayableSegment ps {};
-        ps.nb_frames = 48;
-        ps.eos = 0;
-        ps.seg_no = t.seg_no;
-        ps.duration_seconds = urls[t.bitrate_level][t.seg_no].duration_seconds;
-        player_buffer_map[t.seg_no] = ps;
-        player_buffer.push(ps);
-
-        seg_stats.insert({ t.seg_no, pst });
-    }
+    PlayableSegment ps {};
+    ps.nb_frames = 48;
+    ps.eos = 0;
+    ps.seg_no = t.seg_no;
+    ps.duration_seconds = urls[t.bitrate_level][t.seg_no].duration_seconds;
+    player_buffer_map[t.seg_no] = ps;
+    player_buffer.push(ps);
 }
-
-int bitrate_level = 1;
-
 
 void main_downloader() {
     BS::thread_pool download_thread_pool(nb_paths);
 
     int i = 1;
 
-    int cur_bitrate = initial_bitrate;
-    int cur_resolution = initial_resolution;
+    double bitrate = get_bitrate_from_bitrate_level(bitrate_level);
+    cur_resolution = get_resolution_by_bitrate(bitrate);
+
+    // TODO
+    // download init.mp4
 
     struct DownloadTask first_seg;
-    first_seg.filename = urls[bitrate_level][1].url;
+    first_seg.filename = urls[bitrate_level-1][1].url;
     first_seg.seg_no = 1;
     first_seg.bitrate_level = bitrate_level;
+    first_seg.resolution = cur_resolution;
     int path_id = 0;
 
     download_thread_pool.push_task(sequential_download, path_id, first_seg);
@@ -136,12 +184,13 @@ void main_downloader() {
             continue;
         }
 
-        string filename = urls[bitrate_level][i].url;
+        string filename = urls[bitrate_level-1][i].url;
         printf("%s\n", filename.c_str());
 
         struct DownloadTask t;
         t.filename = filename;
         t.seg_no = i;
+        t.resolution = cur_resolution;
         t.bitrate_level = bitrate_level;
 
         download_thread_pool.push_task(sequential_download, path_id, t);
@@ -169,12 +218,12 @@ void print_segment_download_stats() {
                   << " resolution: " << value.resolution
                   << " path_id: " << value.path_id
                   << " previous avg reward: " << value.average_reward_so_far
-                  << " gamma: " << value.gamma
+//                  << " gamma: " << value.gamma
                   << " reward: " << value.reward
-                  << " gamma_throughput: " << value.gamma_throughput
-                  << " gamma_avg_throughput: " << value.gamma_avg_throughput
-                  << " gamma_rtt: " << value.gamma_rtt
-                  << " gamma_avg_rtt: " << value.gamma_avg_rtt
+//                  << " gamma_throughput: " << value.gamma_throughput
+//                  << " gamma_avg_throughput: " << value.gamma_avg_throughput
+                  << " rtt: " << value.cur_rtt
+//                  << " gamma_avg_rtt: " << value.gamma_avg_rtt
                   << endl;
     }
 }
@@ -184,6 +233,19 @@ void print_playback_info() {
     for (auto& spi : playback_info_vec) {
         std::cout << "playback event, seg_no: " << spi.seg_no << ", start: " << spi.playback_start_second << ", end: "
                   << spi.playback_end_second << ", duration: " << spi.playback_duration << endl;
+    }
+}
+
+
+void print_tmp_reward_info() {
+    printf("\ntmp_reward_info_vec event metrics, tmp reward event count: %zu\n", tmp_reward_vec.size());
+    for (auto& tri : tmp_reward_vec) {
+        cout << "seg_no: " << tri.seg_no << \
+        " buffering ratio: " << tri.buffering_ratio << \
+        " previous avg rtt: " << tri.previous_avg_rtt << \
+        " bitrate: " << tri.bitrate << \
+        " rtt: " << tri.rtt << \
+        " reward: " << tri.reward << endl;
     }
 }
 
@@ -201,5 +263,7 @@ void start()
     print_segment_download_stats();
 
     print_playback_info();
+
+    print_tmp_reward_info();
 }
 

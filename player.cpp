@@ -4,7 +4,7 @@
 
 #include "tplayer.h"
 
-std::vector<BufferEvent> buffer_events_vec;
+extern std::vector<BufferEvent> buffer_events_vec;
 
 /*
  * Mock Player
@@ -55,13 +55,15 @@ void mock_player()
 }
 
 vector<SegmentPlaybackInfo> playback_info_vec;
+TicToc buffering_timer;
+
+std::chrono::system_clock::time_point player_start;
 
 void main_player_mock()
 {
     double FPS = 24.0;
 
-    TicToc buffering_timer;
-    auto player_start = buffering_timer.tic();
+    player_start = buffering_timer.tic();
 
     int nb_played_segments = 1;
 
@@ -100,6 +102,8 @@ void main_player_mock()
             if (buffer_events_vec.empty() || buffer_events_vec[buffer_events_vec.size() - 1].completed == 1) {
                 struct BufferEvent be { };
                 be.start = buffering_timer.tic();
+                be.next_seg_no = nb_played_segments;
+                be.path_id = seg_stats[nb_played_segments].path_id;
 
                 buffer_events_vec.push_back(be);
                 printf("######## New buffer_events_vec event added\n");

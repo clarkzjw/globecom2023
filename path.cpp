@@ -50,7 +50,7 @@ double get_latest_average_rtt() {
     return rtt / nb_paths;
 }
 
-double get_previous_average_rtt(int path_id) {
+double get_previous_average_rtt(int path_id, int nb_segments) {
     double rtt = 0;
     int count = 0;
     for (int i = path_rtt[path_id].size() - 1; i >= 0; i--) {
@@ -58,7 +58,7 @@ double get_previous_average_rtt(int path_id) {
             rtt += path_rtt[path_id][i];
             count++;
         }
-        if (count == previous_number) {
+        if (count == nb_segments) {
             break;
         }
     }

@@ -30,4 +30,9 @@ public:
     }
 };
 
+std::chrono::system_clock::time_point Tic();
+
+double epoch_to_relative_seconds(std::chrono::system_clock::time_point start, std::chrono::system_clock::time_point end);
+
+
 #endif // TPLAYER_TICTOC_H
