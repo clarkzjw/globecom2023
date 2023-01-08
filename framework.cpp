@@ -78,16 +78,16 @@ public:
     typedef std::function<void(int, const struct DownloadTask, std::mutex* path_mutex)> CallbackDownload;
 
     /*
-     * Round Robin Download
+     * Pseudo Round Robin Scheduling
+     * the task is scheduled to the path which has the lowest index and is also available
      * */
-    void roundrobin_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f)
+    void pseudo_roundrobin_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f)
     {
         int done = 0;
         while (true) {
             for (int path_id = 0; path_id < nb_paths; path_id++) {
                 if (path_mutexes[path_id].try_lock()) {
                     path_pool[path_id]->push_task(download_f, path_id, t, &path_mutexes[path_id]);
-//                    path_mutexes[path_id].unlock();
                     done = 1;
                     break;
                 }
@@ -99,11 +99,8 @@ public:
     }
 };
 
-
-
-
 /*
- * Sequential Download
+ * Downloader
  * */
 void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex)
 {
@@ -184,8 +181,6 @@ void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex)
 }
 
 void main_downloader() {
-//    BS::thread_pool download_thread_pool(nb_paths);
-
     int i = 1;
 
     double bitrate = get_bitrate_from_bitrate_level(bitrate_level);
@@ -201,10 +196,8 @@ void main_downloader() {
     first_seg.seg_no = 1;
     first_seg.bitrate_level = bitrate_level;
     first_seg.resolution = cur_resolution;
-//    int path_id = 0;
 
-    path_selector.roundrobin_scheduler(first_seg, download);
-//    download_thread_pool.push_task(download, path_id, first_seg);
+    path_selector.pseudo_roundrobin_scheduler(first_seg, download);
 
     while (true) {
         if (first_segment_downloaded == 1) {
@@ -220,11 +213,6 @@ void main_downloader() {
             break;
         }
 
-//        if (player_buffer.size() >= PLAYER_BUFFER_MAX_SEGMENTS || download_thread_pool.get_tasks_total() >= PLAYER_BUFFER_MAX_SEGMENTS) {
-//            PortableSleep(0.01);
-//            continue;
-//        }
-
         if (player_buffer.size() >= PLAYER_BUFFER_MAX_SEGMENTS) {
             PortableSleep(0.01);
             continue;
@@ -239,8 +227,7 @@ void main_downloader() {
         t.resolution = cur_resolution;
         t.bitrate_level = bitrate_level;
 
-        path_selector.roundrobin_scheduler(t, download);
-//        download_thread_pool.push_task(download, path_id, t);
+        path_selector.pseudo_roundrobin_scheduler(t, download);
         i++;
     }
 
@@ -311,11 +298,9 @@ void start()
 
     std::thread thread_download(main_downloader);
     std::thread thread_playback(main_player_mock);
-//    std::thread thread_check_player_buffer(check_player_buffer);
 
     thread_download.join();
     thread_playback.join();
-//    thread_check_player_buffer.join();
 
     print_segment_download_stats();
 
