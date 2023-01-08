@@ -80,6 +80,7 @@ void main_player_mock()
                 buffer_events_vec[buffer_events_vec.size() - 1].completed = 1;
             }
             struct PlayableSegment s = player_buffer_map[nb_played_segments];
+            player_buffer.pop();
 
             // this is the last segment
             if (s.eos == 1) {

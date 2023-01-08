@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <regex>
+#include <functional>
 
 using namespace std;
 
@@ -59,18 +60,52 @@ extern map<int, map<int, double>> bitrate_mapping;
 extern vector<double> path_rtt[nb_paths];
 extern vector<struct reward_item> history_rewards;
 
-/*
- * Round Robin Download
- * */
-void roundrobin_download(const struct DownloadTask& t)
-{
+class PathSelector {
+private:
+    std::mutex path_mutexes[nb_paths];
+//    std::map<int, BS::thread_pool*> path_pool;
+    BS::thread_pool* path_pool[nb_paths]{};
 
-}
+public:
+    PathSelector() {
+        for (int i = 0; i < nb_paths; i++) {
+            auto *p = new BS::thread_pool(1);
+            path_pool[i] = p;
+        }
+        printf("PathSelected inited\n");
+    }
+
+    typedef std::function<void(int, const struct DownloadTask, std::mutex* path_mutex)> CallbackDownload;
+
+    /*
+     * Round Robin Download
+     * */
+    void roundrobin_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f)
+    {
+        int done = 0;
+        while (true) {
+            for (int path_id = 0; path_id < nb_paths; path_id++) {
+                if (path_mutexes[path_id].try_lock()) {
+                    path_pool[path_id]->push_task(download_f, path_id, t, &path_mutexes[path_id]);
+//                    path_mutexes[path_id].unlock();
+                    done = 1;
+                    break;
+                }
+            }
+            if (done) {
+                break;
+            }
+        }
+    }
+};
+
+
+
 
 /*
  * Sequential Download
  * */
-void sequential_download(int path_id, const struct DownloadTask& t)
+void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex)
 {
     string if_name;
     if (path_id == 0) {
@@ -112,6 +147,7 @@ void sequential_download(int path_id, const struct DownloadTask& t)
         first_segment_downloaded = 1;
     }
 
+    seg_stats[t.seg_no].path_id = path_id;
     seg_stats[t.seg_no].cur_rtt = ((double)picoquic_st.one_way_delay_avg) / 1000.0 * 2;
     seg_stats[t.seg_no].bandwidth_estimate = picoquic_st.bandwidth_estimate;
     seg_stats[t.seg_no].start = pst.start;
@@ -143,15 +179,19 @@ void sequential_download(int path_id, const struct DownloadTask& t)
     ps.duration_seconds = urls[t.bitrate_level][t.seg_no].duration_seconds;
     player_buffer_map[t.seg_no] = ps;
     player_buffer.push(ps);
+
+    path_mutex->unlock();
 }
 
 void main_downloader() {
-    BS::thread_pool download_thread_pool(nb_paths);
+//    BS::thread_pool download_thread_pool(nb_paths);
 
     int i = 1;
 
     double bitrate = get_bitrate_from_bitrate_level(bitrate_level);
     cur_resolution = get_resolution_by_bitrate(bitrate);
+
+    PathSelector path_selector;
 
     // TODO
     // download init.mp4
@@ -161,9 +201,10 @@ void main_downloader() {
     first_seg.seg_no = 1;
     first_seg.bitrate_level = bitrate_level;
     first_seg.resolution = cur_resolution;
-    int path_id = 0;
+//    int path_id = 0;
 
-    download_thread_pool.push_task(sequential_download, path_id, first_seg);
+    path_selector.roundrobin_scheduler(first_seg, download);
+//    download_thread_pool.push_task(download, path_id, first_seg);
 
     while (true) {
         if (first_segment_downloaded == 1) {
@@ -179,7 +220,12 @@ void main_downloader() {
             break;
         }
 
-        if (player_buffer.size() >= PLAYER_BUFFER_MAX_SEGMENTS || download_thread_pool.get_tasks_total() >= PLAYER_BUFFER_MAX_SEGMENTS) {
+//        if (player_buffer.size() >= PLAYER_BUFFER_MAX_SEGMENTS || download_thread_pool.get_tasks_total() >= PLAYER_BUFFER_MAX_SEGMENTS) {
+//            PortableSleep(0.01);
+//            continue;
+//        }
+
+        if (player_buffer.size() >= PLAYER_BUFFER_MAX_SEGMENTS) {
             PortableSleep(0.01);
             continue;
         }
@@ -193,7 +239,8 @@ void main_downloader() {
         t.resolution = cur_resolution;
         t.bitrate_level = bitrate_level;
 
-        download_thread_pool.push_task(sequential_download, path_id, t);
+        path_selector.roundrobin_scheduler(t, download);
+//        download_thread_pool.push_task(download, path_id, t);
         i++;
     }
 
@@ -249,6 +296,14 @@ void print_tmp_reward_info() {
     }
 }
 
+[[noreturn]] void check_player_buffer() {
+    while (true) {
+        printf("player buffer: %zu\n", player_buffer.size());
+        PortableSleep(5);
+    }
+}
+
+
 void start()
 {
     TicToc global_timer;
@@ -256,9 +311,11 @@ void start()
 
     std::thread thread_download(main_downloader);
     std::thread thread_playback(main_player_mock);
+//    std::thread thread_check_player_buffer(check_player_buffer);
 
     thread_download.join();
     thread_playback.join();
+//    thread_check_player_buffer.join();
 
     print_segment_download_stats();
 
