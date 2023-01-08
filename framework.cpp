@@ -61,11 +61,8 @@ extern map<int, map<int, double>> bitrate_mapping;
 extern vector<double> path_rtt[nb_paths];
 extern vector<struct reward_item> history_rewards;
 
-enum class Algorithm{
-    pseudo_rr,
-    rr,
-    mab,
-};
+
+
 
 class PathSelector {
 private:
@@ -90,8 +87,6 @@ public:
             path_pool[i]->wait_for_tasks();
         }
     }
-
-    typedef std::function<void(int, const struct DownloadTask, std::mutex* path_mutex)> CallbackDownload;
 
     /*
      * Pseudo Round Robin Scheduling
@@ -211,6 +206,8 @@ void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex)
 }
 
 extern string alg;
+map<string, CallbackDownload> algorithm_map;
+
 
 void main_downloader() {
     int i = 1;

@@ -180,4 +180,13 @@ double previous_total_buffering_time();
 
 #define TPLAYER_DEBUG 1
 
+enum class Algorithm{
+    pseudo_rr,
+    rr,
+    mab,
+    unexpected,
+};
+
+typedef std::function<void(int, const struct DownloadTask, std::mutex* path_mutex)> CallbackDownload;
+
 #endif // TPLAYER_TPLAYER_H
