@@ -14,6 +14,7 @@
 #include <string>
 #include <regex>
 #include <functional>
+#include <shared_mutex>
 
 using namespace std;
 
@@ -60,11 +61,19 @@ extern map<int, map<int, double>> bitrate_mapping;
 extern vector<double> path_rtt[nb_paths];
 extern vector<struct reward_item> history_rewards;
 
+enum class Algorithm{
+    pseudo_rr,
+    rr,
+    mab,
+};
+
 class PathSelector {
 private:
     std::mutex path_mutexes[nb_paths];
 //    std::map<int, BS::thread_pool*> path_pool;
     BS::thread_pool* path_pool[nb_paths]{};
+    mutable std::shared_mutex path_mutex;
+    int previous_path_id;
 
 public:
     PathSelector() {
@@ -72,7 +81,14 @@ public:
             auto *p = new BS::thread_pool(1);
             path_pool[i] = p;
         }
+        previous_path_id = 0;
         printf("PathSelected inited\n");
+    }
+
+    ~PathSelector() {
+        for (int i = 0; i < nb_paths; i++) {
+            path_pool[i]->wait_for_tasks();
+        }
     }
 
     typedef std::function<void(int, const struct DownloadTask, std::mutex* path_mutex)> CallbackDownload;
@@ -96,6 +112,18 @@ public:
                 break;
             }
         }
+    }
+
+    void roundrobin_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f)
+    {
+        std::unique_lock p_lock(path_mutex);
+        if (previous_path_id == 0) {
+            previous_path_id = 1;
+        } else if (previous_path_id == 1){
+            previous_path_id = 0;
+        }
+
+        path_pool[previous_path_id]->push_task(download_f, previous_path_id, t, nullptr);
     }
 };
 
@@ -177,8 +205,12 @@ void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex)
     player_buffer_map[t.seg_no] = ps;
     player_buffer.push(ps);
 
-    path_mutex->unlock();
+    if (path_mutex != nullptr) {
+        path_mutex->unlock();
+    }
 }
+
+extern string alg;
 
 void main_downloader() {
     int i = 1;
@@ -197,7 +229,8 @@ void main_downloader() {
     first_seg.bitrate_level = bitrate_level;
     first_seg.resolution = cur_resolution;
 
-    path_selector.pseudo_roundrobin_scheduler(first_seg, download);
+//    path_selector.pseudo_roundrobin_scheduler(first_seg, download);
+    path_selector.roundrobin_scheduler(first_seg, download);
 
     while (true) {
         if (first_segment_downloaded == 1) {
@@ -227,7 +260,8 @@ void main_downloader() {
         t.resolution = cur_resolution;
         t.bitrate_level = bitrate_level;
 
-        path_selector.pseudo_roundrobin_scheduler(t, download);
+//        path_selector.pseudo_roundrobin_scheduler(t, download);
+        path_selector.roundrobin_scheduler(t, download);
         i++;
     }
 
