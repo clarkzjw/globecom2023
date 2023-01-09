@@ -41,13 +41,15 @@ string local_mpd_url = "../dataset/BigBuckBunny/mpd/stream.mpd";
 auto level = 3; // 0, 1, 2, 3
 
 // max available segments: 299
-int nb_segments = 20;
+int nb_segments = 10;
 
 extern double initial_bitrate;
 //extern int initial_resolution;
 
 string alg;
 Algorithm scheduling_algorithm;
+
+string experiment_id;
 
 bool check_parameters(cxxopts::Options& options, int argc, char **argv) {
     auto result = options.parse(argc, argv);
@@ -68,6 +70,12 @@ bool check_parameters(cxxopts::Options& options, int argc, char **argv) {
         port = result["port"].as<int>();
     } else {
         port = 4433;
+    }
+
+    experiment_id = current_date_and_time();
+
+    if (result.count("id")) {
+        experiment_id = experiment_id + "-" + result["id"].as<string>();
     }
 
     auto hashit = [](const string& opt) -> Algorithm {
@@ -112,6 +120,7 @@ int main(int argc, char* argv[])
             ("h,host", "server host", cxxopts::value<string>())
             ("a,algorithm", "test algorithm", cxxopts::value<string>())
             ("m,mpd", "mpd file path", cxxopts::value<string>())
+            ("i,id", "experiment id", cxxopts::value<string>())
             ("help", "print usage")
             ;
 

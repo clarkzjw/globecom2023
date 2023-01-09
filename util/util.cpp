@@ -13,6 +13,10 @@
 #include <vector>
 #include <string>
 #include <regex>
+#include <date.h>
+#include <chrono>
+#include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -36,4 +40,9 @@ double epoch_to_relative_seconds(std::chrono::system_clock::time_point start, st
 
 std::chrono::system_clock::time_point Tic() {
     return std::chrono::system_clock::now();
+}
+
+std::string current_date_and_time() {
+    auto now = time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
+    return date::format("%Y%m%d-%H%M%S", now);
 }

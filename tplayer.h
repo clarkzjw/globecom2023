@@ -69,7 +69,7 @@ struct PerSegmentStats {
     uint64_t data_received;
 
     int resolution;
-    int bitrate;
+    double bitrate;
 
     double rtt_delay_estimate;
     double reward;
@@ -192,5 +192,9 @@ enum class Algorithm{
 typedef std::function<void(int, const struct DownloadTask, std::mutex* path_mutex)> CallbackDownload;
 double buffering_event_count_ratio_on_path(int path_id);
 double get_maximal_bitrate();
+std::string current_date_and_time();
+
+extern std::string experiment_id;
+int save_metrics_to_file();
 
 #endif // TPLAYER_TPLAYER_H

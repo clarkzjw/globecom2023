@@ -6,8 +6,13 @@
 #include <random>
 #include <shared_mutex>
 #include <map>
+#include <date.h>
+#include <chrono>
+#include <string>
+#include <sstream>
 
 using namespace std;
+using namespace std::chrono;
 
 #define PortableSleep(seconds) usleep((seconds)*1000000)
 
@@ -57,6 +62,10 @@ struct Test {
     int value;
 };
 
+std::string return_current_time_and_date() {
+    auto now = time_point_cast<milliseconds>(system_clock::now());
+    return date::format("%Y%m%d-%H%M%S", now);
+}
 
 int main() {
 //    BS::thread_pool p(2);
@@ -75,23 +84,25 @@ int main() {
 //    }
 
 
-    std::map<int, struct Test> test_map;
+//    std::map<int, struct Test> test_map;
+//
+//    auto it = test_map.find(1);
+//    if (test_map.find(1) != test_map.end()) {
+//        printf("find\n");
+//    } else {
+//        printf("didn't fid\n");
+//    }
+//
+//    test_map[1] = {1, 1};
+//    test_map[2] = {2, 1};
+//
+//    it = test_map.find(1);
+//    if (test_map.find(1) != test_map.end()) {
+//        printf("find\n");
+//    } else {
+//        printf("didn't find\n");
+//    }
 
-    auto it = test_map.find(1);
-    if (test_map.find(1) != test_map.end()) {
-        printf("find\n");
-    } else {
-        printf("didn't fid\n");
-    }
-
-    test_map[1] = {1, 1};
-    test_map[2] = {2, 1};
-
-    it = test_map.find(1);
-    if (test_map.find(1) != test_map.end()) {
-        printf("find\n");
-    } else {
-        printf("didn't find\n");
-    }
+    cout << return_current_time_and_date() << endl;
     return 0;
 }

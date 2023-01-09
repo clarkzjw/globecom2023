@@ -235,6 +235,7 @@ void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex)
         first_segment_downloaded = 1;
     }
 
+    seg_stats[t.seg_no].bitrate = cur_bitrate;
     seg_stats[t.seg_no].path_id = path_id;
     seg_stats[t.seg_no].cur_rtt = ((double)picoquic_st.one_way_delay_avg) / 1000.0 * 2;
     seg_stats[t.seg_no].bandwidth_estimate = picoquic_st.bandwidth_estimate;
@@ -438,5 +439,7 @@ void start()
     print_playback_info();
 
     print_tmp_reward_info();
+
+    save_metrics_to_file();
 }
 
