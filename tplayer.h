@@ -185,10 +185,12 @@ enum class Algorithm{
     pseudo_rr,
     rr,
     mab,
+    minrtt,
     unexpected,
 };
 
 typedef std::function<void(int, const struct DownloadTask, std::mutex* path_mutex)> CallbackDownload;
 double buffering_event_count_ratio_on_path(int path_id);
+
 
 #endif // TPLAYER_TPLAYER_H

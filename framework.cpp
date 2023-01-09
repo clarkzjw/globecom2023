@@ -75,17 +75,22 @@ class PathSelector {
 private:
     std::mutex path_mutexes[nb_paths];
 //    std::map<int, BS::thread_pool*> path_pool;
-    BS::thread_pool* path_pool[nb_paths]{};
     mutable std::shared_mutex path_mutex;
     int previous_path_id;
 
 public:
+    BS::thread_pool* path_pool[nb_paths]{};
+
+    // TODO
+    map<Algorithm, CallbackDownload> algorithm_map;
+
     PathSelector() {
         for (int i = 0; i < nb_paths; i++) {
             auto *p = new BS::thread_pool(1);
             path_pool[i] = p;
         }
         previous_path_id = 1;
+
         printf("PathSelected inited\n");
     }
 
@@ -94,6 +99,7 @@ public:
             path_pool[i]->wait_for_tasks();
         }
     }
+
 
     /*
      * Pseudo Round Robin Scheduling
@@ -119,15 +125,67 @@ public:
     void roundrobin_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f)
     {
         std::unique_lock p_lock(path_mutex);
-        if (previous_path_id == 0) {
-            previous_path_id = 1;
-        } else if (previous_path_id == 1){
-            previous_path_id = 0;
-        }
+        // reverse previous_path_id
+        // i.e., 0->1, 1->0
+        // only valid for two paths
+        previous_path_id = previous_path_id ^ 1;
 
         printf("=====segment %d assigned to path %d\n", t.seg_no, previous_path_id);
         path_pool[previous_path_id]->push_task(download_f, previous_path_id, t, nullptr);
     }
+
+
+    /*
+     * Min RTT Scheduling
+     * 1. If there's an empty path available, choose it regardless of the RTT
+     * 2. If all paths are occupied, choose one of them based on previous RTT measurement
+     * */
+    void minrtt_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f) {
+
+        auto get_minrtt_path_id = [this]() {
+            double minrtt = INT_MAX;
+            int path_id = 0;
+            for (int i = 0; i < nb_paths; i++) {
+                // if there's an empty path available, return it regardless the rtt
+                if (path_pool[i]->get_tasks_total() == 0) {
+                    return i;
+                }
+
+                if (!path_rtt[i].empty()) {
+                    double v = path_rtt[i][path_rtt[i].size() - 1];
+                    if (v < minrtt) {
+                        minrtt = v;
+                        path_id = i;
+                    }
+                } else if (path_rtt[i].empty() == true && path_pool[i]->get_tasks_total() == 0) {
+                    // if path_rtt[i] is empty, which means it hasn't been selected and tried before
+                    // so use it for exploration
+                    return i;
+                } else {
+                    // there's no RTT measurement on this path yet
+                    // but there's already tasks assigned to this path but not finished yet
+                    // re-decide after N seconds
+                    return -1;
+                }
+            }
+            return path_id;
+        };
+
+        int path_id;
+        while (true) {
+            path_id = get_minrtt_path_id();
+            if (path_id == -1) {
+                PortableSleep(0.1);
+                continue;
+            } else {
+                break;
+            }
+        }
+
+        printf("=====segment %d assigned to path %d\n", t.seg_no, path_id);
+        path_pool[path_id]->push_task(download_f, path_id, t, nullptr);
+    }
+
 };
 
 /*
@@ -226,7 +284,7 @@ void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex)
 }
 
 extern string alg;
-map<string, CallbackDownload> algorithm_map;
+
 
 
 void main_downloader() {
@@ -247,7 +305,19 @@ void main_downloader() {
     first_seg.resolution = cur_resolution;
 
 //    path_selector.pseudo_roundrobin_scheduler(first_seg, download);
-    path_selector.roundrobin_scheduler(first_seg, download);
+//    path_selector.roundrobin_scheduler(first_seg, download);
+    path_selector.minrtt_scheduler(first_seg, download);
+
+    auto check_download_buffer_full = [](PathSelector& path_selector) {
+        int total = 0;
+        for (int i = 0; i < nb_paths; i++) {
+            total += path_selector.path_pool[i]->get_tasks_total();
+        }
+        if (total > nb_paths) {
+            return true;
+        }
+        return false;
+    };
 
     while (true) {
         if (first_segment_downloaded == 1) {
@@ -263,7 +333,7 @@ void main_downloader() {
             break;
         }
 
-        if (player_buffer.size() >= PLAYER_BUFFER_MAX_SEGMENTS) {
+        if (player_buffer.size() >= PLAYER_BUFFER_MAX_SEGMENTS || check_download_buffer_full(path_selector)) {
             PortableSleep(0.01);
             continue;
         }
@@ -278,7 +348,8 @@ void main_downloader() {
         t.bitrate_level = bitrate_level;
 
 //        path_selector.pseudo_roundrobin_scheduler(t, download);
-        path_selector.roundrobin_scheduler(t, download);
+//        path_selector.roundrobin_scheduler(t, download);
+        path_selector.minrtt_scheduler(t, download);
         i++;
     }
 

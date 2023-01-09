@@ -41,12 +41,13 @@ string local_mpd_url = "../dataset/BigBuckBunny/mpd/stream.mpd";
 auto level = 3; // 0, 1, 2, 3
 
 // max available segments: 299
-int nb_segments = 30;
+int nb_segments = 20;
 
 extern double initial_bitrate;
 //extern int initial_resolution;
 
 string alg;
+Algorithm scheduling_algorithm;
 
 bool check_parameters(cxxopts::Options& options, int argc, char **argv) {
     auto result = options.parse(argc, argv);
@@ -73,14 +74,17 @@ bool check_parameters(cxxopts::Options& options, int argc, char **argv) {
         if (opt == "mab") { return Algorithm::mab; }
         if (opt == "rr") { return Algorithm::rr; }
         if (opt == "pseudo_rr") { return Algorithm::pseudo_rr; }
+        if (opt == "minrtt") { return Algorithm::minrtt; }
         return Algorithm::unexpected;
     };
 
     auto check_algorithm = [&hashit](const string& opt) {
-        switch (hashit(opt)) {
+        scheduling_algorithm = hashit(opt);
+        switch (scheduling_algorithm) {
             case Algorithm::mab:
             case Algorithm::pseudo_rr:
             case Algorithm::rr:
+            case Algorithm::minrtt:
                 return true;
             case Algorithm::unexpected:
             default:

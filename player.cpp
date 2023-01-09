@@ -92,7 +92,7 @@ void main_player_mock()
             spi.playback_duration = s.duration_seconds;
             spi.playback_start_second = epoch_to_relative_seconds(player_start, buffering_timer.tic());
 
-            printf("Playing segment %d for %f seconds\n", s.seg_no, s.duration_seconds);
+            printf("Playing segment %d for %f seconds, buffer size: %zu\n", s.seg_no, s.duration_seconds, player_buffer.size());
             PortableSleep(s.duration_seconds);
             spi.playback_end_second = epoch_to_relative_seconds(player_start, buffering_timer.tic());
 
