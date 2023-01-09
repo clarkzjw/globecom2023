@@ -197,4 +197,16 @@ std::string current_date_and_time();
 extern std::string experiment_id;
 int save_metrics_to_file();
 
+typedef struct RewardFactor {
+    double buffering_ratio;
+    double previous_avg_rtt;
+    double latest_avg_rtt;
+    double bitrate;
+    double rtt;
+    double reward;
+    int path_id;
+    int seg_no;
+} RewardFactor;
+
+extern map<int, RewardFactor> tmp_reward_map;
 #endif // TPLAYER_TPLAYER_H
