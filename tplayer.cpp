@@ -41,25 +41,14 @@ string local_mpd_url = "../dataset/BigBuckBunny/mpd/stream.mpd";
 auto level = 3; // 0, 1, 2, 3
 
 // max available segments: 299
-int nb_segments = 10;
+int nb_segments = 30;
 
 extern double initial_bitrate;
 //extern int initial_resolution;
 
 string alg;
 
-int main(int argc, char* argv[])
-{
-    cxxopts::Options options("tplayer", "MPQUIC Player");
-
-    options.add_options()
-            ("p,port", "server port", cxxopts::value<int>())
-            ("h,host", "server host", cxxopts::value<string>())
-            ("a,algorithm", "test algorithm", cxxopts::value<string>())
-            ("m,mpd", "mpd file path", cxxopts::value<string>())
-            ("help", "print usage")
-            ;
-
+bool check_parameters(cxxopts::Options& options, int argc, char **argv) {
     auto result = options.parse(argc, argv);
 
     if (result.count("help"))
@@ -80,15 +69,52 @@ int main(int argc, char* argv[])
         port = 4433;
     }
 
-    if (result.count("algorithm")) {
-        alg = result["algorithm"].as<string>();
-    } else {
-        alg = "mab";
-    }
+    auto hashit = [](const string& opt) -> Algorithm {
+        if (opt == "mab") { return Algorithm::mab; }
+        if (opt == "rr") { return Algorithm::rr; }
+        if (opt == "pseudo_rr") { return Algorithm::pseudo_rr; }
+        return Algorithm::unexpected;
+    };
+
+    auto check_algorithm = [&hashit](const string& opt) {
+        switch (hashit(opt)) {
+            case Algorithm::mab:
+            case Algorithm::pseudo_rr:
+            case Algorithm::rr:
+                return true;
+            case Algorithm::unexpected:
+            default:
+                cout << "Algorithm " << opt << " doesn't exist" << endl;
+                return false;
+        }
+    };
 
     if (result.count("mpd")) {
         local_mpd_url = result["mpd"].as<string>();
     }
+
+    if (result.count("algorithm")) {
+        return check_algorithm(result["algorithm"].as<string>());
+    }
+
+    return true;
+}
+
+int main(int argc, char* argv[])
+{
+    cxxopts::Options options("tplayer", "MPQUIC Player");
+    options.add_options()
+            ("p,port", "server port", cxxopts::value<int>())
+            ("h,host", "server host", cxxopts::value<string>())
+            ("a,algorithm", "test algorithm", cxxopts::value<string>())
+            ("m,mpd", "mpd file path", cxxopts::value<string>())
+            ("help", "print usage")
+            ;
+
+    if (!check_parameters(options, argc, argv)) {
+        return 1;
+    }
+
     cout << "host: " << host << ", port: " << port << ", algorithm: " << alg << ", mpd: " << local_mpd_url << endl;
 
     // read mpd file

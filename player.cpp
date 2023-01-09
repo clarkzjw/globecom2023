@@ -80,6 +80,7 @@ void main_player_mock()
                 buffer_events_vec[buffer_events_vec.size() - 1].completed = 1;
             }
             struct PlayableSegment s = player_buffer_map[nb_played_segments];
+            player_buffer.pop();
 
             // this is the last segment
             if (s.eos == 1) {
@@ -115,7 +116,9 @@ void main_player_mock()
 
     printf("\nbuffer_events_vec event metrics, buffer event count: %zu\n", buffer_events_vec.size());
     for (auto& be : buffer_events_vec) {
-        std::cout << "buffer event, start: " << epoch_to_relative_seconds(player_start, be.start) << ", end: "
-                  << epoch_to_relative_seconds(player_start, be.end) << endl;
+        std::cout << "buffer event, start: " << epoch_to_relative_seconds(player_start, be.start)
+        << ", end: " << epoch_to_relative_seconds(player_start, be.end)
+        << ", path: " << be.path_id
+        << endl;
     }
 }

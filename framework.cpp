@@ -13,6 +13,8 @@
 #include <vector>
 #include <string>
 #include <regex>
+#include <functional>
+#include <shared_mutex>
 
 using namespace std;
 
@@ -20,7 +22,7 @@ extern double initial_bitrate;
 //extern int initial_resolution;
 extern int nb_segments;
 
-#define INIT_BITRATE_LEVEL 13
+#define INIT_BITRATE_LEVEL 1
 
 extern vector<SegmentPlaybackInfo> playback_info_vec;
 int first_segment_downloaded = 0;
@@ -34,43 +36,104 @@ extern std::chrono::system_clock::time_point player_start;
 struct RewardFactor {
     double buffering_ratio;
     double previous_avg_rtt;
+    double latest_avg_rtt;
     double bitrate;
     double rtt;
     double reward;
+    int path_id;
     int seg_no;
 };
 
 vector<RewardFactor> tmp_reward_vec;
 
-int adjust_bitrate(int seg_no, int path_id, double rtt, double bitrate) {
-    double buffering_ratio = previous_buffering_time_on_path(path_id) / epoch_to_relative_seconds(player_start, Tic());
-    double previous_avg_rtt = get_previous_average_rtt(path_id, 2);
+//int adjust_bitrate(int seg_no, int path_id, double rtt, double bitrate) {
+//    double buffering_ratio = previous_buffering_time_on_path(path_id) / epoch_to_relative_seconds(player_start, Tic());
+//    double previous_avg_rtt = get_previous_average_rtt(path_id, 2);
+//
+//    int alpha = 1;
+//    int beta = 1;
+//
+//    double reward = alpha * (1 - buffering_ratio) + beta * (1 - rtt / previous_avg_rtt);
+//    tmp_reward_vec.push_back({buffering_ratio, previous_avg_rtt, bitrate, rtt, reward, seg_no});
+//
+//    return 0;
+//}
 
-    int alpha = 1;
-    int beta = 1;
+//int adjust_bitrate(int path_id) {
+//
+//}
 
-    double reward = alpha * (1 - buffering_ratio) + beta * (1 - rtt / previous_avg_rtt);
-    tmp_reward_vec.push_back({buffering_ratio, previous_avg_rtt, bitrate, rtt, reward, seg_no});
-
-    return 0;
-}
 
 extern map<int, map<int, double>> bitrate_mapping;
 extern vector<double> path_rtt[nb_paths];
 extern vector<struct reward_item> history_rewards;
 
-/*
- * Round Robin Download
- * */
-void roundrobin_download(const struct DownloadTask& t)
-{
 
-}
+
+
+class PathSelector {
+private:
+    std::mutex path_mutexes[nb_paths];
+//    std::map<int, BS::thread_pool*> path_pool;
+    BS::thread_pool* path_pool[nb_paths]{};
+    mutable std::shared_mutex path_mutex;
+    int previous_path_id;
+
+public:
+    PathSelector() {
+        for (int i = 0; i < nb_paths; i++) {
+            auto *p = new BS::thread_pool(1);
+            path_pool[i] = p;
+        }
+        previous_path_id = 1;
+        printf("PathSelected inited\n");
+    }
+
+    ~PathSelector() {
+        for (int i = 0; i < nb_paths; i++) {
+            path_pool[i]->wait_for_tasks();
+        }
+    }
+
+    /*
+     * Pseudo Round Robin Scheduling
+     * the task is scheduled to the path which has the lowest index and is also available
+     * */
+    void pseudo_roundrobin_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f)
+    {
+        int done = 0;
+        while (true) {
+            for (int path_id = 0; path_id < nb_paths; path_id++) {
+                if (path_mutexes[path_id].try_lock()) {
+                    path_pool[path_id]->push_task(download_f, path_id, t, &path_mutexes[path_id]);
+                    done = 1;
+                    break;
+                }
+            }
+            if (done) {
+                break;
+            }
+        }
+    }
+
+    void roundrobin_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f)
+    {
+        std::unique_lock p_lock(path_mutex);
+        if (previous_path_id == 0) {
+            previous_path_id = 1;
+        } else if (previous_path_id == 1){
+            previous_path_id = 0;
+        }
+
+        printf("=====segment %d assigned to path %d\n", t.seg_no, previous_path_id);
+        path_pool[previous_path_id]->push_task(download_f, previous_path_id, t, nullptr);
+    }
+};
 
 /*
- * Sequential Download
+ * Downloader
  * */
-void sequential_download(int path_id, const struct DownloadTask& t)
+void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex)
 {
     string if_name;
     if (path_id == 0) {
@@ -86,10 +149,12 @@ void sequential_download(int path_id, const struct DownloadTask& t)
     printf("%s\n", filename.c_str());
 
     PerSegmentStats pst;
-    if (seg_stats.find(t.seg_no) != seg_stats.end()) {
+    // if this is new
+    if (seg_stats.find(t.seg_no) == seg_stats.end()) {
         pst.path_id = path_id;
         pst.resolution = t.resolution;
-        seg_stats.insert({ t.seg_no, pst });
+        seg_stats[t.seg_no] = pst;
+//        seg_stats.insert({ t.seg_no, pst });
     }
 
     struct picoquic_download_stat picoquic_st { };
@@ -112,6 +177,7 @@ void sequential_download(int path_id, const struct DownloadTask& t)
         first_segment_downloaded = 1;
     }
 
+    seg_stats[t.seg_no].path_id = path_id;
     seg_stats[t.seg_no].cur_rtt = ((double)picoquic_st.one_way_delay_avg) / 1000.0 * 2;
     seg_stats[t.seg_no].bandwidth_estimate = picoquic_st.bandwidth_estimate;
     seg_stats[t.seg_no].start = pst.start;
@@ -122,15 +188,25 @@ void sequential_download(int path_id, const struct DownloadTask& t)
     pst.cur_rtt = seg_stats[t.seg_no].cur_rtt;
 
     // adjust bitrate
-    double buffering_ratio = previous_buffering_time_on_path(path_id) / previous_total_buffering_time();
+    double buffering_ratio = buffering_event_count_ratio_on_path(path_id);
+//    double buffering_ratio = previous_buffering_time_on_path(path_id) / previous_total_buffering_time();
     double previous_avg_rtt = get_previous_average_rtt(path_id, 2);
+    double latest_avg_rtt = get_latest_average_rtt();
 
     int alpha = 1;
     int beta = 1;
 
-    double reward = alpha * (1 - buffering_ratio) + beta * (1 - pst.cur_rtt / previous_avg_rtt);
-    tmp_reward_vec.push_back({buffering_ratio, previous_avg_rtt, bitrate_mapping[t.resolution][t.bitrate_level], pst.cur_rtt, reward, t.seg_no});
+    double reward = alpha * (1.0 / buffering_ratio) + beta * (latest_avg_rtt / pst.cur_rtt);
+    tmp_reward_vec.push_back({buffering_ratio,
+                              previous_avg_rtt,
+                              latest_avg_rtt,
+                              bitrate_mapping[t.resolution][t.bitrate_level],
+                              pst.cur_rtt,
+                              reward,
+                              path_id,
+                              t.seg_no});
 
+    seg_stats[t.seg_no].latest_avg_rtt = latest_avg_rtt;
     seg_stats[t.seg_no].average_reward_so_far = get_previous_most_recent_average_reward(5);
     seg_stats[t.seg_no].reward = reward;
 
@@ -143,15 +219,23 @@ void sequential_download(int path_id, const struct DownloadTask& t)
     ps.duration_seconds = urls[t.bitrate_level][t.seg_no].duration_seconds;
     player_buffer_map[t.seg_no] = ps;
     player_buffer.push(ps);
+
+    if (path_mutex != nullptr) {
+        path_mutex->unlock();
+    }
 }
 
-void main_downloader() {
-    BS::thread_pool download_thread_pool(nb_paths);
+extern string alg;
+map<string, CallbackDownload> algorithm_map;
 
+
+void main_downloader() {
     int i = 1;
 
     double bitrate = get_bitrate_from_bitrate_level(bitrate_level);
     cur_resolution = get_resolution_by_bitrate(bitrate);
+
+    PathSelector path_selector;
 
     // TODO
     // download init.mp4
@@ -161,9 +245,9 @@ void main_downloader() {
     first_seg.seg_no = 1;
     first_seg.bitrate_level = bitrate_level;
     first_seg.resolution = cur_resolution;
-    int path_id = 0;
 
-    download_thread_pool.push_task(sequential_download, path_id, first_seg);
+//    path_selector.pseudo_roundrobin_scheduler(first_seg, download);
+    path_selector.roundrobin_scheduler(first_seg, download);
 
     while (true) {
         if (first_segment_downloaded == 1) {
@@ -179,7 +263,7 @@ void main_downloader() {
             break;
         }
 
-        if (player_buffer.size() >= PLAYER_BUFFER_MAX_SEGMENTS || download_thread_pool.get_tasks_total() >= PLAYER_BUFFER_MAX_SEGMENTS) {
+        if (player_buffer.size() >= PLAYER_BUFFER_MAX_SEGMENTS) {
             PortableSleep(0.01);
             continue;
         }
@@ -193,7 +277,8 @@ void main_downloader() {
         t.resolution = cur_resolution;
         t.bitrate_level = bitrate_level;
 
-        download_thread_pool.push_task(sequential_download, path_id, t);
+//        path_selector.pseudo_roundrobin_scheduler(t, download);
+        path_selector.roundrobin_scheduler(t, download);
         i++;
     }
 
@@ -236,18 +321,33 @@ void print_playback_info() {
     }
 }
 
-
 void print_tmp_reward_info() {
     printf("\ntmp_reward_info_vec event metrics, tmp reward event count: %zu\n", tmp_reward_vec.size());
-    for (auto& tri : tmp_reward_vec) {
-        cout << "seg_no: " << tri.seg_no << \
-        " buffering ratio: " << tri.buffering_ratio << \
-        " previous avg rtt: " << tri.previous_avg_rtt << \
-        " bitrate: " << tri.bitrate << \
-        " rtt: " << tri.rtt << \
-        " reward: " << tri.reward << endl;
+
+    for (int i = 0; i < nb_paths; i++) {
+        for (auto& tri : tmp_reward_vec) {
+            if (tri.path_id == i) {
+                cout << "seg_no: " << tri.seg_no << \
+                        " buffering ratio: " << tri.buffering_ratio << \
+                        " path_id: " << tri.path_id << \
+                        " previous avg rtt on path: " << tri.previous_avg_rtt << \
+                        " latest avg rtt: " << tri.latest_avg_rtt << \
+                        " bitrate: " << tri.bitrate << \
+                        " rtt: " << tri.rtt << \
+                        " reward: " << tri.reward << endl;
+            }
+        }
+        printf("\n\n");
     }
 }
+
+[[noreturn]] void check_player_buffer() {
+    while (true) {
+        printf("player buffer: %zu\n", player_buffer.size());
+        PortableSleep(5);
+    }
+}
+
 
 void start()
 {

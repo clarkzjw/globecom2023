@@ -29,3 +29,13 @@ double previous_total_buffering_time() {
     }
     return previous_buffering_time;
 }
+
+double buffering_event_count_ratio_on_path(int path_id) {
+    double count = 0;
+    for (auto& be : buffer_events_vec) {
+        if (be.path_id == path_id) {
+            count ++;
+        }
+    }
+    return count / (double)buffer_events_vec.size();
+}

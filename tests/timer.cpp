@@ -1,28 +1,97 @@
-//
-// Created by clarkzjw on 1/6/23.
-//
-
-#include "util/tictoc.h"
+#include <mutex>
+#include <iostream>
 #include <unistd.h>
+#include "BS_thread_pool.hpp"
+#include <cstdio>
+#include <random>
+#include <shared_mutex>
+#include <map>
 
 using namespace std;
 
 #define PortableSleep(seconds) usleep((seconds)*1000000)
 
+std::mutex mutexes[2];
+
+int get_random_int() {
+    std::random_device rd;  // Use a random device to seed the generator
+    std::mt19937 gen(rd());  // Standard mersenne_twister_engine
+    std::uniform_int_distribution<> dis(1, 10);  // Generate random integers from 1 to 10
+
+    return dis(gen);
+}
+
+void time_consuming_function(int var, int id, std::mutex *lock) {
+    int t = get_random_int();
+    printf("path %d is selected for task %d, sleeping for %d\n", var, id, t);
+    PortableSleep(t);
+}
+
+std::shared_mutex previous_path_mutex;
+int path_id;
+
+int get_path_id() {
+    std::shared_lock read_lock(previous_path_mutex);
+    return path_id;
+}
+
+void task(int p_id, int id) {
+    time_consuming_function(p_id, id, &mutexes[path_id]);
+}
+
+BS::thread_pool task_pool(2);
+
+void schedule(int task_id) {
+    std::unique_lock p_lock(previous_path_mutex);
+    if (path_id == 0) {
+        path_id = 1;
+    } else if (path_id == 1){
+        path_id = 0;
+    }
+    printf("task %d scheduled to path %d\n", task_id, path_id);
+    task_pool.push_task(task, path_id, task_id);
+}
+
+struct Test {
+    int seg_no;
+    int value;
+};
+
+
 int main() {
-//    TicToc timer;
-//    auto start = timer.tic();
-//    PortableSleep(5);
-//    auto end = timer.tic();
+//    BS::thread_pool p(2);
+//    for (int i = 0; i < 20; i++) {
+//        p.push_task(schedule, i);
+//    }
 //
-//    cout << "time elapsed: " << epoch_to_relative_seconds(start, end) << endl;
-//    return 0;
+//    task_pool.wait_for_tasks();
+
+//    map<int,Bar>::iterator it = m.find('2');
+//    Bar b3;
+//    if(it != m.end())
+//    {
+//        //element found;
+//        b3 = it->second;
+//    }
 
 
-    auto start = Tic();
-    PortableSleep(5);
-    auto end = Tic();
+    std::map<int, struct Test> test_map;
 
-    cout << "time elapsed: " << epoch_to_relative_seconds(start, end) << endl;
+    auto it = test_map.find(1);
+    if (test_map.find(1) != test_map.end()) {
+        printf("find\n");
+    } else {
+        printf("didn't fid\n");
+    }
+
+    test_map[1] = {1, 1};
+    test_map[2] = {2, 1};
+
+    it = test_map.find(1);
+    if (test_map.find(1) != test_map.end()) {
+        printf("find\n");
+    } else {
+        printf("didn't find\n");
+    }
     return 0;
 }

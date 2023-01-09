@@ -74,6 +74,7 @@ struct PerSegmentStats {
     double rtt_delay_estimate;
     double reward;
     double average_reward_so_far;
+    double latest_avg_rtt;
 
     double gamma;
     double gamma_throughput;
@@ -179,5 +180,15 @@ double previous_buffering_time_on_path(int path_id);
 double previous_total_buffering_time();
 
 #define TPLAYER_DEBUG 1
+
+enum class Algorithm{
+    pseudo_rr,
+    rr,
+    mab,
+    unexpected,
+};
+
+typedef std::function<void(int, const struct DownloadTask, std::mutex* path_mutex)> CallbackDownload;
+double buffering_event_count_ratio_on_path(int path_id);
 
 #endif // TPLAYER_TPLAYER_H
