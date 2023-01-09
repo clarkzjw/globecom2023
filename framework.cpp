@@ -22,7 +22,7 @@ extern double initial_bitrate;
 //extern int initial_resolution;
 extern int nb_segments;
 
-#define INIT_BITRATE_LEVEL 13
+#define INIT_BITRATE_LEVEL 1
 
 extern vector<SegmentPlaybackInfo> playback_info_vec;
 int first_segment_downloaded = 0;
@@ -36,26 +36,28 @@ extern std::chrono::system_clock::time_point player_start;
 struct RewardFactor {
     double buffering_ratio;
     double previous_avg_rtt;
+    double latest_avg_rtt;
     double bitrate;
     double rtt;
     double reward;
+    int path_id;
     int seg_no;
 };
 
 vector<RewardFactor> tmp_reward_vec;
 
-int adjust_bitrate(int seg_no, int path_id, double rtt, double bitrate) {
-    double buffering_ratio = previous_buffering_time_on_path(path_id) / epoch_to_relative_seconds(player_start, Tic());
-    double previous_avg_rtt = get_previous_average_rtt(path_id, 2);
-
-    int alpha = 1;
-    int beta = 1;
-
-    double reward = alpha * (1 - buffering_ratio) + beta * (1 - rtt / previous_avg_rtt);
-    tmp_reward_vec.push_back({buffering_ratio, previous_avg_rtt, bitrate, rtt, reward, seg_no});
-
-    return 0;
-}
+//int adjust_bitrate(int seg_no, int path_id, double rtt, double bitrate) {
+//    double buffering_ratio = previous_buffering_time_on_path(path_id) / epoch_to_relative_seconds(player_start, Tic());
+//    double previous_avg_rtt = get_previous_average_rtt(path_id, 2);
+//
+//    int alpha = 1;
+//    int beta = 1;
+//
+//    double reward = alpha * (1 - buffering_ratio) + beta * (1 - rtt / previous_avg_rtt);
+//    tmp_reward_vec.push_back({buffering_ratio, previous_avg_rtt, bitrate, rtt, reward, seg_no});
+//
+//    return 0;
+//}
 
 extern map<int, map<int, double>> bitrate_mapping;
 extern vector<double> path_rtt[nb_paths];
@@ -78,7 +80,7 @@ public:
             auto *p = new BS::thread_pool(1);
             path_pool[i] = p;
         }
-        previous_path_id = 0;
+        previous_path_id = 1;
         printf("PathSelected inited\n");
     }
 
@@ -118,6 +120,7 @@ public:
             previous_path_id = 0;
         }
 
+        printf("=====segment %d assigned to path %d\n", t.seg_no, previous_path_id);
         path_pool[previous_path_id]->push_task(download_f, previous_path_id, t, nullptr);
     }
 };
@@ -141,10 +144,12 @@ void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex)
     printf("%s\n", filename.c_str());
 
     PerSegmentStats pst;
-    if (seg_stats.find(t.seg_no) != seg_stats.end()) {
+    // if this is new
+    if (seg_stats.find(t.seg_no) == seg_stats.end()) {
         pst.path_id = path_id;
         pst.resolution = t.resolution;
-        seg_stats.insert({ t.seg_no, pst });
+        seg_stats[t.seg_no] = pst;
+//        seg_stats.insert({ t.seg_no, pst });
     }
 
     struct picoquic_download_stat picoquic_st { };
@@ -178,15 +183,25 @@ void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex)
     pst.cur_rtt = seg_stats[t.seg_no].cur_rtt;
 
     // adjust bitrate
-    double buffering_ratio = previous_buffering_time_on_path(path_id) / previous_total_buffering_time();
+    double buffering_ratio = buffering_event_count_ratio_on_path(path_id);
+//    double buffering_ratio = previous_buffering_time_on_path(path_id) / previous_total_buffering_time();
     double previous_avg_rtt = get_previous_average_rtt(path_id, 2);
+    double latest_avg_rtt = get_latest_average_rtt();
 
     int alpha = 1;
     int beta = 1;
 
-    double reward = alpha * (1 - buffering_ratio) + beta * (1 - pst.cur_rtt / previous_avg_rtt);
-    tmp_reward_vec.push_back({buffering_ratio, previous_avg_rtt, bitrate_mapping[t.resolution][t.bitrate_level], pst.cur_rtt, reward, t.seg_no});
+    double reward = alpha * (1.0 / buffering_ratio) + beta * (latest_avg_rtt / pst.cur_rtt);
+    tmp_reward_vec.push_back({buffering_ratio,
+                              previous_avg_rtt,
+                              latest_avg_rtt,
+                              bitrate_mapping[t.resolution][t.bitrate_level],
+                              pst.cur_rtt,
+                              reward,
+                              path_id,
+                              t.seg_no});
 
+    seg_stats[t.seg_no].latest_avg_rtt = latest_avg_rtt;
     seg_stats[t.seg_no].average_reward_so_far = get_previous_most_recent_average_reward(5);
     seg_stats[t.seg_no].reward = reward;
 
@@ -301,13 +316,14 @@ void print_playback_info() {
     }
 }
 
-
 void print_tmp_reward_info() {
     printf("\ntmp_reward_info_vec event metrics, tmp reward event count: %zu\n", tmp_reward_vec.size());
     for (auto& tri : tmp_reward_vec) {
         cout << "seg_no: " << tri.seg_no << \
         " buffering ratio: " << tri.buffering_ratio << \
-        " previous avg rtt: " << tri.previous_avg_rtt << \
+        " path_id: " << tri.path_id << \
+        " previous avg rtt on path: " << tri.previous_avg_rtt << \
+        " latest avg rtt: " << tri.latest_avg_rtt << \
         " bitrate: " << tri.bitrate << \
         " rtt: " << tri.rtt << \
         " reward: " << tri.reward << endl;

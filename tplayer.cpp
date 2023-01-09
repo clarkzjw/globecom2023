@@ -100,7 +100,6 @@ bool check_parameters(cxxopts::Options& options, int argc, char **argv) {
     return true;
 }
 
-
 int main(int argc, char* argv[])
 {
     cxxopts::Options options("tplayer", "MPQUIC Player");

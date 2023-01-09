@@ -116,7 +116,9 @@ void main_player_mock()
 
     printf("\nbuffer_events_vec event metrics, buffer event count: %zu\n", buffer_events_vec.size());
     for (auto& be : buffer_events_vec) {
-        std::cout << "buffer event, start: " << epoch_to_relative_seconds(player_start, be.start) << ", end: "
-                  << epoch_to_relative_seconds(player_start, be.end) << endl;
+        std::cout << "buffer event, start: " << epoch_to_relative_seconds(player_start, be.start)
+        << ", end: " << epoch_to_relative_seconds(player_start, be.end)
+        << ", path: " << be.path_id
+        << endl;
     }
 }

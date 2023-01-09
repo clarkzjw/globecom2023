@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <random>
 #include <shared_mutex>
+#include <map>
 
 using namespace std;
 
@@ -51,12 +52,46 @@ void schedule(int task_id) {
     task_pool.push_task(task, path_id, task_id);
 }
 
+struct Test {
+    int seg_no;
+    int value;
+};
+
+
 int main() {
-    BS::thread_pool p(2);
-    for (int i = 0; i < 20; i++) {
-        p.push_task(schedule, i);
+//    BS::thread_pool p(2);
+//    for (int i = 0; i < 20; i++) {
+//        p.push_task(schedule, i);
+//    }
+//
+//    task_pool.wait_for_tasks();
+
+//    map<int,Bar>::iterator it = m.find('2');
+//    Bar b3;
+//    if(it != m.end())
+//    {
+//        //element found;
+//        b3 = it->second;
+//    }
+
+
+    std::map<int, struct Test> test_map;
+
+    auto it = test_map.find(1);
+    if (test_map.find(1) != test_map.end()) {
+        printf("find\n");
+    } else {
+        printf("didn't fid\n");
     }
 
-    task_pool.wait_for_tasks();
+    test_map[1] = {1, 1};
+    test_map[2] = {2, 1};
+
+    it = test_map.find(1);
+    if (test_map.find(1) != test_map.end()) {
+        printf("find\n");
+    } else {
+        printf("didn't find\n");
+    }
     return 0;
 }
