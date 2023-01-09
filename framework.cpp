@@ -253,8 +253,10 @@ void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex)
 
     int alpha = 1;
     int beta = 1;
+    int gamma = 1;
 
-    double reward = alpha * (1.0 / buffering_ratio) + beta * (latest_avg_rtt / pst.cur_rtt);
+    double reward = alpha * (1.0 / buffering_ratio) + beta * (latest_avg_rtt / pst.cur_rtt) + gamma * (cur_bitrate / get_maximal_bitrate());
+
     tmp_reward_vec.push_back({buffering_ratio,
                               previous_avg_rtt,
                               latest_avg_rtt,

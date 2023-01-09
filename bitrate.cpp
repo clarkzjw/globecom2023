@@ -98,6 +98,10 @@ double initial_bitrate;
 //int initial_resolution = 720;
 //int initial_bitrate_level = 13;
 
+double get_maximal_bitrate() {
+    return bitrate_mapping[1080][1];
+}
+
 double get_bitrate_from_bitrate_level(int level) {
     for (auto const& [resolution, bitrate_map] : bitrate_mapping) {
         for (auto const& [bitrate_level, bitrate_value] : bitrate_map) {

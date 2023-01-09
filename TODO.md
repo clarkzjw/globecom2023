@@ -1,3 +1,8 @@
+# TODO
+
++ 20230108:
+  + Bitrate adaptation based on buffering ratio, RTT and bitrate ratio
+
 # Setup
 
 Multipath: Two links
