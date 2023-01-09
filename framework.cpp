@@ -59,6 +59,11 @@ vector<RewardFactor> tmp_reward_vec;
 //    return 0;
 //}
 
+//int adjust_bitrate(int path_id) {
+//
+//}
+
+
 extern map<int, map<int, double>> bitrate_mapping;
 extern vector<double> path_rtt[nb_paths];
 extern vector<struct reward_item> history_rewards;
@@ -318,15 +323,21 @@ void print_playback_info() {
 
 void print_tmp_reward_info() {
     printf("\ntmp_reward_info_vec event metrics, tmp reward event count: %zu\n", tmp_reward_vec.size());
-    for (auto& tri : tmp_reward_vec) {
-        cout << "seg_no: " << tri.seg_no << \
-        " buffering ratio: " << tri.buffering_ratio << \
-        " path_id: " << tri.path_id << \
-        " previous avg rtt on path: " << tri.previous_avg_rtt << \
-        " latest avg rtt: " << tri.latest_avg_rtt << \
-        " bitrate: " << tri.bitrate << \
-        " rtt: " << tri.rtt << \
-        " reward: " << tri.reward << endl;
+
+    for (int i = 0; i < nb_paths; i++) {
+        for (auto& tri : tmp_reward_vec) {
+            if (tri.path_id == i) {
+                cout << "seg_no: " << tri.seg_no << \
+                        " buffering ratio: " << tri.buffering_ratio << \
+                        " path_id: " << tri.path_id << \
+                        " previous avg rtt on path: " << tri.previous_avg_rtt << \
+                        " latest avg rtt: " << tri.latest_avg_rtt << \
+                        " bitrate: " << tri.bitrate << \
+                        " rtt: " << tri.rtt << \
+                        " reward: " << tri.reward << endl;
+            }
+        }
+        printf("\n\n");
     }
 }
 
