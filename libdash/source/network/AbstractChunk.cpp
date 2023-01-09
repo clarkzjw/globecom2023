@@ -69,7 +69,7 @@ bool AbstractChunk::StartDownload()
 }
 bool AbstractChunk::StartQUICDownload()
 {
-    printf("URL: %s, Path: %s, Host: %s, Port: %d\n", this->AbsoluteURI().c_str(), this->Path().c_str(), this->Host().c_str(), this->Port());
+    printf("URL: %s, Path: %s, Host: %s, Port: %zu\n", this->AbsoluteURI().c_str(), this->Path().c_str(), this->Host().c_str(), this->Port());
     if (this->stateManager.State() != NOT_STARTED)
         return false;
 
@@ -82,7 +82,7 @@ bool AbstractChunk::StartQUICDownload()
 
     return true;
 }
-bool AbstractChunk::StartDownload(IConnection* connection)
+bool AbstractChunk::StartDownload(IConnection* conn)
 {
     if (this->stateManager.State() != NOT_STARTED)
         return false;
@@ -93,7 +93,7 @@ bool AbstractChunk::StartDownload(IConnection* connection)
         return false;
 
     this->stateManager.State(IN_PROGRESS);
-    this->connection = connection;
+    this->connection = conn;
 
     return true;
 }

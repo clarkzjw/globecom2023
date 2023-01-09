@@ -16,7 +16,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH} ./cmake)
 set(CMAKE_CXX_FLAGS "-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS")  # Second macro definition is required to fix the error: ‘UINT32_MAX’ was not declared in this scope
 
-#add_compile_options(-Wall -Wextra)
+add_compile_options(-Wall -Wno-unknown-pragmas -Wno-reorder -Wno-sign-compare -Wno-unused-variable)
 add_compile_options(-Wpedantic -Werror)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -40,7 +40,6 @@ message(STATUS "OPENSSL_LIBRARIES: ${OPENSSL_LIBRARIES}")
 find_package(LibXml2 REQUIRED)
 message(STATUS "LIBXML2_INCLUDE_DIR: ${LIBXML2_INCLUDE_DIR}")
 
-find_package(ZLIB REQUIRED)
 find_package(CURL REQUIRED)
 find_package(Eigen3 REQUIRED)
 message(STATUS "EIGEN3_INCLUDE_DIR: ${EIGEN3_INCLUDE_DIR}")
