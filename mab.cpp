@@ -37,7 +37,7 @@ extern vector<struct reward_item> history_rewards;
 vector<queue<DownloadTask>> path_tasks(2);
 vector<mutex> path_mutex(2);
 
-
+#if 0
 void mab_path_downloader(int path_index)
 {
     int layers = (int)urls.size();
@@ -96,6 +96,7 @@ void mab_path_downloader(int path_index)
         }
     }
 }
+#endif
 
 extern double initial_bitrate;
 //extern int initial_resolution;
@@ -138,7 +139,8 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
     free(config);
 
     cout << "download ret = " << ret << endl;
-    if (!seg_stats.contains(t.seg_no)) {
+//    if (!seg_stats.contains(t.seg_no)) {
+    if (seg_stats.find(t.seg_no) == seg_stats.end()) {
 //        for (int j = 0; j < cur_layers; j++) {
 //            string tmp = urls[j][t.seg_no];
 //            tmp = std::regex_replace(tmp, std::regex("1080"), to_string(cur_resolution));
@@ -314,14 +316,15 @@ void multipath_mab()
 
     std::string datafile = "mab_ts.dat";
 
-    ChStreamOutAsciiFile mdatafile(datafile.c_str());
+
+//    ChStreamOutAsciiFile mdatafile(datafile.c_str());
 
     printf("\nper segment download metrics\n");
     for (auto& [seg_no, value] : seg_stats) {
         value.download_time = double(std::chrono::duration_cast<std::chrono::microseconds>(value.end - value.start).count()) / 1e6;
 //        value.download_speed = value.file_size / value.download_time / 1000000.0 * 8.0;
 
-        mdatafile << seg_no << ", " << value.download_speed << ", " << value.reward << ", " << value.bitrate << ", " << value.gamma_rtt << "\n";
+//        mdatafile << seg_no << ", " << value.download_speed << ", " << value.reward << ", " << value.bitrate << ", " << value.gamma_rtt << "\n";
         std::cout << seg_no << "="
                   << " used: " << value.download_time << " seconds,"
                   << " starts at " << epoch_to_relative_seconds(playback_start, value.start)
@@ -356,6 +359,7 @@ void multipath_mab()
 //    mplot_throughput.Plot(datafile, 1, 2, "throughput", " with linespoints");
 //    printf("plot saved to %s\n", plot_png.c_str());
 
+#if 0
     ChGnuPlot mplot_reward;
     string plot_reward_png = datafile + "-reward.png";
     mplot_reward.SetGrid();
@@ -364,4 +368,5 @@ void multipath_mab()
     mplot_reward.OutputPNG(plot_reward_png);
     mplot_reward.Plot(datafile, 1, 3, "rewards", " with linespoints");
     printf("plot saved to %s\n", plot_reward_png.c_str());
+#endif
 }

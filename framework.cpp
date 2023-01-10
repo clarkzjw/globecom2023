@@ -116,7 +116,7 @@ public:
     void minrtt_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f) {
 
         auto get_minrtt_path_id = [this]() {
-            double minrtt = INT_MAX;
+            double minrtt = INT32_MAX;
             int path_id = 0;
             for (int i = 0; i < nb_paths; i++) {
                 // if there's an empty path available, return it regardless the rtt

@@ -3,6 +3,7 @@
 //
 #include "tplayer.h"
 
+#if 0
 /*
  * minRTT
  * */
@@ -87,3 +88,5 @@ void multipath_picoquic_minRTT()
                   << " total filesize " << value.file_size << " bytes" << endl;
     }
 }
+
+#endif

@@ -4,6 +4,7 @@
 
 #include "tplayer.h"
 
+#if 0
 /*
  * Round Robin
  * */
@@ -145,3 +146,4 @@ void multipath_round_robin()
                   << " total filesize " << value.file_size << " bytes" << endl;
     }
 }
+#endif

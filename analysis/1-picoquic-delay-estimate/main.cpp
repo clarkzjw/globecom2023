@@ -49,7 +49,7 @@ std::vector<double> v_throughput;
 void sequential_download()
 {
     std::string datafile = "analysis/1-picoquic-delay-estimate/picoquic_estimate_delay_throughput_big.dat";
-    ChStreamOutAsciiFile mdatafile(datafile.c_str());
+//    ChStreamOutAsciiFile mdatafile(datafile.c_str());
 
     int path_id = 0;
     printf("sequential download\n");
@@ -75,7 +75,7 @@ void sequential_download()
             printf("estimated delay: %f\n", delay);
 
             double throughput = picoquic_st.throughput;
-            mdatafile << count << ", " << i << ", " << delay << ", " << throughput << "\n";
+//            mdatafile << count << ", " << i << ", " << delay << ", " << throughput << "\n";
 
             free(quic_config);
             count++;
@@ -97,6 +97,7 @@ void sequential_download()
 //    printf("max delay: %f\n", *std::max_element(v_delay.begin(), v_delay.end()));
 //    printf("min delay: %f\n", *std::min_element(v_delay.begin(), v_delay.end()));
 
+#if 0
     ChGnuPlot mplot;
     string plot_png = datafile + "-picoquic_estimated_throughput_big.png";
     mplot.SetGrid();
@@ -104,6 +105,7 @@ void sequential_download()
     mplot.SetLabelY("picoquic estimated throughput");
     mplot.OutputPNG(plot_png);
     mplot.Plot(datafile, 2, 4, "picoquic estimated throughput big file", " with points");
+#endif
 
     printf("average throughput: %f\n", std::accumulate(v_throughput.begin(), v_throughput.end(), 0.0) / v_throughput.size());
     printf("max throughput: %f\n", *std::max_element(v_throughput.begin(), v_throughput.end()));

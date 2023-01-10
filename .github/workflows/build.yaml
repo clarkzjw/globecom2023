@@ -42,20 +42,20 @@ jobs:
           make -j`nproc --all`
           sudo make install
 
-      - name: Checkout Chrono
-        uses: actions/checkout@v3
-        with:
-          repository: 'projectchrono/chrono'
-          path: 'chrono'
-
-      - name: Setup Chrono
-        run: |
-          cd $GITHUB_WORKSPACE/chrono
-          mkdir cmakebuild
-          cd cmakebuild
-          cmake -DENABLE_MODULE_POSTPROCESS=on ..
-          make -j`nproc --all`
-          sudo make install
+#      - name: Checkout Chrono
+#        uses: actions/checkout@v3
+#        with:
+#          repository: 'projectchrono/chrono'
+#          path: 'chrono'
+#
+#      - name: Setup Chrono
+#        run: |
+#          cd $GITHUB_WORKSPACE/chrono
+#          mkdir cmakebuild
+#          cd cmakebuild
+#          cmake -DENABLE_MODULE_POSTPROCESS=on ..
+#          make -j`nproc --all`
+#          sudo make install
 
       - name: Checkout player
         uses: actions/checkout@v3

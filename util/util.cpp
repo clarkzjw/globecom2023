@@ -43,6 +43,6 @@ std::chrono::system_clock::time_point Tic() {
 }
 
 std::string current_date_and_time() {
-    auto now = time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
+    auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
     return date::format("%Y%m%d-%H%M%S", now);
 }

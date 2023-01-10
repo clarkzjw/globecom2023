@@ -11,12 +11,12 @@ cmake_policy(SET CMP0071 NEW)
 project(player C CXX)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH} ./cmake)
-set(CMAKE_CXX_FLAGS "-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS")  # Second macro definition is required to fix the error: ‘UINT32_MAX’ was not declared in this scope
+#set(CMAKE_CXX_FLAGS "-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS")  # Second macro definition is required to fix the error: ‘UINT32_MAX’ was not declared in this scope
 
-add_compile_options(-Wall -Wno-unknown-pragmas -Wno-reorder -Wno-sign-compare -Wno-unused-variable)
+#add_compile_options(-Wall -Wno-unknown-pragmas -Wno-reorder -Wno-sign-compare -Wno-unused-variable)
 add_compile_options(-Wpedantic -Werror)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -44,13 +44,25 @@ find_package(CURL REQUIRED)
 find_package(Eigen3 REQUIRED)
 message(STATUS "EIGEN3_INCLUDE_DIR: ${EIGEN3_INCLUDE_DIR}")
 
-message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
-LIST(APPEND CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}/lib")
-find_package(Chrono COMPONENTS Postprocess CONFIG)
-if (NOT Chrono_FOUND)
-    message("Could not find Chrono or one of its required modules")
-    return()
+#message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+#LIST(APPEND CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}/lib")
+#find_package(Chrono COMPONENTS Postprocess CONFIG)
+#if (NOT Chrono_FOUND)
+#    message("Could not find Chrono or one of its required modules")
+#    return()
+#endif()
+
+include(FetchContent)
+FetchContent_Declare(matplotplusplus
+        GIT_REPOSITORY https://github.com/alandefreitas/matplotplusplus
+        GIT_TAG origin/master)
+
+FetchContent_GetProperties(matplotplusplus)
+if(NOT matplotplusplus_POPULATED)
+    FetchContent_Populate(matplotplusplus)
+    add_subdirectory(${matplotplusplus_SOURCE_DIR} ${matplotplusplus_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
+
 
 file(GLOB_RECURSE tplayer_SOURCE
         ${CMAKE_CURRENT_SOURCE_DIR}
@@ -133,6 +145,7 @@ add_executable(starlink_loss
         ${starlink_loss_SOURCE})
 
 target_link_libraries(tplayer_test
+        PUBLIC matplot
         ${CHRONO_LIBRARIES}
         ${CURL_LIBRARIES}
         ${ZLIB_LIBRARIES}
@@ -174,6 +187,7 @@ target_link_options(tplayer PUBLIC ${CHRONO_LINKER_FLAGS})
 
 # For the linker
 target_link_libraries(tplayer
+        PUBLIC matplot
         ${CHRONO_LIBRARIES}
         ${CURL_LIBRARIES}
         ${ZLIB_LIBRARIES}
