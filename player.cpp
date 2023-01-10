@@ -107,7 +107,7 @@ void main_player_mock()
                 be.path_id = seg_stats[nb_played_segments].path_id;
 
                 buffer_events_vec.push_back(be);
-                printf("######## New buffer_events_vec event added\n");
+                printf("######## New buffer_events_vec event added at %ld\n", be.start.time_since_epoch().count());
             } else {
                 continue;
             }

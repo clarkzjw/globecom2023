@@ -227,7 +227,7 @@ void mab_path_downloader_new(int path_id, struct DownloadTask t, Simulator<Round
 
         seg_stats.insert({ t.seg_no, pst });
     }
-    sim.set_reward(pst.reward, 0, path_id);
+    sim.set_reward(pst.reward, path_id);
 }
 
 
@@ -303,6 +303,17 @@ void multipath_mab_path_scheduler()
     player_buffer_map[nb_segments] = ps;
 }
 
+
+void PathSelector::mab_scheduler(const DownloadTask &t, const CallbackDownload &download_f) {
+    // per segment path decision
+    // since we only have on policy in PolicyPtr, pass index 0 in `select_next_path`
+    int path_id = sim->select_next_path(0);
+
+    printf("=====segment %d assigned to path %d\n", t.seg_no, path_id);
+    path_pool[path_id]->push_task(download_f, path_id, t, nullptr, &mab_set_reward_callback);
+}
+
+
 void multipath_mab()
 {
     TicToc global_timer;
@@ -315,9 +326,6 @@ void multipath_mab()
     thread_playback.join();
 
     std::string datafile = "mab_ts.dat";
-
-
-//    ChStreamOutAsciiFile mdatafile(datafile.c_str());
 
     printf("\nper segment download metrics\n");
     for (auto& [seg_no, value] : seg_stats) {

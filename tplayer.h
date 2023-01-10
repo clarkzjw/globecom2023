@@ -16,22 +16,28 @@
 #include <queue>
 #include <thread>
 #include <limits>
-
-//#include "chrono/core/ChLog.h"
-//#include "chrono/core/ChGlobal.h"
-//#include "chrono/motion_functions/ChFunction_Recorder.h"
-//#include "chrono/motion_functions/ChFunction_Sine.h"
-//#include "chrono_postprocess/ChGnuPlot.h"
-//#include "chrono_thirdparty/filesystem/path.h"
+#include <shared_mutex>
 
 #include "BS_thread_pool.hpp"
 #include "tictoc.h"
 
-using namespace std;
-//using namespace ::chrono;
-//using namespace ::chrono::postprocess;
+#include "arm/arm.hpp"
+#include "arm/arm_bernoulli.hpp"
+#include "arm/arm_normal.hpp"
+#include "bandit/simulator.hpp"
+#include "bandit/util.hpp"
+#include "policy/policy.hpp"
+#include "policy/policy_dmed.hpp"
+#include "policy/policy_egreedy.hpp"
+#include "policy/policy_klucb.hpp"
+#include "policy/policy_moss.hpp"
+#include "policy/policy_random.hpp"
+#include "policy/policy_ts.hpp"
+#include "policy/policy_ucb.hpp"
+#include "policy/policy_ucbv.hpp"
 
-//typedef std::chrono::system_clock tic_clock;
+using namespace std;
+
 #define PortableSleep(seconds) usleep((seconds)*1000000)
 
 struct DownloadTask {
@@ -189,7 +195,8 @@ enum class Algorithm{
     unexpected,
 };
 
-typedef std::function<void(int, const struct DownloadTask, std::mutex* path_mutex)> CallbackDownload;
+typedef std::function<void(double, int)> set_reward_callback;
+typedef std::function<void(int, const struct DownloadTask, std::mutex* path_mutex, set_reward_callback* func)> CallbackDownload;
 double buffering_event_count_ratio_on_path(int path_id);
 double get_maximal_bitrate();
 std::string current_date_and_time();
@@ -209,4 +216,64 @@ typedef struct RewardFactor {
 } RewardFactor;
 
 extern map<int, RewardFactor> tmp_reward_map;
+
+extern vector<double> path_rtt[nb_paths];
+
+using namespace bandit;
+
+class PathSelector {
+private:
+    std::mutex path_mutexes[nb_paths];
+//    std::map<int, BS::thread_pool*> path_pool;
+    mutable std::shared_mutex path_mutex;
+    int previous_path_id;
+
+
+
+public:
+    BS::thread_pool* path_pool[nb_paths]{};
+
+    // TODO
+    map<Algorithm, CallbackDownload> algorithm_map;
+
+    double epsilon = 0.1;
+    const uint K = 2;
+    const uint P = 1;
+
+    vector<ArmPtr> arms;
+    vector<PolicyPtr> policies;
+    Simulator<RoundwiseLog> *sim{};
+
+    set_reward_callback mab_set_reward_callback = [this](double reward, int path_id) {
+        sim->set_reward(reward, path_id);
+    };
+
+    PathSelector() {
+        for (int i = 0; i < nb_paths; i++) {
+            auto *p = new BS::thread_pool(1);
+            path_pool[i] = p;
+        }
+        previous_path_id = 1;
+
+        arms.push_back(ArmPtr(new BernoulliArm(0.05)));
+        arms.push_back(ArmPtr(new BernoulliArm(0.1)));
+        policies.push_back(PolicyPtr(new EGreedyPolicy(K, epsilon)));
+
+        sim = new Simulator<RoundwiseLog>(arms, policies);
+
+        printf("PathSelected inited\n");
+    }
+
+    ~PathSelector() {
+        for (int i = 0; i < nb_paths; i++) {
+            path_pool[i]->wait_for_tasks();
+        }
+    }
+
+    void pseudo_roundrobin_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f);
+    void roundrobin_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f);
+    void minrtt_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f);
+    void mab_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f);
+};
+
 #endif // TPLAYER_TPLAYER_H

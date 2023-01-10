@@ -37,22 +37,22 @@ public:
             std::cout << policies[p]->toString() << std::endl;
         }
     }
-    void run(Log& log, const uint T)
-    {
-        log.startRun();
-        for (uint t = 1; t <= T; ++t) {
-            for (uint p = 0; p < policies.size(); ++p) {
-                execSingleRound(log, p, t);
-            }
-        }
-    }
-    void decide(Log& log)
-    {
-        log.startRun();
-        for (uint p = 0; p < policies.size(); ++p) {
-            execOneRound(log, p);
-        }
-    }
+//    void run(Log& log, const uint T)
+//    {
+//        log.startRun();
+//        for (uint t = 1; t <= T; ++t) {
+//            for (uint p = 0; p < policies.size(); ++p) {
+//                execSingleRound(log, p, t);
+//            }
+//        }
+//    }
+//    void decide(Log& log)
+//    {
+//        log.startRun();
+//        for (uint p = 0; p < policies.size(); ++p) {
+//            execOneRound(log, p);
+//        }
+//    }
     int select_next_path(uint p) {
         int arm = policies[p]->selectNextArm();
 //        double reward = arms[arm]->pull();
@@ -63,33 +63,33 @@ public:
 
         return arm;
     }
-    void set_reward(double reward, uint p, int arm_index) {
-        policies[p]->updateState(arm_index, reward);
+    void set_reward(double reward, int arm_index) {
+        policies[0]->updateState(arm_index, reward);
     }
-    void execSingleRound(Log& log, uint p, uint t)
-    {
-        int arm = policies[p]->selectNextArm();
-        double reward = arms[arm]->pull();
-        policies[p]->updateState(arm, reward);
-        double optimalExpectedReward = arms[optimalArm]->getExpectedReward();
-        double armExpectedReward = arms[arm]->getExpectedReward();
-        double regret = optimalExpectedReward - armExpectedReward;
-        std::cout << "optimal arm: " << optimalArm << " optimal reward: " << optimalExpectedReward << " arm: " << arm << \
-        " arm expected reward: " << armExpectedReward << " regret: " << regret << " reward: " << reward << std::endl;
-        log.record(p, t, arm, reward, regret);
-    }
-    void execOneRound(Log& log, uint p)
-    {
-        uint arm = policies[p]->selectNextArm();
-        double reward = arms[arm]->pull();
-        policies[p]->updateState(arm, reward);
-        double optimalExpectedReward = arms[optimalArm]->getExpectedReward();
-        double armExpectedReward = arms[arm]->getExpectedReward();
-        double regret = optimalExpectedReward - armExpectedReward;
-        std::cout << "optimal arm: " << optimalArm << " optimal reward: " << optimalExpectedReward << " arm: " << arm << \
-        " arm expected reward: " << armExpectedReward << " regret: " << regret << " reward: " << reward << std::endl;
-        log.record(p, 1, arm, reward, regret);
-    }
+//    void execSingleRound(Log& log, uint p, uint t)
+//    {
+//        int arm = policies[p]->selectNextArm();
+//        double reward = arms[arm]->pull();
+//        policies[p]->updateState(arm, reward);
+//        double optimalExpectedReward = arms[optimalArm]->getExpectedReward();
+//        double armExpectedReward = arms[arm]->getExpectedReward();
+//        double regret = optimalExpectedReward - armExpectedReward;
+//        std::cout << "optimal arm: " << optimalArm << " optimal reward: " << optimalExpectedReward << " arm: " << arm << \
+//        " arm expected reward: " << armExpectedReward << " regret: " << regret << " reward: " << reward << std::endl;
+//        log.record(p, t, arm, reward, regret);
+//    }
+//    void execOneRound(Log& log, uint p)
+//    {
+//        uint arm = policies[p]->selectNextArm();
+//        double reward = arms[arm]->pull();
+//        policies[p]->updateState(arm, reward);
+//        double optimalExpectedReward = arms[optimalArm]->getExpectedReward();
+//        double armExpectedReward = arms[arm]->getExpectedReward();
+//        double regret = optimalExpectedReward - armExpectedReward;
+//        std::cout << "optimal arm: " << optimalArm << " optimal reward: " << optimalExpectedReward << " arm: " << arm << \
+//        " arm expected reward: " << armExpectedReward << " regret: " << regret << " reward: " << reward << std::endl;
+//        log.record(p, 1, arm, reward, regret);
+//    }
 };
 
 } // namespace

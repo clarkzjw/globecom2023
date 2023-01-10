@@ -147,3 +147,36 @@ void multipath_round_robin()
     }
 }
 #endif
+
+/*
+     * Pseudo Round Robin Scheduling
+     * the task is scheduled to the path which has the lowest index and is also available
+     * */
+void PathSelector::pseudo_roundrobin_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f)
+{
+    int done = 0;
+    while (true) {
+        for (int path_id = 0; path_id < nb_paths; path_id++) {
+            if (path_mutexes[path_id].try_lock()) {
+                path_pool[path_id]->push_task(download_f, path_id, t, &path_mutexes[path_id], nullptr);
+                done = 1;
+                break;
+            }
+        }
+        if (done) {
+            break;
+        }
+    }
+}
+
+void PathSelector::roundrobin_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f)
+{
+    std::unique_lock p_lock(path_mutex);
+    // reverse previous_path_id
+    // i.e., 0->1, 1->0
+    // only valid for two paths
+    previous_path_id = previous_path_id ^ 1;
+
+    printf("=====segment %d assigned to path %d\n", t.seg_no, previous_path_id);
+    path_pool[previous_path_id]->push_task(download_f, previous_path_id, t, nullptr, nullptr);
+}

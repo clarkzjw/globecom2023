@@ -38,133 +38,15 @@ extern std::chrono::system_clock::time_point player_start;
 map<int, RewardFactor> tmp_reward_map;
 
 extern map<int, map<int, double>> bitrate_mapping;
-extern vector<double> path_rtt[nb_paths];
+
 extern vector<struct reward_item> history_rewards;
 
-
-
-
-class PathSelector {
-private:
-    std::mutex path_mutexes[nb_paths];
-//    std::map<int, BS::thread_pool*> path_pool;
-    mutable std::shared_mutex path_mutex;
-    int previous_path_id;
-
-public:
-    BS::thread_pool* path_pool[nb_paths]{};
-
-    // TODO
-    map<Algorithm, CallbackDownload> algorithm_map;
-
-    PathSelector() {
-        for (int i = 0; i < nb_paths; i++) {
-            auto *p = new BS::thread_pool(1);
-            path_pool[i] = p;
-        }
-        previous_path_id = 1;
-
-        printf("PathSelected inited\n");
-    }
-
-    ~PathSelector() {
-        for (int i = 0; i < nb_paths; i++) {
-            path_pool[i]->wait_for_tasks();
-        }
-    }
-
-
-    /*
-     * Pseudo Round Robin Scheduling
-     * the task is scheduled to the path which has the lowest index and is also available
-     * */
-    void pseudo_roundrobin_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f)
-    {
-        int done = 0;
-        while (true) {
-            for (int path_id = 0; path_id < nb_paths; path_id++) {
-                if (path_mutexes[path_id].try_lock()) {
-                    path_pool[path_id]->push_task(download_f, path_id, t, &path_mutexes[path_id]);
-                    done = 1;
-                    break;
-                }
-            }
-            if (done) {
-                break;
-            }
-        }
-    }
-
-    void roundrobin_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f)
-    {
-        std::unique_lock p_lock(path_mutex);
-        // reverse previous_path_id
-        // i.e., 0->1, 1->0
-        // only valid for two paths
-        previous_path_id = previous_path_id ^ 1;
-
-        printf("=====segment %d assigned to path %d\n", t.seg_no, previous_path_id);
-        path_pool[previous_path_id]->push_task(download_f, previous_path_id, t, nullptr);
-    }
-
-
-    /*
-     * Min RTT Scheduling
-     * 1. If there's an empty path available, choose it regardless of the RTT
-     * 2. If all paths are occupied, choose one of them based on previous RTT measurement
-     * */
-    void minrtt_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f) {
-
-        auto get_minrtt_path_id = [this]() {
-            double minrtt = INT32_MAX;
-            int path_id = 0;
-            for (int i = 0; i < nb_paths; i++) {
-                // if there's an empty path available, return it regardless the rtt
-                if (path_pool[i]->get_tasks_total() == 0) {
-                    return i;
-                }
-
-                if (!path_rtt[i].empty()) {
-                    double v = path_rtt[i][path_rtt[i].size() - 1];
-                    if (v < minrtt) {
-                        minrtt = v;
-                        path_id = i;
-                    }
-                } else if (path_rtt[i].empty() == true && path_pool[i]->get_tasks_total() == 0) {
-                    // if path_rtt[i] is empty, which means it hasn't been selected and tried before
-                    // so use it for exploration
-                    return i;
-                } else {
-                    // there's no RTT measurement on this path yet
-                    // but there's already tasks assigned to this path but not finished yet
-                    // re-decide after N seconds
-                    return -1;
-                }
-            }
-            return path_id;
-        };
-
-        int path_id;
-        while (true) {
-            path_id = get_minrtt_path_id();
-            if (path_id == -1) {
-                PortableSleep(0.1);
-                continue;
-            } else {
-                break;
-            }
-        }
-
-        printf("=====segment %d assigned to path %d\n", t.seg_no, path_id);
-        path_pool[path_id]->push_task(download_f, path_id, t, nullptr);
-    }
-
-};
+extern std::vector<BufferEvent> buffer_events_vec;
 
 /*
  * Downloader
  * */
-void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex)
+void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex, set_reward_callback* func)
 {
     string if_name;
     if (path_id == 0) {
@@ -182,6 +64,9 @@ void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex)
     PerSegmentStats pst;
     // if this is new
     seg_stats[t.seg_no].path_id = path_id;
+    buffer_events_vec[0].start = Tic();
+    printf("+=+=+=+=+=+= first seg_stats inserted at %ld\n", buffer_events_vec[0].start.time_since_epoch().count());
+
     seg_stats[t.seg_no].resolution = t.resolution;
 
     struct picoquic_download_stat picoquic_st { };
@@ -225,7 +110,12 @@ void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex)
     int beta = 1;
     int gamma = 1;
 
-    double reward = alpha * (1.0 / buffering_ratio) + beta * (latest_avg_rtt / pst.cur_rtt) + gamma * (cur_bitrate / get_maximal_bitrate());
+    double reward = 0;
+    if (buffering_ratio != 0) {
+        reward = alpha * (1.0 / buffering_ratio) + beta * (latest_avg_rtt / pst.cur_rtt) + gamma * (cur_bitrate / get_maximal_bitrate());
+    } else {
+//        reward =
+    }
 
     tmp_reward_map[t.seg_no] = {buffering_ratio,
                                 previous_avg_rtt,
@@ -253,10 +143,13 @@ void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex)
     if (path_mutex != nullptr) {
         path_mutex->unlock();
     }
+    if (func) {
+        printf("setting reward for mab simulator, %f on path %d\n", reward, path_id);
+        (*func)(reward, path_id);
+    }
 }
 
 extern string alg;
-
 
 
 void main_downloader() {
@@ -278,12 +171,13 @@ void main_downloader() {
 
 //    path_selector.pseudo_roundrobin_scheduler(first_seg, download);
 //    path_selector.roundrobin_scheduler(first_seg, download);
-    path_selector.minrtt_scheduler(first_seg, download);
+//    path_selector.minrtt_scheduler(first_seg, download);
+    path_selector.mab_scheduler(first_seg, download);
 
     auto check_download_buffer_full = [](PathSelector& path_selector) {
         int total = 0;
         for (int i = 0; i < nb_paths; i++) {
-            total += path_selector.path_pool[i]->get_tasks_total();
+            total += (int)path_selector.path_pool[i]->get_tasks_total();
         }
         if (total > nb_paths) {
             return true;
@@ -321,7 +215,9 @@ void main_downloader() {
 
 //        path_selector.pseudo_roundrobin_scheduler(t, download);
 //        path_selector.roundrobin_scheduler(t, download);
-        path_selector.minrtt_scheduler(t, download);
+//        path_selector.minrtt_scheduler(t, download);
+        path_selector.mab_scheduler(t, download);
+
         i++;
     }
 

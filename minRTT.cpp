@@ -90,3 +90,55 @@ void multipath_picoquic_minRTT()
 }
 
 #endif
+
+
+/*
+     * Min RTT Scheduling
+     * 1. If there's an empty path available, choose it regardless of the RTT
+     * 2. If all paths are occupied, choose one of them based on previous RTT measurement
+     * */
+void PathSelector::minrtt_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f) {
+
+    auto get_minrtt_path_id = [this]() {
+        double minrtt = INT32_MAX;
+        int path_id = 0;
+        for (int i = 0; i < nb_paths; i++) {
+            // if there's an empty path available, return it regardless the rtt
+            if (path_pool[i]->get_tasks_total() == 0) {
+                return i;
+            }
+
+            if (!path_rtt[i].empty()) {
+                double v = path_rtt[i][path_rtt[i].size() - 1];
+                if (v < minrtt) {
+                    minrtt = v;
+                    path_id = i;
+                }
+            } else if (path_rtt[i].empty() == true && path_pool[i]->get_tasks_total() == 0) {
+                // if path_rtt[i] is empty, which means it hasn't been selected and tried before
+                // so use it for exploration
+                return i;
+            } else {
+                // there's no RTT measurement on this path yet
+                // but there's already tasks assigned to this path but not finished yet
+                // re-decide after N seconds
+                return -1;
+            }
+        }
+        return path_id;
+    };
+
+    int path_id;
+    while (true) {
+        path_id = get_minrtt_path_id();
+        if (path_id == -1) {
+            PortableSleep(0.1);
+            continue;
+        } else {
+            break;
+        }
+    }
+
+    printf("=====segment %d assigned to path %d\n", t.seg_no, path_id);
+    path_pool[path_id]->push_task(download_f, path_id, t, nullptr, nullptr);
+}
