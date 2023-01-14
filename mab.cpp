@@ -303,17 +303,31 @@ void multipath_mab_path_scheduler()
     player_buffer_map[nb_segments] = ps;
 }
 
+extern vector<BufferEvent> buffer_events_vec;
+extern std::thread *thread_playback;
+extern std::chrono::system_clock::time_point player_start;
 
 void PathSelector::mab_scheduler(const DownloadTask &t, const CallbackDownload &download_f) {
     // per segment path decision
     // since we only have on policy in PolicyPtr, pass index 0 in `select_next_path`
     int path_id = sim->select_next_path(0);
 
+    if  (t.seg_no == 1) {
+        struct BufferEvent be { };
+
+        be.start = player_start;
+        be.path_id = path_id;
+
+        buffer_events_vec.push_back(be);
+
+        thread_playback = new std::thread(main_player_mock);
+    }
+
     printf("=====segment %d assigned to path %d\n", t.seg_no, path_id);
     path_pool[path_id]->push_task(download_f, path_id, t, nullptr, &mab_set_reward_callback);
 }
 
-
+#if 0
 void multipath_mab()
 {
     TicToc global_timer;
@@ -378,3 +392,4 @@ void multipath_mab()
     printf("plot saved to %s\n", plot_reward_png.c_str());
 #endif
 }
+#endif

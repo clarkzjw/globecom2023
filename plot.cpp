@@ -53,7 +53,7 @@ int save_metrics_to_file() {
 
     for (int i = 0; i < seg_stats.size(); i++) {
         int seg_no = i + 1;
-        double buffering_ratio = tmp_reward_map[i+1].buffering_ratio;
+        double buffering_ratio = 1.0 / tmp_reward_map[i+1].buffering_ratio;
         int path_id = tmp_reward_map[i+1].path_id;
         pm.rtt.push_back(tmp_reward_map[i+1].rtt);
         double throughput = seg_stats[i+1].download_speed;

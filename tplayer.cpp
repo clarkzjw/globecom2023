@@ -41,7 +41,7 @@ string local_mpd_url = "../dataset/BigBuckBunny/mpd/stream.mpd";
 auto level = 3; // 0, 1, 2, 3
 
 // max available segments: 299
-int nb_segments = 10;
+int nb_segments = 50;
 
 extern double initial_bitrate;
 //extern int initial_resolution;

@@ -9,9 +9,6 @@ vector<double> path_throughput[nb_paths];
 
 vector<struct reward_item> history_rewards;
 
-
-
-
 double get_latest_total_throughput() {
     double throughput = 0;
     for (auto & path : path_throughput) {
@@ -42,12 +39,28 @@ double get_previous_average_throughput(int path_id) {
 
 double get_latest_average_rtt() {
     double rtt = 0;
+    double non_empty_rtt_path = 0;
     for (auto & path : path_rtt) {
         if (!path.empty()) {
+            non_empty_rtt_path++;
             rtt += path[path.size() - 1];
         }
     }
-    return rtt / nb_paths;
+    return rtt / non_empty_rtt_path;
+}
+
+double get_max_rtt() {
+    double max_rtt = -1;
+    for (auto& path : path_rtt) {
+        if (!path.empty()) {
+            for (auto& rtt : path) {
+                if (rtt > max_rtt) {
+                    max_rtt = rtt;
+                }
+            }
+        }
+    }
+    return max_rtt;
 }
 
 double get_previous_average_rtt(int path_id, int nb_segments) {

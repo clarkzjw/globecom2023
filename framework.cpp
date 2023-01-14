@@ -64,9 +64,7 @@ void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex,
     PerSegmentStats pst;
     // if this is new
     seg_stats[t.seg_no].path_id = path_id;
-    buffer_events_vec[0].start = Tic();
     printf("+=+=+=+=+=+= first seg_stats inserted at %ld\n", buffer_events_vec[0].start.time_since_epoch().count());
-
     seg_stats[t.seg_no].resolution = t.resolution;
 
     struct picoquic_download_stat picoquic_st { };
@@ -105,16 +103,17 @@ void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex,
 //    double buffering_ratio = previous_buffering_time_on_path(path_id) / previous_total_buffering_time();
     double previous_avg_rtt = get_previous_average_rtt(path_id, 2);
     double latest_avg_rtt = get_latest_average_rtt();
+    double max_rtt = get_max_rtt();
 
-    int alpha = 1;
-    int beta = 1;
-    int gamma = 1;
+    double alpha = 1;
+    double beta = 1;
+    double gamma = 1;
 
     double reward = 0;
     if (buffering_ratio != 0) {
-        reward = alpha * (1.0 / buffering_ratio) + beta * (latest_avg_rtt / pst.cur_rtt) + gamma * (cur_bitrate / get_maximal_bitrate());
+        reward = alpha * (max_rtt / pst.cur_rtt)  + beta * (buffering_ratio * buffering_ratio) + gamma * (cur_bitrate / get_maximal_bitrate());
     } else {
-//        reward =
+        reward = alpha * (max_rtt / pst.cur_rtt)  + beta * (buffering_ratio * buffering_ratio) + gamma * (cur_bitrate / get_maximal_bitrate());
     }
 
     tmp_reward_map[t.seg_no] = {buffering_ratio,
@@ -126,6 +125,7 @@ void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex,
                                 path_id,
                                 t.seg_no};
 
+    seg_stats[t.seg_no].max_rtt = max_rtt;
     seg_stats[t.seg_no].latest_avg_rtt = latest_avg_rtt;
     seg_stats[t.seg_no].average_reward_so_far = get_previous_most_recent_average_reward(5);
     seg_stats[t.seg_no].reward = reward;
@@ -169,6 +169,7 @@ void main_downloader() {
     first_seg.bitrate_level = bitrate_level;
     first_seg.resolution = cur_resolution;
 
+    player_start = Tic();
 //    path_selector.pseudo_roundrobin_scheduler(first_seg, download);
 //    path_selector.roundrobin_scheduler(first_seg, download);
 //    path_selector.minrtt_scheduler(first_seg, download);
@@ -244,6 +245,7 @@ void print_segment_download_stats() {
                   << " previous avg reward: " << value.average_reward_so_far
                   << " reward: " << value.reward
                   << " rtt: " << value.cur_rtt
+                  << " max_rtt: " << value.max_rtt
                   << endl;
     }
 }
@@ -283,17 +285,27 @@ void print_tmp_reward_info() {
     }
 }
 
+std::thread *thread_playback;
+extern Algorithm scheduling_algorithm;
 
 void start()
 {
     TicToc global_timer;
     playback_start = global_timer.tic();
 
-    std::thread thread_download(main_downloader);
-    std::thread thread_playback(main_player_mock);
+    if (scheduling_algorithm == Algorithm::mab) {
+        std::thread thread_download(main_downloader);
 
-    thread_download.join();
-    thread_playback.join();
+        thread_download.join();
+        (*thread_playback).join();
+    } else {
+        std::thread thread_download(main_downloader);
+        thread_playback = new std::thread(main_player_mock);
+
+        thread_download.join();
+        (*thread_playback).join();
+    }
+
 
     print_segment_download_stats();
 

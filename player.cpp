@@ -63,7 +63,7 @@ void main_player_mock()
 {
     double FPS = 24.0;
 
-    player_start = buffering_timer.tic();
+//    player_start = buffering_timer.tic();
 
     int nb_played_segments = 1;
 

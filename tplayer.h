@@ -81,6 +81,7 @@ struct PerSegmentStats {
     double reward;
     double average_reward_so_far;
     double latest_avg_rtt;
+    double max_rtt;
 
     double gamma;
     double gamma_throughput;
@@ -224,11 +225,8 @@ using namespace bandit;
 class PathSelector {
 private:
     std::mutex path_mutexes[nb_paths];
-//    std::map<int, BS::thread_pool*> path_pool;
     mutable std::shared_mutex path_mutex;
     int previous_path_id;
-
-
 
 public:
     BS::thread_pool* path_pool[nb_paths]{};
@@ -236,7 +234,7 @@ public:
     // TODO
     map<Algorithm, CallbackDownload> algorithm_map;
 
-    double epsilon = 0.1;
+    double epsilon = 0.5;
     const uint K = 2;
     const uint P = 1;
 
@@ -257,7 +255,9 @@ public:
 
         arms.push_back(ArmPtr(new BernoulliArm(0.05)));
         arms.push_back(ArmPtr(new BernoulliArm(0.1)));
-        policies.push_back(PolicyPtr(new EGreedyPolicy(K, epsilon)));
+//        policies.push_back(PolicyPtr(new EGreedyPolicy(K, epsilon)));
+        policies.push_back(PolicyPtr(new ThompsonBinaryPolicy(K)));
+//        policies.push_back(PolicyPtr(new UCBPolicy(K)));
 
         sim = new Simulator<RoundwiseLog>(arms, policies);
 
@@ -275,5 +275,7 @@ public:
     void minrtt_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f);
     void mab_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f);
 };
+
+double get_max_rtt();
 
 #endif // TPLAYER_TPLAYER_H
