@@ -150,30 +150,33 @@ void download(int path_id, const struct DownloadTask& t, std::mutex *path_mutex,
 }
 
 extern string alg;
+extern Algorithm scheduling_algorithm;
+extern std::thread *thread_playback;
 
+void initial_explore() {
+    struct BufferEvent be { };
+    be.start = player_start;
+    be.path_id = 1;
+    buffer_events_vec.push_back(be);
+    thread_playback = new std::thread(main_player_mock);
+
+
+
+    BS::thread_pool initial(nb_paths);
+    for (int i = 0; i < nb_paths; i++) {
+        struct DownloadTask seg;
+        seg.filename = urls[bitrate_level-1][i+1].url;
+        seg.seg_no = i+1;
+        seg.bitrate_level = bitrate_level;
+        seg.resolution = cur_resolution;
+
+        int path_id = i;
+        initial.push_task(download, path_id, seg, nullptr, nullptr);
+    }
+    initial.wait_for_tasks();
+}
 
 void main_downloader() {
-    int i = 1;
-
-    double bitrate = get_bitrate_from_bitrate_level(bitrate_level);
-    cur_resolution = get_resolution_by_bitrate(bitrate);
-
-    PathSelector path_selector;
-
-    // TODO
-    // download init.mp4
-
-    struct DownloadTask first_seg;
-    first_seg.filename = urls[bitrate_level-1][1].url;
-    first_seg.seg_no = 1;
-    first_seg.bitrate_level = bitrate_level;
-    first_seg.resolution = cur_resolution;
-
-    player_start = Tic();
-//    path_selector.pseudo_roundrobin_scheduler(first_seg, download);
-//    path_selector.roundrobin_scheduler(first_seg, download);
-//    path_selector.minrtt_scheduler(first_seg, download);
-    path_selector.mab_scheduler(first_seg, download);
 
     auto check_download_buffer_full = [](PathSelector& path_selector) {
         int total = 0;
@@ -186,14 +189,43 @@ void main_downloader() {
         return false;
     };
 
-    while (true) {
-        if (first_segment_downloaded == 1) {
-            break;
-        }
-        PortableSleep(0.01);
-    }
 
-    i++;
+    int i = 1;
+
+    double bitrate = get_bitrate_from_bitrate_level(bitrate_level);
+    cur_resolution = get_resolution_by_bitrate(bitrate);
+
+    PathSelector path_selector;
+
+    // TODO
+    // download init.mp4
+
+    player_start = Tic();
+
+    if (scheduling_algorithm != Algorithm::mab) {
+        struct DownloadTask first_seg;
+        first_seg.filename = urls[bitrate_level-1][1].url;
+        first_seg.seg_no = 1;
+        first_seg.bitrate_level = bitrate_level;
+        first_seg.resolution = cur_resolution;
+
+//        path_selector.pseudo_roundrobin_scheduler(first_seg, download);
+//        path_selector.roundrobin_scheduler(first_seg, download);
+        path_selector.minrtt_scheduler(first_seg, download);
+
+        while (true) {
+            if (first_segment_downloaded == 1) {
+                break;
+            }
+            PortableSleep(0.01);
+        }
+
+        i++;
+    } else {
+        initial_explore();
+
+        i += nb_paths;
+    }
 
     while (true) {
         if (i >= nb_segments) {
@@ -286,7 +318,6 @@ void print_tmp_reward_info() {
 }
 
 std::thread *thread_playback;
-extern Algorithm scheduling_algorithm;
 
 void start()
 {

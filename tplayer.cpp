@@ -40,8 +40,7 @@ string local_mpd_url = "../dataset/BigBuckBunny/mpd/stream.mpd";
 
 auto level = 3; // 0, 1, 2, 3
 
-// max available segments: 299
-int nb_segments = 50;
+
 
 extern double initial_bitrate;
 //extern int initial_resolution;
@@ -111,6 +110,9 @@ bool check_parameters(cxxopts::Options& options, int argc, char **argv) {
 
     return true;
 }
+
+// max available segments: 299
+int nb_segments = 15;
 
 int main(int argc, char* argv[])
 {
