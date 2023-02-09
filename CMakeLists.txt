@@ -16,7 +16,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH} ./cmake)
 
 #add_compile_options(-Wall -Wno-unknown-pragmas -Wno-reorder -Wno-sign-compare -Wno-unused-variable)
-add_compile_options(-Wpedantic -Werror)
+add_compile_options(-Wpedantic -Werror -fPIC)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -65,6 +65,7 @@ file(GLOB_RECURSE tplayer_SOURCE
         path.cpp
         util/util.cpp
         buffering.cpp
+        cbandit.h
         picoquic/client.h
         picoquic/client.c
         mab.cpp
@@ -125,7 +126,22 @@ include_directories(
         ${OPENSSL_INCLUDE_DIR}
 )
 
-# Tell CMake to create the executable
+
+add_library(player SHARED
+        ${tplayer_SOURCE}
+        ${libcurl_SOURCE}
+        )
+
+target_link_libraries(player
+        PUBLIC matplot
+        ${CURL_LIBRARIES}
+        ${ZLIB_LIBRARIES}
+        ${LIBXML2_LIBRARIES}
+        ${Picoquic_LIBRARIES}
+        ${PTLS_LIBRARIES}
+        ${OPENSSL_LIBRARIES}
+        -lpthread)
+
 add_executable(picoquic_delay_estimate
         ${analysis_SOURCE})
 

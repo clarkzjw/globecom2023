@@ -327,6 +327,24 @@ void PathSelector::mab_scheduler(const DownloadTask &t, const CallbackDownload &
     path_pool[path_id]->push_task(download_f, path_id, t, nullptr, &mab_set_reward_callback);
 }
 
+void PathSelector::linucb_scheduler(const DownloadTask &t, const CallbackDownload &download_f) {
+    int path_id = sim->select_next_path(0);
+
+    if  (t.seg_no == 1) {
+        struct BufferEvent be { };
+
+        be.start = player_start;
+        be.path_id = path_id;
+
+        buffer_events_vec.push_back(be);
+
+        thread_playback = new std::thread(main_player_mock);
+    }
+
+    printf("=====segment %d assigned to path %d\n", t.seg_no, path_id);
+    path_pool[path_id]->push_task(download_f, path_id, t, nullptr, &mab_set_reward_callback);
+}
+
 #if 0
 void multipath_mab()
 {

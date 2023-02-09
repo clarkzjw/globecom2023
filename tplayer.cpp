@@ -141,3 +141,22 @@ int main(int argc, char* argv[])
 
     return 0;
 }
+
+int example_download(char *filename) {
+    string if_name = "";
+
+    cout << "download " << filename << " on interface: " << if_name << endl;
+
+    struct picoquic_download_stat picoquic_st { };
+    TicToc timer;
+
+    auto *config = (picoquic_quic_config_t*)malloc(sizeof(picoquic_quic_config_t));
+    picoquic_config_init(config);
+    config->out_dir = "./tmp";
+    config->sni = "test";
+
+    int ret = quic_client("localhost", 4443, config, 0, 0, filename, if_name.c_str(), &picoquic_st);
+
+    printf("download ret = %d\n", ret);
+    return 0;
+}

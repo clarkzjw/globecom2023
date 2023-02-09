@@ -160,8 +160,6 @@ void initial_explore() {
     buffer_events_vec.push_back(be);
     thread_playback = new std::thread(main_player_mock);
 
-
-
     BS::thread_pool initial(nb_paths);
     for (int i = 0; i < nb_paths; i++) {
         struct DownloadTask seg;
@@ -222,9 +220,8 @@ void main_downloader() {
 
         i++;
     } else {
-        initial_explore();
-
-        i += nb_paths;
+//        initial_explore();
+//        i += nb_paths;
     }
 
     while (true) {
@@ -249,7 +246,8 @@ void main_downloader() {
 //        path_selector.pseudo_roundrobin_scheduler(t, download);
 //        path_selector.roundrobin_scheduler(t, download);
 //        path_selector.minrtt_scheduler(t, download);
-        path_selector.mab_scheduler(t, download);
+//        path_selector.mab_scheduler(t, download);
+        path_selector.linucb_scheduler(t, download);
 
         i++;
     }

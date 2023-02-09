@@ -36,6 +36,8 @@
 #include "policy/policy_ucb.hpp"
 #include "policy/policy_ucbv.hpp"
 
+#include "cbandit.h"
+
 using namespace std;
 
 #define PortableSleep(seconds) usleep((seconds)*1000000)
@@ -238,6 +240,14 @@ public:
     const uint K = 2;
     const uint P = 1;
 
+
+    vector<string> cbandit_arms = {"arm1", "arm2"};
+    // Dimension of context vector
+    unsigned int d = 50;
+    // Create contextual bandit
+    CBandit* C = new CBandit(cbandit_arms, d);
+
+
     vector<ArmPtr> arms;
     vector<PolicyPtr> policies;
     Simulator<RoundwiseLog> *sim{};
@@ -274,6 +284,7 @@ public:
     void roundrobin_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f);
     void minrtt_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f);
     void mab_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f);
+    void linucb_scheduler(const struct DownloadTask& t, const CallbackDownload& download_f);
 };
 
 double get_max_rtt();

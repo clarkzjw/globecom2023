@@ -26,8 +26,12 @@ int quic_client(const char* ip_address_text, int server_port,
     picoquic_quic_config_t* config, int force_migration,
     int nb_packets_before_key_update, char const* client_scenario_text, const char* if_name, struct picoquic_download_stat* stat);
 
+
+int example_download(char *filename);
+
 #ifdef __cplusplus
 }
 #endif
+
 
 #endif // PLAYER_CLIENT_H
