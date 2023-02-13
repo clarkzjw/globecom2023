@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-struct picoquic_download_stat {
+typedef struct picoquic_download_stat {
     double time;
     double throughput;
     uint64_t rtt;
@@ -20,14 +20,13 @@ struct picoquic_download_stat {
     uint64_t total_bytes_lost;
     uint64_t total_received;
     uint64_t data_received;
-};
+}picoquic_download_stat;
 
 int quic_client(const char* ip_address_text, int server_port,
     picoquic_quic_config_t* config, int force_migration,
     int nb_packets_before_key_update, char const* client_scenario_text, const char* if_name, struct picoquic_download_stat* stat);
 
-
-int example_download(char *filename);
+int download_segment(char *_host, int _port, char *_filename, char *_if_name, const char *_dir, picoquic_download_stat *stat);
 
 #ifdef __cplusplus
 }

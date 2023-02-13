@@ -142,20 +142,19 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-int example_download(char *filename) {
-    string if_name = "";
-
-    cout << "download " << filename << " on interface: " << if_name << endl;
-
-    struct picoquic_download_stat picoquic_st { };
+int download_segment(char *_host, int _port, char *_filename, char *_if_name, const char *_dir, picoquic_download_stat *stat) {
     TicToc timer;
 
     auto *config = (picoquic_quic_config_t*)malloc(sizeof(picoquic_quic_config_t));
     picoquic_config_init(config);
-    config->out_dir = "./tmp";
+    config->out_dir = _dir;
     config->sni = "test";
 
-    int ret = quic_client("localhost", 4443, config, 0, 0, filename, if_name.c_str(), &picoquic_st);
+    int ret = quic_client(_host, _port, config, 0, 0, _filename, _if_name, stat);
+
+    cout << "one_way_delay_avg " << stat->one_way_delay_avg << endl;
+    cout << "time " << stat->time << endl;
+    cout << "throughput " << stat->throughput << endl;
 
     printf("download ret = %d\n", ret);
     return 0;

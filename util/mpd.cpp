@@ -86,17 +86,5 @@ vector<vector<struct SegmentInfo>> get_segment_urls(dash::mpd::IMPD* mpd_file)
     }
 #endif
 
-// deprecated old mpd code
-//    for (auto rep : adaption_sets[0]->GetRepresentation()) {
-//        vector<string> segment_urls;
-//        auto init_segment_url = rep->GetSegmentList()->GetInitialization()->GetSourceURL();
-//        segment_urls.push_back(init_segment_url);
-//
-//        for (auto url : rep->GetSegmentList()->GetSegmentURLs()) {
-//            string u = url->GetMediaURI();
-//            segment_urls.push_back(u);
-//        }
-//        urls.push_back(segment_urls);
-//    }
     return temp_urls;
 }

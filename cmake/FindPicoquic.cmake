@@ -23,6 +23,7 @@ find_path(Picoquic_HTTP_DIR
 
 set(Picoquic_HINTS
         ${CMAKE_BINARY_DIR}/../picoquic
+        ${CMAKE_BINARY_DIR}/../picoquic/Debug
         ../../../picoquic/
         ../picoquic)
 
