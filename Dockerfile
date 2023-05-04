@@ -12,9 +12,9 @@ RUN git clone https://github.com/h2o/picotls.git && \
     cd picotls && git submodule init && git submodule update && cmake -DCMAKE_C_FLAGS="-fPIC" . && make && \
     cd ../picoquic && cmake -DCMAKE_C_FLAGS="-fPIC" . && make
 
-COPY requirements.txt /app/player
+COPY requirements.txt /app/player/
 
-RUN pip install -r requirements.txt
+RUN pip install -r /app/player/requirements.txt
 
 COPY . /app/player
 

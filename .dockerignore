@@ -12,7 +12,6 @@ get-qlog.sh
 x264/
 *.264
 tmp/
-ca/
 qlog/
 CMakeCache.txt
 CMakeFiles/
