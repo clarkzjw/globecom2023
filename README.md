@@ -2,14 +2,6 @@
 
 ## Steps to reproduce the results
 
-### Dataset
-
-Download our dataset, which takes about 20GB.
-
-```
-wget https://globecom23.jinwei.me/mpd.zip
-```
-
 ### Compile and install
 
 **Prerequisites**
@@ -32,7 +24,7 @@ Our experiments are conducted with Mininet 2.3.1b4.
 
 ```
 sudo apt-get update
-sudo apt-get install wget curl build-essential git cmake pkg-config libssl-dev libbrotli-dev mininet python3-full python3-pip -y
+sudo apt-get install wget curl build-essential git cmake pkg-config libssl-dev libbrotli-dev mininet python3-full python3-virtualenv python3-pip -y
 ```
 
 + Compile
@@ -42,14 +34,22 @@ mkdir -p ~/clarkzjw-globecom23 && cd ~/clarkzjw-globecom23
 
 git clone https://github.com/h2o/picotls.git
 git clone --branch globecom2023 https://github.com/clarkzjw/picoquic.git
-git clone --branch globecom2023 https://github.com/clarkzjw/globecom23.git
+git clone --branch globecom2023 https://github.com/clarkzjw/globecom2023.git
 
 cd picotls && git submodule init && git submodule update && cmake -DCMAKE_C_FLAGS="-fPIC" . && make
 cd ../picoquic && cmake -DCMAKE_C_FLAGS="-fPIC" . && make
 
-cd ~/clarkzjw-globecom23/globecom23
-virtualenv .venv --python=python3
+cd ../globecom2023 && virtualenv .venv --python=python3 && source .venv/bin/activate
 pip install -r requirements.txt
 
 cmake . && make
+```
+
+### Dataset
+
+Download our dataset, which takes about 20GB.
+
+```
+cd ~/clarkzjw-globecom23/
+wget https://globecom23.jinwei.me/mpd.zip
 ```
