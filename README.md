@@ -1,2 +1,8 @@
-# tplayer
-Mock player for video streaming using Scalable Video Coding and MPQUIC
+# QoE-driven Joint Decision-Making for Multipath Adaptive Video Streaming
+
+## Dataset
+
+```
+wget https://globecom23.jinwei.me/mpd.zip
+```
+
