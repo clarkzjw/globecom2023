@@ -1,0 +1,62 @@
+_deps/
+tplayer_test
+videos/
+result*
+plot.sh
+__pycache__/
+*.dat
+*.png
+old/
+__tmp_gnuplot.gpl
+get-qlog.sh
+x264/
+*.264
+tmp/
+ca/
+qlog/
+CMakeCache.txt
+CMakeFiles/
+tplayer
+tserver
+client_test
+cmake_install.cmake
+.idea/
+.cmake/
+Testing/
+Makefile
+demo_ticket_store.bin
+demo_token_store.bin
+.DS_Store
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+*.zip
