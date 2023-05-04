@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM robertdebock/ubuntu:latest
 
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install wget curl build-essential git cmake pkg-config \
