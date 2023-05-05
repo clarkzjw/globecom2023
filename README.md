@@ -14,7 +14,6 @@ cd ~
 git clone https://github.com/mininet/mininet.git
 cd mininet && git checkout -b 2.3.1b4
 
-
 ./mininet/util/install.sh -s 2.3.1b4 -a
 ```
 
@@ -24,7 +23,7 @@ Our experiments are conducted with Mininet 2.3.1b4.
 
 ```
 sudo apt-get update
-sudo apt-get install wget curl build-essential git cmake unzip tree pkg-config libssl-dev libbrotli-dev mininet python3-full python3-virtualenv python3-pip -y
+sudo apt-get install wget curl build-essential git cmake unzip tree screen pkg-config libssl-dev libbrotli-dev mininet python3-full python3-virtualenv python3-pip -y
 ```
 
 + Compile
@@ -55,7 +54,7 @@ wget https://globecom23.jinwei.me/mpd.zip
 unzip mpd.zip
 ```
 
-The `sha256sum` of the dataset file is shown below.
+The `sha256sum` of the dataset file `mpd.zip` is shown below.
 
 ```
 95a58132043993a6382f3bdd10fd465cea4c6f565bc243669c00f26c5b6cc0e1  mpd.zip
@@ -72,5 +71,15 @@ openssl req -nodes -x509 -newkey rsa:2048 -days 365 -keyout ca-key.pem -out ca-c
 ### Run the experiments
 
 ```bash
-sudo python3 ./mininet/topo.py
+sudo bash run.sh
 ```
+
+The experiments will run using `screen`. You can use `screen -ls` and `screen -r` to attach to the corresponding running session.
+
+### Generate figures
+
+#### Generate corresponding figures in the paper
+
+Run `figure_individual.m` within `./figure/gcloud` and `./figure/mininet` using MATLAB to generate the figures in the paper.
+
+#### Generate figures from custom experiments
