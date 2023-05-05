@@ -17,9 +17,9 @@ from config import playback_buffer_map, max_playback_buffer_size, rebuffering_ra
 from config import nb_paths, playback_buffer_frame_ratio, DEBUG_SEGMENTS
 import config
 
-default_mpd_url = "/home/clarkzjw/Documents/dataset/mpd/stream.mpd"
+default_mpd_url = "../mpd/stream.mpd"
 default_host = "10.0.1.2"
-default_port = 443
+default_port = 4443
 tmp_dir = "./tmp"
 
 DEBUG_WAIT = False
