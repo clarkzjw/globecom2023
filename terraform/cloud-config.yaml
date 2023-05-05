@@ -1,0 +1,7 @@
+write_files:
+- path: /root/CLOUD_INIT_WAS_HERE
+
+runcmd:
+  - sudo apt-get update
+  - sudo apt install wget curl rsync htop build-essential git cmake pkg-config libssl-dev libeigen3-dev libbrotli-dev libcurl4-openssl-dev libxml2-dev iperf3 screen -y
+  - sudo apt-get purge -y man-db

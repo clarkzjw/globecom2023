@@ -8,7 +8,7 @@
 
 Only tested on a clean installation of Ubuntu server 22.04.1 LTS.
 
-+ Install Mininet, according to [the `native installation from source` guide](http://mininet.org/download/#option-2-native-installation-from-source).
++ Install Mininet, according to the [`native installation from source`](http://mininet.org/download/#option-2-native-installation-from-source) guide.
 ```bash
 cd ~
 git clone https://github.com/mininet/mininet.git
@@ -66,7 +66,7 @@ The `sha256sum` of the dataset file `mpd.zip` is shown below.
 
 Follow the instructions in the [`dataset`](./dataset) folder to create your own DASH dataset.
 
-But then, you have to update `bitrate_mapping` in `[bitrate.py](./bitrate.py)` with the custom bitrate ladder accordingly.
+But then, you have to update `bitrate_mapping` in [`bitrate.py`](./bitrate.py) with the custom bitrate ladder accordingly.
 
 ### Generate certificates for QUIC
 
@@ -88,18 +88,25 @@ The experiments will run using `screen` with root user. You can use `sudo screen
 
 #### Generate corresponding figures in the paper
 
-Run `gen_figure.m` within `[./figure/gcloud](./figure/gcloud)` and `[./figure/mininet](./figure/mininet)` using MATLAB to generate the figures in the paper.
+Run `gen_figure.m` within [`./figure/gcloud`](./figure/gcloud) and [`./figure/mininet`](./figure/mininet) using MATLAB to generate the figures in the paper.
 
 ### Run experiments on real-world network
 
-In order to run the experiments on real-world multipath testbeds, the following variables in `[downloader.py](./downloader.py)` have to be updated accordingly.
+The Terraform scripts in [`./terraform`](./terraform) are used in our experiment to create a multipath testbed on GCP's `us-west-1a` zone which is geographically closest to our location.
 
+But our code can be deployed on any suitable multipath testbeds with the following requirements.
+
+The following variables in [`downloader.py`](./downloader.py) have to be updated accordingly.
+
+```
 `if_name_mapping`
 `default_mpd_url`
 `default_host`
 `default_port`
+```
 
-and run `main.py` with custom options.
+
+and run [`main.py`](./main.py) with custom options.
 
 ```bash
 $ python3 main.py --help   
@@ -126,4 +133,4 @@ options:
                         number of segments to download
 ```
 
-The metric results will be saved in `./results/` in json format.
+The metric results will be saved in [`./result/`](./result) in json format and can be used to generate figures using scripts in [`analysis`](./analysis).
