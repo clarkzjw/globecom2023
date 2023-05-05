@@ -1,5 +1,7 @@
 # QoE-driven Joint Decision-Making for Multipath Adaptive Video Streaming
 
+This repository contains the code for the submission "QoE-driven Joint Decision-Making for Multipath Adaptive Video Streaming" to Globecom 2023.
+
 ## Steps to reproduce the results
 
 ### Compile and install
@@ -104,7 +106,6 @@ The following variables in [`downloader.py`](./downloader.py) have to be updated
 `default_host`
 `default_port`
 ```
-
 
 and run [`main.py`](./main.py) with custom options.
 
