@@ -46,6 +46,8 @@ cmake . && make
 
 ### Dataset
 
++ Use our prebuilt dataset
+
 Download our dataset, which takes about 20GB.
 
 ```
@@ -60,6 +62,12 @@ The `sha256sum` of the dataset file `mpd.zip` is shown below.
 95a58132043993a6382f3bdd10fd465cea4c6f565bc243669c00f26c5b6cc0e1  mpd.zip
 ```
 
++ Create custom DASH dataset
+
+Follow the instructions in the [`dataset`](./dataset) folder to create your own DASH dataset.
+
+But then, you have to update `bitrate_mapping` in `[bitrate.py](./bitrate.py)` with the custom bitrate ladder accordingly.
+
 ### Generate certificates for QUIC
 
 ```bash
@@ -68,18 +76,54 @@ cd ~/clarkzjw-globecom23/globecom2023
 openssl req -nodes -x509 -newkey rsa:2048 -days 365 -keyout ca-key.pem -out ca-cert.pem
 ```
 
-### Run the experiments
+### Run Mininet emulations
 
 ```bash
 sudo bash run.sh
 ```
 
-The experiments will run using `screen`. You can use `screen -ls` and `screen -r` to attach to the corresponding running session.
+The experiments will run using `screen` with root user. You can use `sudo screen -ls` and `sudo screen -r` to attach to the corresponding running session.
 
 ### Generate figures
 
 #### Generate corresponding figures in the paper
 
-Run `figure_individual.m` within `./figure/gcloud` and `./figure/mininet` using MATLAB to generate the figures in the paper.
+Run `gen_figure.m` within `[./figure/gcloud](./figure/gcloud)` and `[./figure/mininet](./figure/mininet)` using MATLAB to generate the figures in the paper.
 
-#### Generate figures from custom experiments
+### Run experiments on real-world network
+
+In order to run the experiments on real-world multipath testbeds, the following variables in `[downloader.py](./downloader.py)` have to be updated accordingly.
+
+`if_name_mapping`
+`default_mpd_url`
+`default_host`
+`default_port`
+
+and run `main.py` with custom options.
+
+```bash
+$ python3 main.py --help   
+
+usage: main.py [-h] [--exp_id EXP_ID] [--scheduler {roundrobin,minrtt,contextual_bandit}] [--algorithm {LinUCB,LinTS,LinGreedy}] [--linucb_alpha LINUCB_ALPHA] [--lints_alpha LINTS_ALPHA]
+               [--egreedy_epsilon EGREEDY_EPSILON] [--nb_segment NB_SEGMENT]
+
+Adaptive video streaming with contextual bandits and MPQUIC
+
+options:
+  -h, --help            show this help message and exit
+  --exp_id EXP_ID       experiment id
+  --scheduler {roundrobin,minrtt,contextual_bandit}
+                        scheduler
+  --algorithm {LinUCB,LinTS,LinGreedy}
+                        scheduling algorithm
+  --linucb_alpha LINUCB_ALPHA
+                        alpha for LinUCB
+  --lints_alpha LINTS_ALPHA
+                        alpha for LinTS
+  --egreedy_epsilon EGREEDY_EPSILON
+                        epsilon for epsilon-greedy
+  --nb_segment NB_SEGMENT
+                        number of segments to download
+```
+
+The metric results will be saved in `./results/` in json format.
