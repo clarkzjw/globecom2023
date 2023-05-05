@@ -24,7 +24,7 @@ Our experiments are conducted with Mininet 2.3.1b4.
 
 ```
 sudo apt-get update
-sudo apt-get install wget curl build-essential git cmake pkg-config libssl-dev libbrotli-dev mininet python3-full python3-virtualenv python3-pip -y
+sudo apt-get install wget curl build-essential git cmake unzip tree pkg-config libssl-dev libbrotli-dev mininet python3-full python3-virtualenv python3-pip -y
 ```
 
 + Compile
@@ -52,4 +52,25 @@ Download our dataset, which takes about 20GB.
 ```
 cd ~/clarkzjw-globecom23/
 wget https://globecom23.jinwei.me/mpd.zip
+unzip mpd.zip
+```
+
+The `sha256sum` of the dataset file is shown below.
+
+```
+95a58132043993a6382f3bdd10fd465cea4c6f565bc243669c00f26c5b6cc0e1  mpd.zip
+```
+
+### Generate certificates for QUIC
+
+```bash
+cd ~/clarkzjw-globecom23/globecom2023
+
+openssl req -nodes -x509 -newkey rsa:2048 -days 365 -keyout ca-key.pem -out ca-cert.pem
+```
+
+### Run the experiments
+
+```bash
+
 ```

@@ -9,11 +9,11 @@ __pycache__/
 *.dat
 *.png
 old/
+tmp/key
 __tmp_gnuplot.gpl
 get-qlog.sh
 x264/
 *.264
-tmp/
 ca/
 qlog/
 CMakeCache.txt
