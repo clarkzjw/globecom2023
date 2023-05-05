@@ -96,7 +96,9 @@ Run `gen_figure.m` within [`./figure/gcloud`](./figure/gcloud) and [`./figure/mi
 
 The Terraform scripts in [`./terraform`](./terraform) are used in our experiment to create a multipath testbed on GCP's `us-west-1a` zone which is geographically closest to our location.
 
-The traceroute results below shows there are two distinct paths from our location to the VM.
+The traceroute results below shows there are two distinct paths from our location to the VM, which can be simplified with
+
+![](./static/starlink.png)
 
 ```
 traceroute to 34.105.96.243 (34.105.96.243), 30 hops max, 60 byte packets
