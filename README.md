@@ -96,6 +96,31 @@ Run `gen_figure.m` within [`./figure/gcloud`](./figure/gcloud) and [`./figure/mi
 
 The Terraform scripts in [`./terraform`](./terraform) are used in our experiment to create a multipath testbed on GCP's `us-west-1a` zone which is geographically closest to our location.
 
+The traceroute results below shows there are two distinct paths from our location to the VM.
+
+```
+traceroute to 34.105.96.243 (34.105.96.243), 30 hops max, 60 byte packets
+1  _gateway (192.168.0.254)  0.539 ms  0.462 ms  0.426 ms
+2  142.104.68.1 (142.104.68.1)  0.913 ms  0.873 ms  0.839 ms
+3  142.104.124.105 (142.104.124.105)  1.080 ms  1.047 ms  1.017 ms
+4  142.104.100.241 (142.104.100.241)  0.977 ms  1.065 ms  1.023 ms
+5  cle-core-edge.bb.uvic.ca (142.104.100.189)  1.308 ms  1.270 ms  1.236 ms
+6  207.23.244.233 (207.23.244.233)  1.199 ms  1.286 ms  1.179 ms
+7  vctr3rtr2.network.canarie.ca (199.212.24.98)  1.287 ms  1.405 ms  1.669 ms
+8  sttl1rtr2.canarie.ca (206.81.80.189)  3.596 ms  3.493 ms  3.597 ms
+9  google-2-lo-std-707.sttlwa.pacificwave.net (207.231.242.22)  10.022 ms  11.144 ms  10.892 ms
+10  243.96.105.34.bc.googleusercontent.com (34.105.96.243)  9.987 ms  9.449 ms  8.410 ms
+
+traceroute to 34.105.96.243 (34.105.96.243), 30 hops max, 60 byte packets
+ 1  DD-WRT (192.168.1.1)  0.250 ms  0.248 ms  0.309 ms
+ 2  100.64.0.1 (100.64.0.1)  47.095 ms  68.122 ms  68.095 ms
+ 3  172.16.251.66 (172.16.251.66)  68.104 ms  68.076 ms  68.048 ms
+ 4  * * *
+ 5  undefined.hostname.localhost (206.224.64.13)  68.006 ms undefined.hostname.localhost (206.224.64.37)  67.978 ms undefined.hostname.localhost (206.224.64.13)  67.946 ms
+ 6  142.250.170.144 (142.250.170.144)  67.933 ms 142.250.163.222 (142.250.163.222)  65.939 ms 142.250.170.144 (142.250.170.144)  65.821 ms
+ 7  243.96.105.34.bc.googleusercontent.com (34.105.96.243)  76.793 ms  40.952 ms  70.777 ms
+```
+
 But our code can be deployed on any suitable multipath testbeds with the following requirements.
 
 The following variables in [`downloader.py`](./downloader.py) have to be updated accordingly.
