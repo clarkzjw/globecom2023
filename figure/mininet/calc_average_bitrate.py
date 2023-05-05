@@ -44,7 +44,7 @@ def calc_avg_bitrate_cdf(algorithm: str, parameter: float):
     if algorithm not in alg_list:
         print("results for algorithm " + algorithm + " not found")
         return
-    dir = "../result/mininet_context_0429/{}/".format(algorithm)
+    dir = "./{}/".format(algorithm)
     avg_bitrate = []
     for filename in glob.glob(dir + "*.json"):
         if parameter != -1:
@@ -59,18 +59,18 @@ def calc_avg_bitrate_cdf(algorithm: str, parameter: float):
 
 def calc_average_bitrate():
     for alg in alg_list:
-        if alg in ["gcloud_lints", "gcloud_linucb", "LinTS", "LinUCB"]:
+        if alg in ["LinTS", "LinUCB"]:
             for alpha in param_list:
                 avg_bitrate_list = calc_avg_bitrate_cdf(alg, alpha)
                 print(avg_bitrate_list)
-                with open("../result/mininet_context_0429/{}-{}-average-bitrate.csv".format(alg, alpha), "w") as f:
+                with open("./{}-{}-average-bitrate.csv".format(alg, alpha), "w") as f:
                     for item in avg_bitrate_list:
                         f.write("%s\n" % item)
                 print("done")
         else:
             avg_bitrate_list = calc_avg_bitrate_cdf(alg, -1)
             print(avg_bitrate_list)
-            with open("../result/mininet_context_0429/{}-average-bitrate.csv".format(alg), "w") as f:
+            with open("./{}-average-bitrate.csv".format(alg), "w") as f:
                 for item in avg_bitrate_list:
                     f.write("%s\n" % item)
             print("done")
@@ -106,13 +106,12 @@ def calc_rebuffering_count_cdf(algorithm: str, parameter: float):
     if algorithm not in alg_list:
         print("results for algorithm " + algorithm + " not found")
         return
-    dir = "../result/mininet_context_0429/{}/".format(algorithm)
+    dir = "./{}/".format(algorithm)
     rebuffering_events_count = []
     for filename in glob.glob(dir + "*.json"):
         # print(filename)
         if parameter != -1:
             if str(parameter) in filename and "rebuffering_history_" not in filename:
-                # rebuffering_events_count.append(rebuffering_count_new(filename))
                 rebuffering_events_count.append(rebuffering_count(filename))
         else:
             if "rebuffering_history_" not in filename:
@@ -122,18 +121,18 @@ def calc_rebuffering_count_cdf(algorithm: str, parameter: float):
 
 def calc_rebuffering_count():
     for alg in alg_list:
-        if alg in ["gcloud_lints", "gcloud_linucb", "LinTS", "LinUCB"]:
+        if alg in ["LinTS", "LinUCB"]:
             for alpha in param_list:
                 avg_bitrate_list = calc_rebuffering_count_cdf(alg, alpha)
                 print(avg_bitrate_list)
-                with open("../result/mininet_context_0429/{}-{}-rebuffering-count.csv".format(alg, alpha), "w") as f:
+                with open("./{}-{}-rebuffering-count.csv".format(alg, alpha), "w") as f:
                     for item in avg_bitrate_list:
                         f.write("%s\n" % item)
                 print("done")
         else:
             avg_bitrate_list = calc_rebuffering_count_cdf(alg, -1)
             print(avg_bitrate_list)
-            with open("../result/mininet_context_0429/{}-rebuffering-count.csv".format(alg), "w") as f:
+            with open("./{}-rebuffering-count.csv".format(alg), "w") as f:
                 for item in avg_bitrate_list:
                     f.write("%s\n" % item)
             print("done")
