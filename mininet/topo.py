@@ -155,20 +155,21 @@ if '__main__' == __name__:
 
     h2.cmd("ip route add default scope global nexthop via 10.0.2.1 dev h2-eth0")
 
-    change_bw_process = Process(target=change_path_bw, args=(h2,))
-    change_bw_process.start()
-
-    change_latency_process = Process(target=change_path_latency, args=(h2,))
-    change_latency_process.start()
+    CLI(net)
+    # change_bw_process = Process(target=change_path_bw, args=(h2,))
+    # change_bw_process.start()
     #
-    server_process = Process(target=start_server, args=(h1,))
-    server_process.start()
+    # change_latency_process = Process(target=change_path_latency, args=(h2,))
+    # change_latency_process.start()
+    #
+    # server_process = Process(target=start_server, args=(h1,))
+    # server_process.start()
 
-    h2.cmdPrint("./.venv/bin/python3 main.py "
-                "--scheduler {} --exp_id {} --egreedy_epsilon {} --algorithm {} --nb_segment {} --linucb_alpha {} --lints_alpha {}".
-                format(args.scheduler, args.exp_id, args.egreedy_epsilon, args.algorithm, args.nb_segment, args.linucb_alpha, args.lints_alpha))
-
-    print("done")
-    server_process.terminate()
-    change_bw_process.terminate()
-    change_latency_process.terminate()
+    # h2.cmdPrint("./.venv/bin/python3 main.py "
+    #             "--scheduler {} --exp_id {} --egreedy_epsilon {} --algorithm {} --nb_segment {} --linucb_alpha {} --lints_alpha {}".
+    #             format(args.scheduler, args.exp_id, args.egreedy_epsilon, args.algorithm, args.nb_segment, args.linucb_alpha, args.lints_alpha))
+    #
+    # print("done")
+    # server_process.terminate()
+    # change_bw_process.terminate()
+    # change_latency_process.terminate()

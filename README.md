@@ -72,5 +72,5 @@ openssl req -nodes -x509 -newkey rsa:2048 -days 365 -keyout ca-key.pem -out ca-c
 ### Run the experiments
 
 ```bash
-
+sudo python3 ./mininet/topo.py
 ```
