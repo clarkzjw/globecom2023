@@ -10,7 +10,7 @@ RR_average_bitrate = readmatrix('./RR-average-bitrate.csv');
 RR_rebuffering = readmatrix('./RR-rebuffering-count.csv');
 
 
-lints_alpha = 0.4;
+lints_alpha = 1.0;
 linucb_alpha = 1.0;
 
 h = figure('visible','off');

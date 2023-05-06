@@ -55,25 +55,25 @@ for i = 1:length(lints_alpha_arr)
         legend_labels{1} = sprintf('minRTT');
         [F, X] = ecdf(minRTT_rebuffering);
         plot(X, F, '-','LineWidth',2);
-        xlim([0, 10]);
+        % xlim([0, 10]);
         hold on;
 
         legend_labels{2} = sprintf('RR');
         [F, X] = ecdf(RR_rebuffering);
         plot(X, F, '--','LineWidth',2);
-        xlim([0, 10]);
+        % xlim([0, 10]);
         hold on;
 
         legend_labels{3} = sprintf('LinTS Alpha: %.1f', lints_alpha);
         [F, X] = ecdf(ts_rebuffering);
         plot(X, F, ':','LineWidth',2);
-        xlim([0, 10]);
+        % xlim([0, 10]);
         hold on;
 
         legend_labels{4} = sprintf('LinUCB Alpha: %.1f', linucb_alpha);
         [F, X] = ecdf(ucb_rebuffering);
         plot(X, F, '-.','LineWidth',2);
-        xlim([0, 10]);
+        % xlim([0, 10]);
         legend(legend_labels, 'Location','northeastoutside');
 
 

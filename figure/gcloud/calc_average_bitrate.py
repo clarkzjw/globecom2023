@@ -85,7 +85,7 @@ def rebuffering_count(filename: str) -> int:
 
         for i in range(len(history)):
             if history[i]["initial_explore"] == 0:
-                if history[i]['rebuffering_ratio_after'] - history[i]['rebuffering_ratio'] > 0:
+                if history[i]['rebuffering_ratio_after'] - history[i]['rebuffering_ratio'] > 0.1:
                     rebuffering += 1
 
         return rebuffering
@@ -96,7 +96,8 @@ def rebuffering_count_new(filename: str) -> int:
         rebuffering = 0
 
         for i in range(len(history)):
-            rebuffering += 1
+            if history[i]["next_seg_no"] > 12 and (history[i]["end"] - history[i]["start"] > 1):
+                rebuffering += 1
 
         return rebuffering
 
@@ -108,12 +109,13 @@ def calc_rebuffering_count_cdf(algorithm: str, parameter: float):
     dir = "./{}/".format(algorithm)
     rebuffering_events_count = []
     for filename in glob.glob(dir + "*.json"):
+        print(filename)
         if parameter != -1:
-            if str(parameter) in filename and "rebuffering_history_" not in filename:
-                rebuffering_events_count.append(rebuffering_count(filename))
+            if str(parameter) in filename and "rebuffering_history_" in filename:
+                rebuffering_events_count.append(rebuffering_count_new(filename))
         else:
-            if "rebuffering_history_" not in filename:
-                rebuffering_events_count.append(rebuffering_count(filename))
+            if "rebuffering_history_" in filename:
+                rebuffering_events_count.append(rebuffering_count_new(filename))
     return rebuffering_events_count
 
 

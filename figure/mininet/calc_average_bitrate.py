@@ -96,8 +96,8 @@ def rebuffering_count_new(filename: str) -> int:
         rebuffering = 0
 
         for i in range(len(history)):
-            # if history[i]["next_seg_no"] > 12:
-            rebuffering += 1
+            if history[i]["next_seg_no"] > 12 and (history[i]["end"] - history[i]["start"] > 1/24.0):
+                rebuffering += 1
 
         return rebuffering
 
