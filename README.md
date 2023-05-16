@@ -16,7 +16,7 @@ cd ~
 git clone https://github.com/mininet/mininet.git
 cd mininet && git checkout -b 2.3.1b4
 
-./mininet/util/install.sh -s 2.3.1b4 -a
+./util/install.sh -s 2.3.1b4 -a
 ```
 
 Our experiments are conducted with Mininet 2.3.1b4. 
