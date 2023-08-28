@@ -9,7 +9,7 @@ minRTT_rebuffering = readmatrix('./minRTT-rebuffering-count.csv');
 RR_average_bitrate = readmatrix('./RR-average-bitrate.csv');
 RR_rebuffering = readmatrix('./RR-rebuffering-count.csv');
 
-lints_alpha = 1.0;
+lints_alpha = 0.4;
 linucb_alpha = 1.0;
 
 h = figure('visible','off');
@@ -23,21 +23,24 @@ ucb_average_bitrate = readmatrix(sprintf("./LinUCB-%.1f-average-bitrate.csv", li
 
 legend_labels{1} = sprintf('minRTT');
 [F, X] = ecdf(minRTT_average_bitrate);
-plot(X, F, '-', 'LineWidth', 2);
+plot(X, F, '-', 'LineWidth', 4);
+set(gca,'fontsize', 20)  
 % xlabel('Average bitrate (Kbps)');
 ylabel('CDF');
 hold on;
 
 legend_labels{2} = sprintf('RR');
 [F, X] = ecdf(RR_average_bitrate);
-plot(X, F, '--', 'LineWidth', 2);
+plot(X, F, '--', 'LineWidth', 4);
+set(gca,'fontsize', 20)  
 % xlabel('Average bitrate (Kbps)');
 ylabel('CDF');
 hold on;
 
 legend_labels{3} = sprintf('LinTS');
 [F, X] = ecdf(ts_average_bitrate);
-p = plot(X, F, ':', 'LineWidth', 2);
+p = plot(X, F, ':', 'LineWidth', 4);
+set(gca,'fontsize', 20)  
 % xlabel('Average bitrate (Kbps)');
 ylabel('CDF');
 p.Color = "red";
@@ -45,7 +48,8 @@ hold on;
 
 legend_labels{4} = sprintf('LinUCB');
 [F, X] = ecdf(ucb_average_bitrate);
-plot(X, F, '-.', 'LineWidth', 2);
+plot(X, F, '-.', 'LineWidth', 4);
+set(gca,'fontsize', 20)  
 % xlabel('Average bitrate (Kbps)');
 ylabel('CDF');
 legend(legend_labels, 'Location','best');
@@ -69,7 +73,8 @@ h = figure('visible','off');
 
 legend_labels{1} = sprintf('minRTT');
 [F, X] = ecdf(minRTT_rebuffering);
-plot(X, F, '-', 'LineWidth', 2);
+plot(X, F, '-', 'LineWidth', 4);
+set(gca,'fontsize', 20)  
 xlim([0, 60]);
 % xlabel('Rebuffering event count');
 ylabel('CDF');
@@ -77,7 +82,8 @@ hold on;
 
 legend_labels{2} = sprintf('RR');
 [F, X] = ecdf(RR_rebuffering);
-plot(X, F, '--', 'LineWidth', 2);
+plot(X, F, '--', 'LineWidth', 4);
+set(gca,'fontsize', 20)  
 xlim([0, 60]);
 % xlabel('Rebuffering event count');
 ylabel('CDF');
@@ -85,8 +91,9 @@ hold on;
 
 legend_labels{3} = sprintf('LinTS');
 [F, X] = ecdf(ts_rebuffering);
-p = plot(X, F, ':', 'LineWidth', 2);
+p = plot(X, F, ':', 'LineWidth', 4);
 p.Color = "red";
+set(gca,'fontsize', 20)  
 xlim([0, 60]);
 % xlabel('Rebuffering event count');
 ylabel('CDF');
@@ -94,7 +101,8 @@ hold on;
 
 legend_labels{4} = sprintf('LinUCB');
 [F, X] = ecdf(ucb_rebuffering);
-plot(X, F, '-.', 'LineWidth', 2);
+plot(X, F, '-.', 'LineWidth', 4);
+set(gca,'fontsize', 20)  
 xlim([0, 60]);
 % xlabel('Rebuffering event count');
 ylabel('CDF');

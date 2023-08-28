@@ -10,7 +10,7 @@ RR_average_bitrate = readmatrix('./RR-average-bitrate.csv');
 RR_rebuffering = readmatrix('./RR-rebuffering-count.csv');
 
 
-lints_alpha = 1.0;
+lints_alpha = 0.4;
 linucb_alpha = 1.0;
 
 h = figure('visible','off');
@@ -22,34 +22,38 @@ ucb_average_bitrate = readmatrix(sprintf("./LinUCB-%.1f-average-bitrate.csv", li
 
 legend_labels{1} = sprintf('minRTT');
 [F, X] = ecdf(minRTT_average_bitrate);
-plot(X, F, '-', 'LineWidth', 2);
+plot(X, F, '-', 'LineWidth', 4);
+set(gca,'fontsize', 20)   
 ylabel('CDF');
 hold on;
 
 legend_labels{2} = sprintf('RR');
 [F, X] = ecdf(RR_average_bitrate);
-plot(X, F, '--', 'LineWidth', 2);
+plot(X, F, '--', 'LineWidth', 4);
+set(gca,'fontsize', 20)   
 ylabel('CDF');
 hold on;
 
 legend_labels{3} = sprintf('LinTS');
 [F, X] = ecdf(ts_average_bitrate);
-p = plot(X, F, ':', 'LineWidth', 2);
+p = plot(X, F, ':', 'LineWidth', 4);
+set(gca,'fontsize', 20)   
 ylabel('CDF');
 p.Color = "red";
 hold on;
 
 legend_labels{4} = sprintf('LinUCB');
 [F, X] = ecdf(ucb_average_bitrate);
-plot(X, F, '-.', 'LineWidth', 2);
+plot(X, F, '-.', 'LineWidth', 4);
+set(gca,'fontsize', 20)   
 ylabel('CDF');
 legend(legend_labels, 'Location','best');
 
 f = gcf;
 
 posA = get(f,'Position');
-posA(3) = 600;
-posA(4) = 300;
+posA(3) = 900;
+posA(4) = 450;
 set(f,'Position',posA);
 
 exportgraphics(f,sprintf('mininet-lints-%.1f-linucb-%.1f-a.pdf', lints_alpha, linucb_alpha))
@@ -63,21 +67,24 @@ ucb_rebuffering = readmatrix(sprintf("./LinUCB-%.1f-rebuffering-count.csv", linu
 
 legend_labels{1} = sprintf('minRTT');
 [F, X] = ecdf(minRTT_rebuffering);
-plot(X, F, '-', 'LineWidth', 2);
+plot(X, F, '-', 'LineWidth', 4);
+set(gca,'fontsize', 20)   
 ylabel('CDF');
 xlim([0, 9]);
 hold on;
 
 legend_labels{2} = sprintf('RR');
 [F, X] = ecdf(RR_rebuffering);
-plot(X, F, '--', 'LineWidth', 2);
+plot(X, F, '--', 'LineWidth', 4);
+set(gca,'fontsize', 20)   
 ylabel('CDF');
 xlim([0, 9]);
 hold on;
 
 legend_labels{3} = sprintf('LinTS');
 [F, X] = ecdf(ts_rebuffering);
-p = plot(X, F, ':', 'LineWidth', 2);
+p = plot(X, F, ':', 'LineWidth', 4);
+set(gca,'fontsize', 20)   
 ylabel('CDF');
 p.Color = "red";
 xlim([0, 9]);
@@ -85,7 +92,8 @@ hold on;
 
 legend_labels{4} = sprintf('LinUCB');
 [F, X] = ecdf(ucb_rebuffering);
-plot(X, F, '-.', 'LineWidth', 2);
+plot(X, F, '-.', 'LineWidth', 4);
+set(gca,'fontsize', 20)   
 ylabel('CDF');
 xlim([0, 9]);
 legend(legend_labels, 'Location', 'best');
@@ -93,8 +101,8 @@ legend(legend_labels, 'Location', 'best');
 f = gcf;
 
 posA = get(f,'Position');
-posA(3) = 600;
-posA(4) = 300;
+posA(3) = 900;
+posA(4) = 450;
 set(f,'Position',posA);
 
 exportgraphics(f,sprintf('mininet-lints-%.1f-linucb-%.1f-b.pdf', lints_alpha, linucb_alpha))
