@@ -54,7 +54,7 @@ Download our dataset, which takes about 20GB.
 
 ```
 cd ~/clarkzjw-globecom23/
-wget https://globecom23.jinwei.me/mpd.zip
+wget -O mpd.zip "https://zenodo.org/records/8346996/files/mpd.zip?download=1"
 unzip mpd.zip
 ```
 
